@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Review - Oemah Keboen</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top py-3">
+      <div class="container">
+        <a class="navbar-brand" href="index.html#beranda">
+          <img src="assets/img/logo.png" alt="Logo Oemah Keboen">
+          <span class="brand-text">Oemah Keboen</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="navbar-nav ms-auto gap-lg-3 text-center">
+            <li class="nav-item"><a class="nav-link" href="index.html#beranda">Beranda</a></li>
+            <li class="nav-item"><a class="nav-link" href="tiketreservasi.html">Tiket & Reservasi</a></li>
+            <li class="nav-item"><a class="nav-link" href="produk.html">Produk</a></li>
+            <li class="nav-item"><a class="nav-link active" href="review.html">Review</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section class="section-padding review-page">
+      <div class="container">
+        <div class="review-page-topbar">
+          <h1 class="review-page-title">Oemah Keboen: Insider Insights and Visitor Experiences</h1>
+        </div>
+
+        <div class="review-list-page">
+          <div class="review-card-page" v-for="(review, index) in reviews" :key="index">
+            <div class="review-avatar-page">
+              <i class="bi bi-person-fill"></i>
+            </div>
+
+            <div class="review-content-page">
+              <h3 class="review-name-page">{{ review.name }}</h3>
+
+              <div class="review-rating-page">
+                <i
+                  v-for="star in 5"
+                  :key="star"
+                  class="bi"
+                  :class="star <= review.rating ? 'bi-star-fill' : 'bi-star'"
+                ></i>
+              </div>
+
+              <p class="review-text-page">{{ review.text }}</p>
+
+              <div class="review-gallery-page" v-if="review.images.length">
+                <div class="review-thumb-page" v-for="(img, i) in review.images" :key="i">
+                  <img :src="img" alt="Foto review">
+                </div>
+              </div>
+
+              <div class="review-date-page">{{ review.date }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-padding review-form-section">
+      <div class="container">
+        <div class="review-form-page-box">
+          <h2 class="review-form-page-title">How was Oemah Keboen?</h2>
+
+          <div class="review-form-group">
+            <label>Nama</label>
+            <input type="text" class="form-control review-input" v-model="newReview.name" placeholder="Masukkan nama kamu">
+          </div>
+
+          <div class="review-form-group">
+            <label>Add your rating</label>
+            <div class="review-stars-input">
+              <i
+                v-for="star in 5"
+                :key="star"
+                class="bi"
+                :class="star <= newReview.rating ? 'bi-star-fill active' : 'bi-star'"
+                @click="newReview.rating = star"
+              ></i>
+            </div>
+          </div>
+
+          <div class="review-form-group">
+            <label>Tell us about your visit</label>
+            <div class="review-textarea-wrap">
+              <div class="review-textarea-note">
+                Tell us about your trip to inspire and help other travelers.
+              </div>
+              <textarea
+                class="form-control review-textarea"
+                rows="7"
+                v-model="newReview.text"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="review-form-group">
+            <label>Add Photos (Optional)</label>
+            <p class="review-upload-desc">
+              Got some cool pics? Drop them here and show what your visit looked like!
+            </p>
+
+            <div class="review-upload-box">
+              <input
+                type="file"
+                class="review-upload-input"
+                multiple
+                accept="image/*"
+                @change="handleReviewImages"
+              >
+              <i class="bi bi-camera-fill"></i>
+              <span>{{ newReview.images.length }}/5</span>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3 flex-wrap">
+            <button class="btn btn-oemah" @click="submitReview">Submit</button>
+            <button class="btn btn-outline-secondary" @click="resetForm">Batal</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer-custom pt-5 pb-4">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div class="footer-logo">
+              <img src="assets/img/logo.png" alt="Logo Oemah Keboen">
+              <span class="brand-text footer-brand-text">Oemah Keboen</span>
+            </div>
+            <p>
+              Destinasi wisata agraris keluarga yang menghadirkan kedamaian,
+              kehangatan, dan kesegaran alam dalam satu tempat.
+            </p>
+          </div>
+
+          <div class="col-md-4 col-lg-3">
+            <h6 class="footer-title">Menu</h6>
+            <a href="index.html#beranda" class="footer-link">Beranda</a><br>
+            <a href="tiketreservasi.html" class="footer-link">Tiket & Reservasi</a><br>
+            <a href="produk.html" class="footer-link">Produk</a><br>
+            <a href="review.html" class="footer-link">Review</a>
+          </div>
+
+          <div class="col-md-4 col-lg-3">
+            <h6 class="footer-title">Alamat</h6>
+            <p>Jl. Bendungan No.RT 15, Sambutan, Kec. Sambutan, Kota Samarinda, Kalimantan Timur 75241, Indonesia</p>
+          </div>
+
+          <div class="col-md-4 col-lg-2">
+            <h6 class="footer-title">Sosial Media</h6>
+            <div class="social-wrapper">
+              <a href="https://wa.me/628115522124" class="social-icon" target="_blank" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+              <a href="https://instagram.com/oemahkeboen.smd" class="social-icon" target="_blank" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+              <a href="https://www.facebook.com/oemahkeboensmd/" class="social-icon" target="_blank" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+              <a href="https://www.tiktok.com/@oemahkeboensmd" class="social-icon" target="_blank" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          © 2026 Oemah Keboen. All Rights Reserved.
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          reviews: [
+            {
+              name: 'Aulia',
+              rating: 5,
+              text: 'Tempatnya sangat nyaman, asri, dan cocok untuk keluarga. Anak-anak senang melihat kebun secara langsung.',
+              date: '31 Januari 2026',
+              images: ['assets/img/review1.jpg', 'assets/img/review2.jpg']
+            },
+            {
+              name: 'Rizky',
+              rating: 4,
+              text: 'Suasana kebunnya segar dan tenang. Cocok untuk healing singkat bersama keluarga.',
+              date: '28 Januari 2026',
+              images: ['assets/img/review3.jpg']
+            },
+            {
+              name: 'Nabila',
+              rating: 5,
+              text: 'Pengalaman yang seru, terutama saat memetik buah langsung dari pohonnya. Stafnya juga ramah.',
+              date: '24 Januari 2026',
+              images: []
+            }
+          ],
+          newReview: {
+            name: '',
+            rating: 0,
+            text: '',
+            images: []
+          }
+        }
+      },
+      methods: {
+        handleReviewImages(event) {
+          const files = Array.from(event.target.files).slice(0, 5);
+          this.newReview.images = [];
+
+          files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = e => {
+              this.newReview.images.push(e.target.result);
+            };
+            reader.readAsDataURL(file);
+          });
+        },
+        resetForm() {
+          this.newReview = {
+            name: '',
+            rating: 0,
+            text: '',
+            images: []
+          };
+        },
+        submitReview() {
+          if (!this.newReview.name || !this.newReview.text || !this.newReview.rating) {
+            alert('Nama, rating, dan ulasan wajib diisi.');
+            return;
+          }
+
+          this.reviews.unshift({
+            name: this.newReview.name,
+            rating: this.newReview.rating,
+            text: this.newReview.text,
+            date: new Date().toLocaleDateString('id-ID'),
+            images: [...this.newReview.images]
+          });
+
+          this.resetForm();
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
