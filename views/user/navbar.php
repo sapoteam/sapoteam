@@ -1,28 +1,29 @@
 <?php 
-// Mendapatkan nama file yang sedang dibuka
 $current_page = basename($_SERVER['PHP_SELF']); 
+
+$active_tiket = in_array($current_page, ['tiketreservasi.php', 'form_reservasi.php']);
+$active_produk = in_array($current_page, ['produk.php', 'detail_produk.php']);
 ?>
+
 <nav class="navbar navbar-expand-lg navbar-custom sticky-top py-3">
   <div class="container">
     <a class="navbar-brand" href="index.php">
       <img src="../../assets/img/logo.png" alt="Logo Oemah Keboen">
       <span class="brand-text">Oemah Keboen</span>
     </a>
-
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="mainNavbar">
       <ul class="navbar-nav ms-auto gap-lg-3 text-center align-items-center">
         <li class="nav-item">
             <a class="nav-link <?= ($current_page == 'index.php') ? 'active' : ''; ?>" href="index.php">Beranda</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link <?= ($current_page == 'tiketreservasi.php') ? 'active' : ''; ?>" href="tiketreservasi.php">Tiket & Reservasi</a>
+            <a class="nav-link <?= $active_tiket ? 'active' : ''; ?>" href="tiketreservasi.php">Tiket & Reservasi</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link <?= ($current_page == 'produk.php') ? 'active' : ''; ?>" href="produk.php">Produk</a>
+            <a class="nav-link <?= $active_produk ? 'active' : ''; ?>" href="produk.php">Produk</a>
         </li>
         <li class="nav-item">
             <a class="nav-link <?= ($current_page == 'review.php') ? 'active' : ''; ?>" href="review.php">Review</a>
@@ -31,3 +32,38 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </div>
   </div>
 </nav>
+
+<div id="harvestBanner" 
+     style="display:none; background-color:#C1A570; color:white; text-align:center; padding:10px 15px; font-weight:600; font-size:0.95rem; letter-spacing:0.5px; align-items:center; justify-content:center; gap:10px; width:100%;">
+    <i class="bi bi-stars" style="font-size:1.2rem; animation: pulse-star 1.5s infinite;"></i>
+    Kabar Gembira! Oemah Keboen sedang musim panen. Ayo datang dan petik buah segar langsung dari pohonnya!
+    <i class="bi bi-stars" style="font-size:1.2rem; animation: pulse-star 1.5s infinite;"></i>
+</div>
+
+<style>
+  @keyframes pulse-star {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+  }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const apiPath = '/sapoteam/controllers/PublicController.php'; 
+    fetch(apiPath)
+        .then(async (response) => {
+            if (!response.ok) throw new Error("HTTP error " + response.status);
+            const text = await response.text(); 
+            try { return JSON.parse(text); } 
+            catch (err) { throw err; }
+        })
+        .then(data => {
+            if(data.status === 'success' && data.is_panen === true) {
+                const banner = document.getElementById('harvestBanner');
+                banner.style.display = 'flex';
+            }
+        })
+        .catch(err => console.error('Gagal ngecek status panen:', err));
+});
+</script>

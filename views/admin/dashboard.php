@@ -3,7 +3,7 @@ require_once '../../config/conn.php';
 require_once '../../controllers/AuthController.php';
 
 $auth = new AuthController($conn);
-$auth->checkAuth(); 
+$auth->requireRole('Admin'); 
 
 $admin_name = $_SESSION['admin_name'];
 $current_page = 'dashboard.php';
@@ -22,6 +22,11 @@ $current_page = 'dashboard.php';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="admin-style.css">
+    <style>
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        .list-enter-active, .list-leave-active { transition: all 0.3s ease; }
+    </style>
 </head>
 <body>
 
@@ -33,11 +38,35 @@ $current_page = 'dashboard.php';
         <?php include 'topbar.php'; ?>
 
         <div class="content-wrapper">
+            <transition name="toast-slide">
+                <div v-if="toast.show" class="toast-custom" :class="'toast-' + toast.type">
+                    <i class="bi fs-5" :class="toast.icon"></i>
+                    {{ toast.message }}
+                </div>
+            </transition>
+
             <transition name="fade" appear>
                 <div v-show="isLoaded">
+                    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div>
+                            <h3 class="font-serif fw-bold" style="color: var(--text-dark);">Ringkasan Sistem</h3>
+                            <p class="text-muted m-0">Pantau aktivitas Oemah Keboen hari ini.</p>
+                        </div>
+                    </div>
+
                     <div class="mb-4">
-                        <h3 class="font-serif fw-bold" style="color: var(--text-dark);">Ringkasan Sistem</h3>
-                        <p class="text-muted">Pantau aktivitas Oemah Keboen hari ini.</p>
+                        <div class="p-4 bg-white rounded-4 shadow-sm border d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-bold m-0"><i class="bi bi-tree-fill text-success me-2"></i>Status Musim Panen</h5>
+                                <small class="text-muted">Buka atau tutup informasi pengunjung untuk kegiatan memetik buah di kebun.</small>
+                            </div>
+                            <div class="form-check form-switch fs-3 m-0 d-flex align-items-center">
+                                <input class="form-check-input mt-0" type="checkbox" role="switch" id="panenSwitch" v-model="isPanenActive" @change="updateStatusPanen" style="cursor: pointer;">
+                                <label class="form-check-label fs-6 ms-3 fw-bold" :class="isPanenActive ? 'text-success' : 'text-danger'" for="panenSwitch" style="cursor: pointer;">
+                                    {{ isPanenActive ? 'DIBUKA (Sedang Panen)' : 'DITUTUP (Belum Musim)' }}
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </transition>
@@ -48,7 +77,7 @@ $current_page = 'dashboard.php';
                         <div class="stat-card shadow-sm">
                             <div class="stat-icon"><i class="bi bi-calendar3"></i></div>
                             <div>
-                                <h3>{{ totalReservasi }}</h3>
+                                <h3>{{ stats.totalReservasi }}</h3>
                                 <span>Reservasi<br>Bulan Ini</span>
                             </div>
                         </div>
@@ -57,7 +86,7 @@ $current_page = 'dashboard.php';
                         <div class="stat-card shadow-sm">
                             <div class="stat-icon"><i class="bi bi-chat-square-text"></i></div>
                             <div>
-                                <h3>{{ ulasanMenunggu }}</h3>
+                                <h3>{{ stats.ulasanMenunggu }}</h3>
                                 <span>Ulasan<br>Perlu Review</span>
                             </div>
                         </div>
@@ -66,8 +95,8 @@ $current_page = 'dashboard.php';
                         <div class="stat-card shadow-sm">
                             <div class="stat-icon"><i class="bi bi-box"></i></div>
                             <div>
-                                <h3>{{ produkAktif }}</h3>
-                                <span>Produk<br>Aktif</span>
+                                <h3>{{ stats.produkAktif }}</h3>
+                                <span>Produk<br>Tersedia</span>
                             </div>
                         </div>
                     </div>
@@ -88,29 +117,42 @@ $current_page = 'dashboard.php';
                                     <th><i class="bi bi-calendar2-event me-2"></i> Tgl Booking</th>
                                     <th><i class="bi bi-person me-2"></i> Nama Pemesan</th>
                                     <th><i class="bi bi-geo-alt me-2"></i> Lokasi</th>
-                                    <th><i class="bi bi-pencil-square me-2"></i> Status DP</th>
+                                    <th><i class="bi bi-pencil-square me-2"></i> Status</th>
                                 </tr>
                             </thead>
                             <transition-group name="list" tag="tbody">
                                 <tr v-for="(res, index) in recentReservations" :key="res.id" :style="{ transitionDelay: (index * 0.1) + 's' }">
-                                    <td>{{ res.tanggal }}</td>
+                                    <td>{{ res.tanggal_format }}</td>
                                     <td class="fw-medium">{{ res.nama }}</td>
-                                    <td>{{ res.lokasi }}</td>
+                                    <td>{{ res.lokasi_nama || 'Area Terhapus' }}</td>
                                     <td>
-                                        <span class="badge-status" :class="res.statusDP == 'Lunas' ? 'badge-lunas' : 'badge-menunggu'">
-                                            {{ res.statusDP }}
+                                        <span class="badge-status badge-menunggu">
+                                            {{ res.status }}
                                         </span>
                                     </td>
                                 </tr>
                             </transition-group>
+                            <tbody v-if="recentReservations.length === 0">
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        <i class="bi bi-check-circle fs-2 d-block mb-2 text-success"></i>
+                                        Tidak ada reservasi yang menunggu konfirmasi saat ini.
+                                    </td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </transition>
-        </div> <div class="admin-footer">
+        </div> 
+
+        <div class="admin-footer">
             &copy; 2026 Oemah Keboen | Sistem Manajemen Internal v1.0
         </div>
-    </div> </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </div> 
+</div> 
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <script>
@@ -121,20 +163,70 @@ $current_page = 'dashboard.php';
             return {
                 isLoaded: false,
                 isSidebarCollapsed: false, 
-
                 showLogoutModal: false,    
 
-                totalReservasi: 14,
-                ulasanMenunggu: 3,
-                produkAktif: 8,
-                recentReservations: [
-                    { id: 1, tanggal: '20 April 2026', nama: 'Keluarga Bpk. Budi', lokasi: 'Pendopo', statusDP: 'Menunggu Review' },
-                    { id: 2, tanggal: '22 April 2026', nama: 'Komunitas Gowes', lokasi: 'Gazebo', statusDP: 'Lunas' },
-                    { id: 3, tanggal: '25 April 2026', nama: 'TK Harapan Bangsa', lokasi: 'Halaman Depan', statusDP: 'Menunggu Review' }
-                ]
+                isPanenActive: false,
+                stats: {
+                    totalReservasi: 0,
+                    ulasanMenunggu: 0,
+                    produkAktif: 0
+                },
+                recentReservations: [],
+
+                toast: { show: false, message: '', type: 'success', icon: 'bi-check-circle' }
             }
         },
         methods: {
+            showToastMsg(message, type = 'success') {
+                this.toast.message = message; this.toast.type = type;
+                this.toast.icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
+                this.toast.show = true;
+                setTimeout(() => { this.toast.show = false; }, 3000);
+            },
+
+            async fetchDashboardData() {
+                try {
+                    const response = await fetch('../../controllers/DashboardController.php?action=get_data');
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        this.stats.totalReservasi = result.data.totalReservasi;
+                        this.stats.ulasanMenunggu = result.data.ulasanMenunggu;
+                        this.stats.produkAktif = result.data.produkAktif;
+                        this.isPanenActive = result.data.statusPanen;
+                        this.recentReservations = result.data.recentReservations;
+                    }
+                } catch (e) {
+                    console.error("Gagal memuat data dashboard.");
+                }
+            },
+
+            async updateStatusPanen() {
+                try {
+                    const payload = { 
+                        action: 'toggle_panen', 
+                        statusPanen: this.isPanenActive 
+                    };
+
+                    const response = await fetch('../../controllers/DashboardController.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        this.showToastMsg(result.message, 'success');
+                    } else {
+
+                        this.isPanenActive = !this.isPanenActive; 
+                        this.showToastMsg(result.message, 'error');
+                    }
+                } catch (e) {
+                    this.isPanenActive = !this.isPanenActive;
+                    this.showToastMsg("Koneksi server bermasalah.", 'error');
+                }
+            },
 
             handleSidebar() {
                 this.isSidebarCollapsed = !this.isSidebarCollapsed;
@@ -142,11 +234,12 @@ $current_page = 'dashboard.php';
         },
         mounted() {
 
+            this.fetchDashboardData();
+
             const btn = document.getElementById('sidebarToggle');
             if(btn) {
                 btn.addEventListener('click', () => {
                     this.handleSidebar();
-
                     document.getElementById('sidebar').classList.toggle('collapsed');
                 });
             }
