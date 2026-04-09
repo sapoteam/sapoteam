@@ -3,7 +3,7 @@ require_once '../../config/conn.php';
 require_once '../../controllers/AuthController.php';
 
 $auth = new AuthController($conn);
-$auth->checkAuth(); 
+$auth->requireRole('Admin'); 
 
 $admin_name = $_SESSION['admin_name'];
 $current_page = 'kelola_fasilitas.php';
@@ -23,53 +23,15 @@ $current_page = 'kelola_fasilitas.php';
     <link rel="stylesheet" href="admin-style.css">
 
     <style>
-
-        .facility-card-admin {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid var(--green-main);
-            overflow: hidden;
-            transition: 0.3s;
-            height: 100%; 
-            display: flex;
-            flex-direction: column;
-        }
-        .facility-img-admin {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-bottom: 1px solid var(--green-main);
-        }
-        .card-body-fasil {
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .desc-fasil {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 15px;
-            flex-grow: 1; 
-        }
-        .status-pill {
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
+        .facility-card-admin { background: white; border-radius: 20px; border: 1px solid var(--green-main); overflow: hidden; transition: 0.3s; height: 100%; display: flex; flex-direction: column; }
+        .facility-img-admin { width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid var(--green-main); }
+        .card-body-fasil { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .desc-fasil { font-size: 0.9rem; color: #666; margin-bottom: 15px; flex-grow: 1; }
+        .status-pill { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; }
         .status-tersedia { background: #DDE5D1; color: #5F7A56; }
         .status-perbaikan { background: #FFE08F; color: #745B0B; }
-
-        .img-preview-upload {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border: 2px dashed var(--green-main);
-        }
-
+        .upload-area { border: 2px dashed #ccc; cursor: pointer; transition: 0.3s; border-radius: 12px; }
+        .upload-area:hover { border-color: var(--green-main); background: #f8f9fa !important; }
         .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
     </style>
 </head>
@@ -82,6 +44,13 @@ $current_page = 'kelola_fasilitas.php';
         <?php include 'topbar.php'; ?>
 
         <div class="content-wrapper">
+            <transition name="toast-slide">
+                <div v-if="toast.show" class="toast-custom" :class="'toast-' + toast.type">
+                    <i class="bi fs-5" :class="toast.icon"></i>
+                    {{ toast.message }}
+                </div>
+            </transition>
+
             <transition name="fade" appear>
                 <div v-show="isLoaded">
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
@@ -94,7 +63,7 @@ $current_page = 'kelola_fasilitas.php';
                                 <i class="bi bi-search"></i>
                                 <input type="text" class="form-control" v-model="searchQuery" placeholder="Cari area...">
                             </div>
-                            <button class="btn-gold shadow-sm" @click="openAdd">
+                            <button class="btn-gold shadow-sm text-nowrap" @click="openAdd">
                                 <i class="bi bi-plus-lg me-1"></i> Tambah Area
                             </button>
                         </div>
@@ -103,41 +72,62 @@ $current_page = 'kelola_fasilitas.php';
             </transition>
 
             <transition name="fade" appear>
-                <div class="row g-4" v-if="filteredFacilities.length > 0" v-show="isLoaded">
-                    <div class="col-md-6 col-lg-4" v-for="fasil in filteredFacilities" :key="fasil.id">
-                        <div class="facility-card-admin shadow-sm">
-                            <img :src="fasil.image || '../../assets/img/logo.png'" class="facility-img-admin">
-                            <div class="card-body-fasil">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="fw-bold m-0">{{ fasil.nama }}</h5>
-                                    <span class="status-pill" :class="fasil.status === 'Tersedia' ? 'status-tersedia' : 'status-perbaikan'">
-                                        {{ fasil.status }}
-                                    </span>
-                                </div>
-                                <p class="desc-fasil">{{ fasil.deskripsi }}</p>
-
-                                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                                    <div>
-                                        <small class="text-muted d-block">Harga / Org</small>
-                                        <span class="fw-bold text-success">{{ formatRupiah(fasil.harga) }}</span>
+                <div v-show="isLoaded">
+                    <div class="row g-4" v-if="filteredFacilities.length > 0">
+                        <div class="col-md-6 col-lg-4" v-for="fasil in paginatedFacilities" :key="fasil.id">
+                            <div class="facility-card-admin shadow-sm">
+                                <img :src="fasil.image || '../../assets/img/logo.jpg'" 
+                                @error="$event.target.src='../../assets/img/logo.png'" 
+                                class="facility-img-admin">
+                                <div class="card-body-fasil">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="fw-bold m-0">{{ fasil.nama }}</h5>
+                                        <span class="status-pill" :class="fasil.status === 'Tersedia' ? 'status-tersedia' : 'status-perbaikan'">
+                                            {{ fasil.status }}
+                                        </span>
                                     </div>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-sm btn-outline-danger" @click="openConfirm('hapus', fasil.id)">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-green px-3" @click="openEdit(fasil)">
-                                            <i class="bi bi-pencil-square"></i> Edit
-                                        </button>
+                                    <p class="desc-fasil">{{ fasil.deskripsi }}</p>
+
+                                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                        <div>
+                                            <small class="text-muted d-block">Harga</small>
+                                            <span class="fw-bold text-success">{{ formatRupiah(fasil.harga) }}</span>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm btn-outline-danger" @click="openConfirm(fasil.id)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-green px-3" @click="openEdit(fasil)">
+                                                <i class="bi bi-pencil-square"></i> Edit
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div v-else class="text-center py-5 text-muted" v-show="isLoaded">
-                    <i class="bi bi-geo-fill fs-1 d-block mb-2"></i>
-                    Tidak ada area fasilitas yang ditemukan.
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top" v-if="filteredFacilities.length > 0">
+                        <small class="text-muted fw-medium">
+                            Menampilkan {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredFacilities.length) }} dari {{ filteredFacilities.length }} area
+                        </small>
+                        <div class="d-flex align-items-center gap-3">
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" :disabled="currentPage === 1" @click="currentPage--">
+                                <i class="bi bi-chevron-left small me-1"></i> Prev
+                            </button>
+                            <span class="text-muted small fw-bold">
+                                Halaman <span class="text-dark">{{ currentPage }}</span> dari {{ totalPages }}
+                            </span>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" :disabled="currentPage === totalPages" @click="currentPage++">
+                                Next <i class="bi bi-chevron-right small ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div v-if="filteredFacilities.length === 0" class="text-center py-5 text-muted">
+                        <i class="bi bi-geo-fill fs-1 d-block mb-2"></i>
+                        Tidak ada area fasilitas yang ditemukan.
+                    </div>
                 </div>
             </transition>
 
@@ -151,7 +141,7 @@ $current_page = 'kelola_fasilitas.php';
                             <button class="btn-close" @click="showFormModal = false"></button>
                         </div>
 
-                        <div class="row g-3">
+                        <div class="row g-4">
                             <div class="col-md-7">
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">NAMA AREA</label>
@@ -159,11 +149,11 @@ $current_page = 'kelola_fasilitas.php';
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">DESKRIPSI</label>
-                                    <textarea class="form-control" rows="4" v-model="activeFasil.deskripsi" placeholder="Ceritakan suasana area..."></textarea>
+                                    <textarea class="form-control" rows="4" v-model="activeFasil.deskripsi" placeholder="Ceritakan fasilitas yang ada di area ini..."></textarea>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <label class="form-label small fw-bold">HARGA (RP)</label>
+                                        <label class="form-label small fw-bold">HARGA / KEPALA (RP)</label>
                                         <input type="number" class="form-control" v-model="activeFasil.harga">
                                     </div>
                                     <div class="col-md-6">
@@ -178,11 +168,15 @@ $current_page = 'kelola_fasilitas.php';
 
                             <div class="col-md-5">
                                 <label class="form-label small fw-bold">FOTO FASILITAS</label>
-                                <img :src="activeFasil.image || '../../assets/img/logo.png'" class="img-preview-upload">
-                                <div class="input-group">
-                                    <input type="file" class="form-control form-control-sm" @change="handleFileUpload">
+                                <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" class="d-none">
+                                <div class="upload-area text-center p-2 mb-2 bg-light d-flex flex-column justify-content-center align-items-center" style="min-height: 180px;" @click="$refs.fileInput.click()">
+                                    <img v-if="activeFasil.previewImage" :src="activeFasil.previewImage" style="max-height: 160px; object-fit: cover; width: 100%; border-radius: 8px;">
+                                    <div v-else>
+                                        <i class="bi bi-camera fs-1 text-muted d-block"></i>
+                                        <span class="btn btn-sm btn-outline-secondary mt-2">Pilih Foto Area</span>
+                                    </div>
                                 </div>
-                                <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Format: JPG/PNG, Max 2MB</small>
+                                <small class="text-muted d-block text-center" style="font-size: 0.75rem;">Format: JPG/PNG, Max 2MB</small>
                             </div>
                         </div>
 
@@ -198,10 +192,10 @@ $current_page = 'kelola_fasilitas.php';
 
             <transition name="fade">
                 <div class="modal-overlay" v-if="showConfirmModal" style="z-index: 1200; background: rgba(0,0,0,0.6);">
-                    <div class="modal-box text-center" style="max-width: 400px;">
+                    <div class="modal-box text-center shadow-lg" style="max-width: 400px;">
                         <i class="bi bi-exclamation-triangle text-danger fs-1 mb-3 d-block"></i>
                         <h4 class="font-serif fw-bold mb-2">Hapus Area?</h4>
-                        <p class="text-muted mb-4">Area <b>{{ activeFasil.nama }}</b> akan dihapus secara permanen dari sistem.</p>
+                        <p class="text-muted mb-4">Data dan foto area akan dihapus secara permanen dari sistem.</p>
                         <div class="d-flex justify-content-center gap-3">
                             <button class="btn btn-outline-secondary px-4 rounded-3" @click="showConfirmModal = false">Batal</button>
                             <button class="btn btn-danger px-4 rounded-3" @click="executeDelete">Ya, Hapus</button>
@@ -210,8 +204,9 @@ $current_page = 'kelola_fasilitas.php';
                 </div>
             </transition>
 
-        </div> <div class="admin-footer">
-            &copy; 2026 Oemah Keboen | Area & Facility Management v1.1
+        </div>
+        <div class="admin-footer">
+            &copy; 2026 Oemah Keboen Samarinda | Area & Facility Management v1.2
         </div>
     </div>
 </div>
@@ -226,80 +221,169 @@ $current_page = 'kelola_fasilitas.php';
             return {
                 isLoaded: false,
                 isSidebarCollapsed: false,
-                showLogoutModal: false, 
-
+                
                 searchQuery: '',
                 showFormModal: false,
                 showConfirmModal: false,
                 isAddMode: false,
                 activeFasil: {},
-                facilities: [
-                    { id: 1, nama: 'Pendopo', deskripsi: 'Area luas dan nyaman untuk acara keluarga atau rombongan besar.', harga: 10000, status: 'Tersedia', image: '../../assets/img/pendopo.jpg' },
-                    { id: 2, nama: 'Gazebo', deskripsi: 'Tempat santai privat cocok untuk kumpul skala kecil.', harga: 10000, status: 'Tersedia', image: '../../assets/img/gazebo.jpg' },
-                    { id: 3, nama: 'Halaman Depan', deskripsi: 'Area terbuka hijau yang fleksibel untuk berbagai aktivitas luar ruangan.', harga: 10000, status: 'Perbaikan', image: '../../assets/img/halaman-depan.jpg' }
-                ]
+                pendingDeleteId: null,
+
+                facilities: [],
+                currentPage: 1,
+                itemsPerPage: 6, // Pagination 6 data per halaman untuk desain Card
+
+                toast: { show: false, message: '', type: 'success', icon: 'bi-check-circle' }
             }
         },
         computed: {
             filteredFacilities() {
+                if (!this.searchQuery) return this.facilities;
                 return this.facilities.filter(f => 
                     f.nama.toLowerCase().includes(this.searchQuery.toLowerCase())
                 );
+            },
+            totalPages() { return Math.ceil(this.filteredFacilities.length / this.itemsPerPage) || 1; },
+            paginatedFacilities() {
+                const start = (this.currentPage - 1) * this.itemsPerPage;
+                return this.filteredFacilities.slice(start, start + this.itemsPerPage);
             }
         },
+        watch: {
+            searchQuery() { this.currentPage = 1; }
+        },
         methods: {
+            showToastMsg(message, type = 'success') {
+                this.toast.message = message; this.toast.type = type;
+                this.toast.icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
+                this.toast.show = true;
+                setTimeout(() => { this.toast.show = false; }, 3000);
+            },
             formatRupiah(n) {
                 return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
             },
+            async fetchFacilities() {
+                try {
+                    const response = await fetch('../../controllers/FasilitasController.php?action=read');
+                    const rawText = await response.text(); 
+                    try {
+                        const data = JSON.parse(rawText);
+                        if (data.status === 'error') { this.showToastMsg("Akses ditolak!", 'error'); return; }
+                        this.facilities = data;
+                    } catch (e) { console.error(rawText); }
+                } catch (e) { this.showToastMsg("Koneksi gagal!", 'error'); }
+            },
             openAdd() {
                 this.isAddMode = true;
-                this.activeFasil = { id: Date.now(), nama: '', deskripsi: '', harga: 10000, status: 'Tersedia', image: '' };
+                this.activeFasil = { id: null, nama: '', deskripsi: '', harga: 10000, status: 'Tersedia', image: '', previewImage: null, fileToUpload: null };
                 this.showFormModal = true;
             },
             openEdit(fasil) {
                 this.isAddMode = false;
                 this.activeFasil = JSON.parse(JSON.stringify(fasil));
+                this.activeFasil.previewImage = fasil.image; 
+                this.activeFasil.fileToUpload = null;
                 this.showFormModal = true;
             },
             handleFileUpload(event) {
                 const file = event.target.files[0];
-                if (file) {
-                    this.activeFasil.image = URL.createObjectURL(file);
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    this.showToastMsg('Yang diupload harus berupa gambar!', 'error'); return;
                 }
-            },
-            saveFasil() {
-                if(!this.activeFasil.nama) return alert('Nama area wajib diisi!');
-                if(this.isAddMode) {
-                    this.facilities.push(this.activeFasil);
-                } else {
-                    const index = this.facilities.findIndex(f => f.id === this.activeFasil.id);
-                    if(index !== -1) this.facilities[index] = this.activeFasil;
+                if (file.size > 2 * 1024 * 1024) {
+                    this.showToastMsg('Ukuran maksimal 2MB!', 'error'); return;
                 }
-                this.showFormModal = false;
+                this.activeFasil.fileToUpload = file;
+                this.activeFasil.previewImage = URL.createObjectURL(file);
             },
-            openConfirm(type, id) {
-                this.activeFasil = this.facilities.find(f => f.id === id);
+            async saveFasil() {
+                this.activeFasil.nama = this.activeFasil.nama ? this.activeFasil.nama.trim() : '';
+                this.activeFasil.deskripsi = this.activeFasil.deskripsi ? this.activeFasil.deskripsi.trim() : '';
+
+                const nameRegex = /^[a-zA-Z0-9\s.,'-]+$/;
+
+                if (!this.activeFasil.nama || this.activeFasil.nama.length < 3) {
+                    this.showToastMsg("Nama area minimal 3 karakter!", "warning"); 
+                    return;
+                }
+                if (this.activeFasil.nama.length > 50) {
+                    this.showToastMsg("Nama area maksimal 50 karakter!", "warning"); 
+                    return;
+                }
+                if (!nameRegex.test(this.activeFasil.nama)) {
+                    this.showToastMsg("Nama area tidak boleh mengandung emoji atau simbol aneh!", "error");
+                    return;
+                }
+
+                if (!this.activeFasil.harga || this.activeFasil.harga < 1000) {
+                    this.showToastMsg("Harga sewa minimal Rp 1.000!", "warning"); 
+                    return;
+                }
+                if (this.activeFasil.harga > 50000000) {
+                    this.showToastMsg("Harga sewa tidak wajar!", "warning"); 
+                    return;
+                }
+
+                if (this.activeFasil.deskripsi && !nameRegex.test(this.activeFasil.deskripsi)) {
+                    this.showToastMsg("Deskripsi tidak boleh mengandung emoji atau simbol aneh!", "error");
+                    return;
+                }
+
+                let formData = new FormData();
+                formData.append('action', this.isAddMode ? 'create' : 'update');
+                if (!this.isAddMode) formData.append('id', this.activeFasil.id);
+                formData.append('nama', this.activeFasil.nama);
+                formData.append('deskripsi', this.activeFasil.deskripsi || '');
+                formData.append('harga', this.activeFasil.harga);
+                formData.append('status', this.activeFasil.status);
+
+                if (this.activeFasil.fileToUpload) {
+                    formData.append('image', this.activeFasil.fileToUpload);
+                }
+
+                try {
+                    const response = await fetch('../../controllers/FasilitasController.php', {
+                        method: 'POST', body: formData 
+                    });
+                    const rawText = await response.text(); 
+                    try {
+                        const result = JSON.parse(rawText);
+                        if (result.status === 'success') {
+                            this.showFormModal = false;
+                            this.fetchFacilities(); 
+                            this.showToastMsg(result.message, 'success');
+                        } else {
+                            this.showToastMsg(result.message || "Gagal menyimpan.", 'error');
+                        }
+                    } catch (e) { this.showToastMsg("Kesalahan sistem dari server.", 'error'); }
+                } catch (err) { this.showToastMsg("Koneksi bermasalah!", 'error'); }
+            },
+            openConfirm(id) {
+                this.pendingDeleteId = id;
                 this.showConfirmModal = true;
             },
-            executeDelete() {
-                this.facilities = this.facilities.filter(f => f.id !== this.activeFasil.id);
+            async executeDelete() {
+                await fetch('../../controllers/FasilitasController.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', id: this.pendingDeleteId })
+                });
                 this.showConfirmModal = false;
+                this.fetchFacilities();
+                this.showToastMsg("Area berhasil dihapus!", "success");
             }
         },
         mounted() {
-
-            const toggleBtn = document.getElementById('sidebarToggle');
-            if(toggleBtn) {
-                toggleBtn.addEventListener('click', () => {
-                    this.isSidebarCollapsed = !this.isSidebarCollapsed;
-                    document.getElementById('sidebar').classList.toggle('collapsed');
-                });
-            }
-
-            setTimeout(() => { this.isLoaded = true; }, 200);
+            this.fetchFacilities();
+            const btn = document.getElementById('sidebarToggle');
+            if(btn) btn.addEventListener('click', () => { 
+                this.isSidebarCollapsed = !this.isSidebarCollapsed;
+                document.getElementById('sidebar').classList.toggle('collapsed');
+            });
+            setTimeout(() => { this.isLoaded = true; }, 100);
         }
     }).mount('#app');
 </script>
-
 </body>
 </html>
