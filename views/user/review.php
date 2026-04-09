@@ -178,6 +178,7 @@
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <?php include 'navbar_scripts.php'; ?>
   <script>
     const { createApp } = Vue;
 

@@ -1,20 +1,39 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
-header('Content-Type: application/json'); 
+header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/conn.php';
 require_once __DIR__ . '/../models/ProductModel.php';
 require_once __DIR__ . '/AuthController.php';
 
 global $conn;
-$auth = new AuthController($conn);
 
+$action = $_GET['action'] ?? ($_POST['action'] ?? '');
+
+// Action publik — tidak perlu auth admin
+if ($action === 'read' || $action === 'get') {
+    $productModel = new ProductModel($conn);
+    if ($action === 'read') {
+        echo json_encode($productModel->getAllProducts());
+    } else {
+        $id = intval($_GET['id'] ?? 0);
+        $product = $productModel->getProductById($id);
+        if ($product) {
+            echo json_encode(['status' => 'success', 'data' => $product]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Produk tidak ditemukan']);
+        }
+    }
+    exit;
+}
+
+// Auth check untuk action admin
+$auth = new AuthController($conn);
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit;
 }
 
 $productModel = new ProductModel($conn);
-
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
 $data = array_merge($_POST, $input);
 $action = $data['action'] ?? ($_GET['action'] ?? '');
@@ -23,10 +42,6 @@ $targetDir = __DIR__ . '/../assets/img/products/';
 if (!file_exists($targetDir)) { mkdir($targetDir, 0777, true); }
 
 switch ($action) {
-    case 'read':
-        echo json_encode($productModel->getAllProducts());
-        break;
-
     case 'create':
     case 'update':
         $oldImagePath = '';
@@ -37,19 +52,15 @@ switch ($action) {
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $newFileName = 'prod_' . time() . '.' . $fileExtension; 
+            $newFileName = 'prod_' . time() . '.' . $fileExtension;
             $targetFilePath = $targetDir . $newFileName;
 
             if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
                 $data['image'] = '../../assets/img/products/' . $newFileName;
 
                 if (!empty($oldImagePath) && strpos($oldImagePath, 'prod_') !== false) {
-                    $oldFileName = basename($oldImagePath); 
-
-                    $oldFilePhysical = $targetDir . $oldFileName;
-                    if (file_exists($oldFilePhysical)) {
-                        unlink($oldFilePhysical); 
-                    }
+                    $oldFilePhysical = $targetDir . basename($oldImagePath);
+                    if (file_exists($oldFilePhysical)) unlink($oldFilePhysical);
                 }
             }
         }
@@ -62,29 +73,30 @@ switch ($action) {
             $msg = 'Produk berhasil diupdate!';
         }
 
-        if ($success) echo json_encode(['status' => 'success', 'message' => $msg]);
-        else echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan ke database.']);
+        echo json_encode($success
+            ? ['status' => 'success', 'message' => $msg]
+            : ['status' => 'error', 'message' => 'Gagal menyimpan ke database.']
+        );
         break;
 
     case 'delete':
-
         $oldProduct = $productModel->getProductById($data['id']);
         if ($oldProduct && !empty($oldProduct['image']) && strpos($oldProduct['image'], 'prod_') !== false) {
-            $oldFileName = basename($oldProduct['image']); 
-
-            $oldFilePhysical = $targetDir . $oldFileName;
-            if (file_exists($oldFilePhysical)) {
-                unlink($oldFilePhysical); 
-            }
+            $oldFilePhysical = $targetDir . basename($oldProduct['image']);
+            if (file_exists($oldFilePhysical)) unlink($oldFilePhysical);
         }
 
-        if ($productModel->deleteProduct($data['id'])) echo json_encode(['status' => 'success']);
-        else echo json_encode(['status' => 'error']);
+        echo json_encode($productModel->deleteProduct($data['id'])
+            ? ['status' => 'success']
+            : ['status' => 'error']
+        );
         break;
 
     case 'toggle':
-        if ($productModel->toggleStatus($data['id'], $data['status'])) echo json_encode(['status' => 'success']);
-        else echo json_encode(['status' => 'error']);
+        echo json_encode($productModel->toggleStatus($data['id'], $data['status'])
+            ? ['status' => 'success']
+            : ['status' => 'error']
+        );
         break;
 
     default:

@@ -27,188 +27,144 @@ $current_page = 'produk';
         background: #fff;
         border: 1px solid rgba(95, 122, 86, 0.1);
     }
-    
     .product-card:hover {
         transform: translateY(-8px);
         box-shadow: 0 15px 30px rgba(95, 122, 86, 0.15);
     }
-
     .product-img-wrapper {
         position: relative;
         width: 100%;
-        height: 220px; /* Sesuaikan tinggi gambar */
+        height: 220px;
         overflow: hidden;
     }
-
     .product-card-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.5s ease;
     }
-
     .product-img-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(44, 53, 40, 0.4); 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(44, 53, 40, 0.4);
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.3s ease;
     }
-
     .btn-hover-cart {
-        background: var(--gold-btn);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 25px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transform: translateY(20px); 
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        background: #C1A570; color: white; border: none;
+        padding: 10px 20px; border-radius: 25px; font-weight: 600;
+        font-size: 0.95rem; transform: translateY(20px);
+        transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;
     }
-
-    .product-card:hover .product-card-img {
-        transform: scale(1.08); 
-    }
-    
-    .product-card:hover .product-img-overlay {
-        opacity: 1; 
-    }
-    
-    .product-card:hover .btn-hover-cart {
-        transform: translateY(0); 
-    }
-
+    .product-card:hover .product-card-img { transform: scale(1.08); }
+    .product-card:hover .product-img-overlay { opacity: 1; }
+    .product-card:hover .btn-hover-cart { transform: translateY(0); }
     .product-card-body {
-        padding: 20px;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        padding: 20px; flex-grow: 1;
+        display: flex; flex-direction: column; justify-content: space-between;
     }
-    .product-card-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 10px;
-    }
-    .product-card-desc {
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        line-height: 1.5;
-    }
-    
-    .product-card-price {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: var(--green-main);
-        margin: 0;
-    }
+    .product-card-title { font-size: 1.25rem; font-weight: 700; color: #2c3528; margin-bottom: 10px; }
+    .product-card-desc { font-size: 0.9rem; color: #6c757d; line-height: 1.5; }
+    .product-card-price { font-size: 1.3rem; font-weight: 700; color: #4A5D23; margin: 0; }
   </style>
 </head>
 <body>
-  <div id="app">
   <?php include 'navbar.php'; ?>
 
+  <div id="app">
     <section class="product-hero">
-      <div class="container">
-        <div class="row justify-content-center text-center">
-          <div class="col-lg-8">
-            <h1 class="product-hero-title">Produk Oemah Keboen</h1>
-            <p class="product-hero-text">
-              Nikmati berbagai hasil kebun segar dan produk olahan pilihan dari Oemah Keboen,
-              mulai dari buah segar, minuman, hingga paket edukasi yang cocok untuk keluarga.
-            </p>
-          </div>
-        </div>
+      <div class="container text-center py-5">
+        <h1 class="product-hero-title fw-bold">Produk Oemah Keboen</h1>
+        <p class="product-hero-text text-muted">Nikmati berbagai hasil kebun segar dan produk olahan pilihan.</p>
       </div>
     </section>
 
-    <section class="section-padding product-section">
-    <div class="container-produk">
-        <div class="product-scroll">
-        <div class="product-track row g-4 justify-content-center">
+    <section class="section-padding product-section pb-5">
+      <div class="container">
+        
+        <div v-if="isLoading" class="text-center py-5">
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
 
-            <div class="col-md-6 col-lg-4 product-item" v-for="item in products" :key="item.id">
+        <div v-else-if="products.length === 0" class="text-center py-5 text-muted">
+            <i class="bi bi-box-seam fs-1 d-block mb-3"></i>
+            <h5>Belum ada produk yang tersedia saat ini.</h5>
+        </div>
+
+        <div v-else class="row g-4 justify-content-center">
+            <div class="col-md-6 col-lg-4" v-for="item in products" :key="item.id">
               <div class="product-card" @click="goToDetail(item.id)">
-                  
-                  <div class="product-img-wrapper">
-                      <img :src="item.image" :alt="item.name" class="product-card-img">
-                      <div class="product-img-overlay">
-                          <button class="btn-hover-cart">
-                              <i class="bi bi-cart-plus"></i> Pesan Sekarang
-                          </button>
-                      </div>
+                <div class="product-img-wrapper">
+                  <img :src="item.image ? item.image : '../../assets/img/produk_default.jpg'" :alt="item.nama" class="product-card-img">
+                  <div class="product-img-overlay">
+                    <button class="btn-hover-cart">
+                      <i class="bi bi-cart-plus"></i> Pesan Sekarang
+                    </button>
                   </div>
-
-                  <div class="product-card-body">
-                    <div class="product-card-content mb-3">
-                        <h3 class="product-card-title">{{ item.name }}</h3>
-                        <p class="product-card-desc">{{ item.desc }}</p>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3" style="border-color: rgba(95, 122, 86, 0.1) !important;">
-                        <div class="product-card-price">{{ item.price }}</div>
-                    </div>
+                </div>
+                <div class="product-card-body">
+                  <div class="mb-3">
+                    <h3 class="product-card-title">{{ item.nama }}</h3>
+                    <p class="product-card-desc text-truncate">{{ item.deskripsi }}</p>
                   </div>
-
+                  <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
+                    <div class="product-card-price">{{ formatRupiah(item.harga) }}</div>
+                    <span class="badge bg-light text-success border border-success border-opacity-25 rounded-pill">{{ item.kategori }}</span>
+                  </div>
+                </div>
               </div>
             </div>
+        </div>
 
-        </div>
-        </div>
-    </div>
+      </div>
     </section>
 
     <?php include 'footer.php'; ?>
   </div>
 
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <?php include 'navbar_scripts.php'; ?>
+
   <script>
     const { createApp } = Vue;
-
     createApp({
       data() {
         return {
-          products: [
-            {
-              id: 1, 
-              name: 'Jambu Kristal',
-              desc: 'Buah segar hasil petik langsung dari kebun dengan rasa manis dan tekstur renyah.',
-              price: 'Rp 25.000',
-              image: '../../assets/img/produk1.jpg'
-            },
-            {
-              id: 2,
-              name: 'Little Gardener Kit',
-              desc: 'Set lengkap alat dan bahan berkebun yang dirancang khusus untuk anak-anak.',
-              price: 'Rp 45.000',
-              image: '../../assets/img/produk2.jpg'
-            },
-            {
-              id: 3,
-              name: 'Jus Jambu Kristal',
-              desc: 'Minuman segar dari jambu kristal pilihan dengan rasa manis alami yang menyegarkan.',
-              price: 'Rp 20.000',
-              image: '../../assets/img/produk2.jpg' 
-            }
-          ]
+          products: [],
+          isLoading: true
         }
       },
       methods: {
+        formatRupiah(number) {
+          return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        },
         goToDetail(id) {
-            window.location.href = 'detail_produk.php?id=' + id;
+          const encoded = btoa('ok_' + id);
+          window.location.href = 'detail_produk.php?p=' + encoded;
+        },
+        async fetchProducts() {
+          this.isLoading = true;
+          try {
+            const response = await fetch('../../controllers/ProductController.php?action=read');
+            const text = await response.text();
+            const data = JSON.parse(text);
+            if (Array.isArray(data)) {
+              this.products = data.filter(p => p.status === 'Tersedia');
+            } else {
+              console.error("Data bukan array:", data);
+            }
+          } catch (e) {
+            console.error("Gagal memuat produk:", e);
+          } finally {
+            this.isLoading = false;
+          }
         }
+      },
+      mounted() {
+        this.fetchProducts();
       }
     }).mount('#app');
   </script>

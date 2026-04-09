@@ -15,7 +15,7 @@
       <div class="col-md-4 col-lg-3">
         <h6 class="footer-title">Menu</h6>
         <a href="index.php" class="footer-link">Beranda</a><br>
-        <a href="tiketreservasi.php" class="footer-link">Tiket & Reservasi</a><br>
+        <a href="tiket_reservasi.php" class="footer-link">Tiket & Reservasi</a><br>
         <a href="produk.php" class="footer-link">Produk</a><br>
         <a href="review.php" class="footer-link">Review</a><br>
         <a href="../admin/login.php" class="footer-link">Portal Pengelola</a>
