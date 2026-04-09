@@ -319,14 +319,38 @@ $current_page = 'kelola_pegawai.php';
                 this.showFormModal = true;
             },
             async saveUser() {
-                if (!this.activeUser.nama || !this.activeUser.username) {
-                    this.showToastMsg('Nama dan Username tidak boleh kosong!', 'error'); return;
+                this.activeUser.nama = this.activeUser.nama ? this.activeUser.nama.trim() : '';
+                this.activeUser.username = this.activeUser.username ? this.activeUser.username.trim() : '';
+
+                const nameRegex = /^[a-zA-Z0-9\s.,'-]+$/; 
+                const usernameRegex = /^[a-zA-Z0-9_]+$/;  
+
+                if (!this.activeUser.nama || this.activeUser.nama.length < 3) {
+                    this.showToastMsg('Nama lengkap minimal 3 karakter!', 'warning'); 
+                    return;
                 }
+                if (!nameRegex.test(this.activeUser.nama)) {
+                    this.showToastMsg('Nama tidak boleh mengandung emoji atau simbol aneh!', 'error'); 
+                    return;
+                }
+
+                if (!this.activeUser.username || this.activeUser.username.length < 4) {
+                    this.showToastMsg('Username minimal 4 karakter!', 'warning'); 
+                    return;
+                }
+                if (!usernameRegex.test(this.activeUser.username)) {
+                    this.showToastMsg('Username hanya boleh huruf, angka, dan underscore (_)! Spasi/Emoji dilarang.', 'error'); 
+                    return;
+                }
+
                 if (this.isAddMode && !this.activeUser.password) {
-                    this.showToastMsg('Password wajib diisi untuk akun baru!', 'warning'); return;
+                    this.showToastMsg('Password wajib diisi untuk akun baru!', 'warning'); 
+                    return;
                 }
+
                 if (!this.activeUser.no_hp || this.activeUser.no_hp.length < 10) {
-                    this.showToastMsg('Nomor HP tidak valid (min 10 angka)!', 'warning'); return;
+                    this.showToastMsg('Nomor HP tidak valid (min 10 angka)!', 'warning'); 
+                    return;
                 }
                 try {
                     const response = await fetch('../../controllers/UserController.php', {
