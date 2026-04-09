@@ -136,9 +136,9 @@ $current_page = 'tiketreservasi.php';
                 </div>
               </div>
 
-              <div class="calendar-legend mt-3">
-                <span class="legend-dot booked-dot" style="display:inline-block; width:12px; height:12px; background-color:var(--gold-btn); border-radius:50%; margin-right:8px;"></span>
-                <span style="font-size:0.9rem; color:var(--text-muted);">Sudah Terisi (Booked)</span>
+              <div class="calendar-legend">
+                <span class="legend-dot booked-dot"></span>
+                <span>Sudah Terisi (Booked)</span>
               </div>
             </div>
 
@@ -243,36 +243,16 @@ $current_page = 'tiketreservasi.php';
           todayDate: today.getDate(),
           todayMonth: today.getMonth(),
           todayYear: today.getFullYear(),
-          monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-
-          bookedData: {
-            Pendopo: [
-              { date: 1, event: 'Acara Keluarga' },
-              { date: 8, event: 'Ulang Tahun' },
-              { date: 15, event: 'Pengajian' }
-            ],
-            Gazebo: [
-              { date: 2, event: 'Arisan' },
-              { date: 9, event: 'Gathering Komunitas' },
-              { date: 21, event: 'Meeting Santai' }
-            ],
-            "Halaman Depan": [
-              { date: 5, event: 'Senam Pagi' },
-              { date: 20, event: 'Event Sekolah' },
-              { date: 27, event: 'Workshop' }
-            ]
-          }
+          monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
         }
       },
       computed: {
-        calendarDays() {
+       calendarDays() {
           const year = this.currentYear;
           const month = this.currentMonth;
           const firstDay = new Date(year, month, 1).getDay();
           const daysInMonth = new Date(year, month + 1, 0).getDate();
           const prevMonthDays = new Date(year, month, 0).getDate();
-
-          const dummyBookedList = this.bookedData[this.selectedPlace] || [];
 
           const dbBookedThisMonth = this.allReservations.filter(res => {
               if (res.status !== 'Disetujui' && res.status !== 'Lunas') return false; 
@@ -292,17 +272,10 @@ $current_page = 'tiketreservasi.php';
             let isBooked = false;
             let eventName = null;
 
-            const foundDummy = dummyBookedList.find(item => item.date === i);
-            if (foundDummy) {
-                isBooked = true;
-                eventName = foundDummy.event;
-            }
-
             const foundDb = dbBookedThisMonth.find(b => new Date(b.tanggal).getDate() === i);
             if (foundDb) {
                 isBooked = true;
-                eventName = foundDb.catatan || 'Telah direservasi'; 
-
+                eventName = 'Sudah dibooking'; 
             }
 
             const isToday = (i === this.todayDate && month === this.todayMonth && year === this.todayYear);

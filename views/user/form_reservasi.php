@@ -98,7 +98,7 @@ $current_page = 'tiket';
           <div class="col-lg-8">
             
             <div class="mb-4">
-              <a href="javascript:history.back()" class="btn-back">
+              <a href="tiket_reservasi.php" class="btn-back">
                 <i class="bi bi-arrow-left"></i> Kembali ke Pilihan Fasilitas
               </a>
             </div>
@@ -108,20 +108,25 @@ $current_page = 'tiket';
                 <div class="row g-4">
                   <div class="col-md-6">
                     <label class="form-label">Nama Lengkap Pemesan <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" v-model="form.nama" placeholder="Cth: Satria Aegis" required>
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.nama}" v-model="form.nama" placeholder="Cth: Satria Aegis">
+                    <div class="invalid-feedback" v-if="errors.nama">{{ errors.nama }}</div>
                   </div>
                   
                   <div class="col-md-6">
                     <label class="form-label">Nomor WhatsApp Aktif <span class="text-danger">*</span></label>
-                    <input type="tel" class="form-control" v-model="form.noHp" placeholder="Cth: 081234567890" required>
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.noHp}" 
+                           v-model="form.noHp" inputmode="numeric" pattern="[0-9]*" 
+                           @input="form.noHp = form.noHp.replace(/[^0-9]/g, '')" placeholder="Cth: 081234567890">
+                    <div class="invalid-feedback" v-if="errors.noHp">{{ errors.noHp }}</div>
                   </div>
 
                   <div class="col-md-6">
                     <label class="form-label">Area Fasilitas <span class="text-danger">*</span></label>
-                    <select class="form-select" v-model="form.fasilitas" required>
-                      <option value="Pendopo">Pendopo Oemah Keboen</option>
-                      <option value="Gazebo">Gazebo Privat</option>
-                      <option value="Halaman Depan">Halaman Depan (Outdoor)</option>
+                    <select class="form-select" v-model="form.fasilitas_id" required>
+                      <option v-if="facilities.length === 0" value="">Memuat fasilitas...</option>
+                      <option v-for="fac in facilities" :key="fac.id" :value="fac.id">
+                        {{ fac.nama }} ({{ formatRupiah(fac.harga) }}/org)
+                      </option>
                     </select>
                   </div>
 
@@ -180,9 +185,10 @@ $current_page = 'tiket';
                   </div>
 
                   <div class="col-12 mt-4">
-                    <button type="submit" class="btn-submit-wa w-100 d-flex justify-content-center align-items-center gap-2">
-                      <i class="bi bi-whatsapp fs-5"></i>
-                      Simpan & Lanjut ke WhatsApp Admin
+                    <button type="submit" class="btn-submit-wa w-100 d-flex justify-content-center align-items-center gap-2" :disabled="isSubmitting">
+                      <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      <i v-else class="bi bi-whatsapp fs-5"></i>
+                      <span>{{ isSubmitting ? 'Memproses...' : 'Simpan & Lanjut ke WhatsApp Admin' }}</span>
                     </button>
                   </div>
                 </div>
@@ -196,9 +202,10 @@ $current_page = 'tiket';
     <?php include 'footer.php'; ?>
   </div>
 
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <?php include 'navbar_scripts.php'; ?>
+  
   <script>
     const { createApp } = Vue;
 
@@ -208,38 +215,37 @@ $current_page = 'tiket';
           form: {
             nama: '',
             noHp: '',
-            fasilitas: 'Pendopo',
+            fasilitas_id: '',
             tanggal: '',
             jumlahOrang: '',
             catatan: ''
           },
+          facilities: [],
+          errors: { nama: '', noHp: '' },
+          isSubmitting: false,
           minDate: new Date().toISOString().split('T')[0]
-        }
-      },
-      mounted() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const tempatUrl = urlParams.get('tempat');
-        if (tempatUrl) {
-            this.form.fasilitas = tempatUrl;
         }
       },
       computed: {
         daysDifference() {
             if (!this.form.tanggal) return 0;
-            
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
             const eventDate = new Date(this.form.tanggal);
             eventDate.setHours(0, 0, 0, 0);
-            
             const diffTime = eventDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
             return diffDays >= 0 ? diffDays : 0;
         },
         hargaPerOrang() {
-            return this.daysDifference >= 7 ? 10000 : 15000;
+            const selectedFac = this.facilities.find(f => f.id === this.form.fasilitas_id);
+            const baseHarga = selectedFac ? (parseInt(selectedFac.harga) || 0) : 0;
+
+            if (this.daysDifference < 7) {
+                return baseHarga + 5000;
+            } else {
+                return baseHarga;
+            }
         },
         totalHarga() {
             const jumlah = parseInt(this.form.jumlahOrang) || 0;
@@ -250,33 +256,131 @@ $current_page = 'tiket';
         formatRupiah(number) {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
         },
-        submitReservation() {
-          console.log("Merekam data ke database...", this.form);
+        validate() {
+          this.errors = { nama: '', noHp: '' };
+          let valid = true;
 
-          const waNumber = "6285753556422";
-          
-          let message = `Halo Admin Oemah Keboen, saya ingin melakukan reservasi dengan rincian berikut:\n\n`;
-          message += `*Nama:* ${this.form.nama}\n`;
-          message += `*No. WA:* ${this.form.noHp}\n`;
-          message += `*Fasilitas:* ${this.form.fasilitas}\n`;
-          message += `*Tanggal:* ${this.form.tanggal} (H-${this.daysDifference})\n`;
-          message += `*Jumlah Peserta:* ${this.form.jumlahOrang} Orang\n\n`;
-          message += `*Estimasi Biaya:* ${this.formatRupiah(this.totalHarga)}\n`;
-          message += `*Uang Muka (DP 70%):* ${this.formatRupiah(this.totalHarga * 0.7)}\n`;
-          
-          if(this.form.catatan) {
-              message += `\n*Catatan Tambahan:* ${this.form.catatan}\n\n`;
-          } else {
-              message += `\n\n`;
+          if (!this.form.nama.trim()) {
+            this.errors.nama = 'Nama lengkap wajib diisi.';
+            valid = false;
+          } else if (this.form.nama.trim().length < 3) {
+            this.errors.nama = 'Nama minimal 3 karakter.';
+            valid = false;
+          } else if (!/^[a-zA-Z\s]+$/.test(this.form.nama.trim())) {
+            this.errors.nama = 'Nama hanya boleh huruf dan spasi.';
+            valid = false;
           }
-          
-          message += `Mohon info ketersediaan jadwal dan nomor rekening untuk transfer DP ya. Terima kasih!`;
 
-          const encodedMessage = encodeURIComponent(message);
-          const waUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
+          if (!this.form.noHp) {
+            this.errors.noHp = 'Nomor WhatsApp wajib diisi.';
+            valid = false;
+          } else if (String(this.form.noHp).length < 10) {
+            this.errors.noHp = 'Nomor terlalu pendek (Minimal 10 digit).';
+            valid = false;
+          } else if (String(this.form.noHp).length > 15) {
+            this.errors.noHp = 'Nomor terlalu panjang (Maksimal 15 digit).';
+            valid = false;
+          } else if (!String(this.form.noHp).startsWith('08')) {
+            this.errors.noHp = 'Nomor harus diawali dengan 08.';
+            valid = false;
+          }
 
-          window.open(waUrl, '_blank');
+          return valid;
+        },
+        async fetchFacilities() {
+            try {
+                const res = await fetch('../../controllers/FasilitasController.php?action=read');
+                const text = await res.text();
+                const data = JSON.parse(text);
+                
+                if(Array.isArray(data)) {
+                    this.facilities = data;
+                    
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const tempatUrl = urlParams.get('tempat');
+                    
+                    if (tempatUrl && this.facilities.length > 0) {
+                        const matched = this.facilities.find(f => f.nama === tempatUrl);
+                        if (matched) {
+                            this.form.fasilitas_id = matched.id;
+                        } else {
+                            this.form.fasilitas_id = this.facilities[0].id;
+                        }
+                    } else if (this.facilities.length > 0) {
+                        this.form.fasilitas_id = this.facilities[0].id;
+                    }
+                }
+            } catch(e) {
+                console.error("Gagal load fasilitas", e);
+            }
+        },
+        async submitReservation() {
+          if (!this.validate()) return;
+          this.isSubmitting = true;
+
+          const payload = {
+              action: 'create',
+              nama: this.form.nama,
+              noHp: this.form.noHp,
+              fasilitas_id: this.form.fasilitas_id,
+              tanggal: this.form.tanggal,
+              jumlah_orang: this.form.jumlahOrang,
+              catatan: this.form.catatan,
+              total_harga: this.totalHarga,
+              status: 'Menunggu Review'
+          };
+
+          try {
+              const res = await fetch('../../controllers/ReservasiController.php', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+              });
+              
+              const text = await res.text();
+              const responseData = JSON.parse(text);
+
+              if (responseData.status === 'success') {
+                  
+                  const facName = this.facilities.find(f => f.id === this.form.fasilitas_id)?.nama || 'Fasilitas';
+                  
+                  const waNumber = "6285753556422";
+                  let message = `Halo Admin Oemah Keboen, saya baru saja menyimpan data reservasi di website dengan rincian:\n\n`;
+                  message += `*Nama:* ${this.form.nama}\n`;
+                  message += `*No. WA:* ${this.form.noHp}\n`;
+                  message += `*Fasilitas:* ${facName}\n`;
+                  message += `*Tanggal:* ${this.form.tanggal} (H-${this.daysDifference})\n`;
+                  message += `*Jumlah Peserta:* ${this.form.jumlahOrang} Orang\n\n`;
+                  message += `*Estimasi Biaya:* ${this.formatRupiah(this.totalHarga)}\n`;
+                  message += `*Uang Muka (DP 70%):* ${this.formatRupiah(this.totalHarga * 0.7)}\n`;
+                  
+                  if(this.form.catatan) {
+                      message += `\n*Catatan Tambahan:* ${this.form.catatan}\n\n`;
+                  } else {
+                      message += `\n\n`;
+                  }
+                  
+                  message += `Data saya sudah masuk ke sistem. Mohon info ketersediaan jadwal dan nomor rekening untuk transfer DP ya. Terima kasih!`;
+
+                  const encodedMessage = encodeURIComponent(message);
+                  const waUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
+
+                  window.open(waUrl, '_blank');
+                  window.location.href = 'tiket_reservasi.php';
+
+              } else {
+                  alert("Gagal memproses: " + responseData.message);
+              }
+          } catch(e) {
+              alert("Terjadi kesalahan sistem, pastikan jaringan Anda stabil.");
+              console.error(e);
+          } finally {
+              this.isSubmitting = false;
+          }
         }
+      },
+      mounted() {
+        this.fetchFacilities();
       }
     }).mount('#app');
   </script>
