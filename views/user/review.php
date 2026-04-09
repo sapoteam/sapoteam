@@ -11,6 +11,50 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="style.css">
+
+  <style>
+
+    .review-gallery-page img {
+        cursor: zoom-in;
+        transition: transform 0.2s ease;
+    }
+    .review-gallery-page img:hover {
+        transform: scale(1.05);
+    }
+
+    .lightbox-modal {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background-color: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+    .lightbox-content {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .lightbox-close:hover {
+        color: #C1A570;
+        transform: scale(1.1);
+    }
+    .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+    .fade-enter-from, .fade-leave-to { opacity: 0; }
+  </style>
 </head>
 <body>
   <div id="app">
@@ -45,7 +89,7 @@
 
               <div class="review-gallery-page" v-if="review.images && review.images.length > 0">
                 <div class="review-thumb-page" v-for="(img, i) in review.images" :key="i">
-                  <img :src="img" alt="Foto review" style="object-fit: cover; width: 100px; height: 100px; border-radius: 8px;">
+                  <img :src="img" alt="Foto review" style="object-fit: cover; width: 100px; height: 100px; border-radius: 8px;" @click="openLightbox(img)">
                 </div>
               </div>
 
@@ -110,7 +154,7 @@
             </div>
           </div>
 
-          <div class="d-flex gap-3 flex-wrap pt-3 border-top">
+          <div class="d-flex gap-3 flex-wrap pt-3 border-top mt-4">
             <button class="btn fw-bold px-4 py-2 rounded-3 text-white" style="background-color: #C1A570; border: none;" @click="submitReview" :disabled="isSubmitting">
                 <span v-if="isSubmitting">Mengirim...</span>
                 <span v-else>Submit Review</span>
@@ -121,11 +165,18 @@
       </div>
     </section>
 
+    <transition name="fade">
+        <div v-if="lightbox.show" class="lightbox-modal" @click="lightbox.show = false">
+            <i class="bi bi-x-circle lightbox-close"></i>
+            <img :src="lightbox.imageUrl" class="lightbox-content" @click.stop>
+        </div>
+    </transition>
+
   <?php include 'footer.php'; ?>
 
   </div>
 
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const { createApp } = Vue;
@@ -136,6 +187,12 @@
           reviews: [],
           isSubmitting: false,
           alert: { show: false, message: '', type: 'success' },
+
+          lightbox: {
+              show: false,
+              imageUrl: ''
+          },
+
           newReview: {
             name: '',
             rating: 0,
@@ -151,9 +208,13 @@
             setTimeout(() => { this.alert.show = false; }, 5000);
         },
 
+        openLightbox(imgUrl) {
+            this.lightbox.imageUrl = imgUrl;
+            this.lightbox.show = true;
+        },
+
         async fetchReviews() {
             try {
-
                 const response = await fetch('../../controllers/UlasanController.php?action=read_approved');
                 const data = await response.json();
 
@@ -163,9 +224,7 @@
                     rating: parseInt(r.rating),
                     text: r.komentar,
                     date: r.tanggal_format, 
-
                     images: r.foto 
-
                 }));
             } catch (e) {
                 console.error("Gagal load ulasan", e);
@@ -239,7 +298,6 @@
           });
 
           try {
-
               const response = await fetch('../../controllers/UlasanController.php', {
                   method: 'POST',
                   body: formData

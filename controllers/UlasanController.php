@@ -71,13 +71,12 @@ switch ($action) {
         break;
 
     case 'delete':
-        requireAdmin(); 
+            requireAdmin(); 
 
-        $oldReview = $ulasanModel->getUlasanById($data['id']);
-        if ($oldReview && !empty($oldReview['foto'])) {
-            $fotoArray = json_decode($oldReview['foto'], true);
-            if (is_array($fotoArray)) {
-                foreach ($fotoArray as $path) {
+            $oldReview = $ulasanModel->getUlasanById($data['id']);
+
+            if ($oldReview && !empty($oldReview['foto']) && is_array($oldReview['foto'])) {
+                foreach ($oldReview['foto'] as $path) {
                     if (strpos($path, 'rev_') !== false) {
                         $oldFileName = basename($path);
                         $oldFilePhysical = $targetDir . $oldFileName;
@@ -85,14 +84,13 @@ switch ($action) {
                     }
                 }
             }
-        }
 
-        if ($ulasanModel->deleteUlasan($data['id'])) {
-            echo json_encode(['status' => 'success', 'message' => 'Ulasan berhasil dihapus.']);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Gagal menghapus ulasan.']);
-        }
-        break;
+            if ($ulasanModel->deleteUlasan($data['id'])) {
+                echo json_encode(['status' => 'success', 'message' => 'Ulasan berhasil dihapus.']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Gagal menghapus ulasan.']);
+            }
+            break;
 
     default:
         echo json_encode(['status' => 'error', 'message' => 'Aksi tidak valid']);
