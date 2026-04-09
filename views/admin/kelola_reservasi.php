@@ -3,7 +3,7 @@ require_once '../../config/conn.php';
 require_once '../../controllers/AuthController.php';
 
 $auth = new AuthController($conn);
-$auth->checkAuth(); 
+$auth->requireRole('Admin'); 
 
 $admin_name = $_SESSION['admin_name'];
 $current_page = 'kelola_reservasi.php';
@@ -21,7 +21,6 @@ $current_page = 'kelola_reservasi.php';
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
     <link rel="stylesheet" href="admin-style.css">
 
     <style>
@@ -32,10 +31,7 @@ $current_page = 'kelola_reservasi.php';
         .btn-check-dp { background: #d1e7dd; color: #198754; } .btn-check-dp:hover { background: #198754; color: white; }
         .btn-cancel { background: #f8d7da; color: #dc3545; } .btn-cancel:hover { background: #dc3545; color: white; }
         .btn-edit { background: #e2e3e5; color: #495057; } .btn-edit:hover { background: #6c757d; color: white; }
-
         .list-enter-active, .list-leave-active { transition: all 0.4s ease; }
-        .list-enter-from { opacity: 0; transform: translateX(-20px); }
-        .list-leave-to { opacity: 0; transform: translateX(20px); }
     </style>
 </head>
 <body>
@@ -44,10 +40,16 @@ $current_page = 'kelola_reservasi.php';
     <?php include 'sidebar.php'; ?>
 
     <div class="main-content" id="mainContent" :class="{'expanded': isSidebarCollapsed}">
-
         <?php include 'topbar.php'; ?>
 
         <div class="content-wrapper">
+            <transition name="toast-slide">
+                <div v-if="toast.show" class="toast-custom" :class="'toast-' + toast.type">
+                    <i class="bi fs-5" :class="toast.icon"></i>
+                    {{ toast.message }}
+                </div>
+            </transition>
+
             <transition name="fade" appear>
                 <div v-show="isLoaded">
                     <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
@@ -58,7 +60,7 @@ $current_page = 'kelola_reservasi.php';
                         <div class="d-flex gap-3 align-items-center">
                             <div class="search-wrapper">
                                 <i class="bi bi-search"></i>
-                                <input type="text" class="form-control" v-model="searchQuery" placeholder="Cari nama atau ID...">
+                                <input type="text" class="form-control" v-model="searchQuery" placeholder="Cari nama pemesan...">
                             </div>
                             <button class="btn-gold shadow-sm text-nowrap" @click="openAdd">
                                 <i class="bi bi-plus-lg me-1"></i> Tambah Manual
@@ -71,10 +73,10 @@ $current_page = 'kelola_reservasi.php';
             <transition name="fade" appear>
                 <div class="table-custom" v-show="isLoaded">
                     <div class="d-flex gap-2 mb-4 overflow-auto pb-2">
-                        <button class="filter-btn" :class="{ active: currentFilter === 'Semua' }" @click="currentFilter = 'Semua'">Semua Reservasi</button>
-                        <button class="filter-btn" :class="{ active: currentFilter === 'Menunggu Review' }" @click="currentFilter = 'Menunggu Review'">Menunggu Review</button>
-                        <button class="filter-btn" :class="{ active: currentFilter === 'Lunas' }" @click="currentFilter = 'Lunas'">Lunas / Terjadwal</button>
-                        <button class="filter-btn" :class="{ active: currentFilter === 'Dibatalkan' }" @click="currentFilter = 'Dibatalkan'">Dibatalkan</button>
+                        <button class="filter-btn text-nowrap" :class="{ active: currentFilter === 'Semua' }" @click="currentFilter = 'Semua'">Semua Reservasi</button>
+                        <button class="filter-btn text-nowrap" :class="{ active: currentFilter === 'Menunggu Review' }" @click="currentFilter = 'Menunggu Review'">Menunggu Review</button>
+                        <button class="filter-btn text-nowrap" :class="{ active: currentFilter === 'Lunas' }" @click="currentFilter = 'Lunas'">Lunas / Terjadwal</button>
+                        <button class="filter-btn text-nowrap" :class="{ active: currentFilter === 'Dibatalkan' }" @click="currentFilter = 'Dibatalkan'">Dibatalkan</button>
                     </div>
 
                     <div class="table-responsive">
@@ -82,23 +84,26 @@ $current_page = 'kelola_reservasi.php';
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th><i class="bi bi-calendar2-event me-1"></i> Tanggal Acara</th>
-                                    <th><i class="bi bi-person me-1"></i> Nama Pemesan</th>
-                                    <th><i class="bi bi-geo-alt me-1"></i> Lokasi</th>
-                                    <th>Status Pembayaran</th>
-                                    <th class="text-center">Aksi Pengelola</th>
+                                    <th><i class="bi bi-calendar2-event me-1"></i> Tanggal</th>
+                                    <th><i class="bi bi-person me-1"></i> Pemesan</th>
+                                    <th><i class="bi bi-geo-alt me-1"></i> Area</th>
+                                    <th><i class="bi bi-people me-1"></i> Org</th>
+                                    <th><i class="bi bi-cash me-1"></i> Total</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <transition-group name="list" tag="tbody">
-                                <tr v-for="(res, index) in filteredReservations" :key="res.id" :style="{ transitionDelay: (index * 0.05) + 's' }">
-                                    <td class="text-muted font-monospace">
-
-                                    <td class="fw-medium">{{ res.tanggal }}</td>
+                                <tr v-for="(res, index) in paginatedReservations" :key="res.id" :style="{ transitionDelay: (index * 0.05) + 's' }">
+                                    <td class="text-muted font-monospace">#{{ res.id }}</td>
+                                    <td class="fw-medium">{{ formatTanggalCantik(res.tanggal) }}</td>
                                     <td>
                                         <div class="fw-semibold text-dark">{{ res.nama }}</div>
-                                        <small class="text-muted"><i class="bi bi-whatsapp me-1"></i>{{ res.noHp }}</small>
+                                        <small class="text-muted"><i class="bi bi-whatsapp me-1"></i>{{ res.no_hp || res.noHp }}</small>
                                     </td>
-                                    <td><span class="text-secondary">{{ res.lokasi }}</span></td>
+                                    <td><span class="text-secondary">{{ res.lokasi_nama || 'Area Terhapus' }}</span></td>
+                                    <td class="text-center">{{ res.jumlah_orang }}</td>
+                                    <td class="fw-bold" style="color: var(--green-main);">{{ formatRupiah(res.total_harga) }}</td>
                                     <td>
                                         <span class="badge-status" 
                                               :class="{ 
@@ -122,7 +127,6 @@ $current_page = 'kelola_reservasi.php';
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
                                             </template>
-
                                             <button class="action-btn btn-outline-secondary border" title="Lihat Detail Lengkap" @click="openDetail(res, false)">
                                                 <i class="bi bi-eye"></i>
                                             </button>
@@ -132,10 +136,26 @@ $current_page = 'kelola_reservasi.php';
                             </transition-group>
                         </table>
 
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top" v-if="filteredReservations.length > 0">
+                            <small class="text-muted fw-medium">
+                                Menampilkan {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredReservations.length) }} dari {{ filteredReservations.length }} data
+                            </small>
+                            <div class="d-flex align-items-center gap-3">
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" :disabled="currentPage === 1" @click="currentPage--">
+                                    <i class="bi bi-chevron-left small me-1"></i> Prev
+                                </button>
+                                <span class="text-muted small fw-bold">
+                                    Halaman <span class="text-dark">{{ currentPage }}</span> dari {{ totalPages }}
+                                </span>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" :disabled="currentPage === totalPages" @click="currentPage++">
+                                    Next <i class="bi bi-chevron-right small ms-1"></i>
+                                </button>
+                            </div>
+                        </div>
+
                         <div v-if="filteredReservations.length === 0" class="text-center py-5 text-muted">
                             <div class="mb-3"><i class="bi bi-search fs-1"></i></div>
                             <h5 class="fw-bold">Data Tidak Ditemukan</h5>
-                            <p class="small">Coba ubah kata kunci pencarian atau kategori filter Anda.</p>
                         </div>
                     </div>
                 </div>
@@ -147,10 +167,7 @@ $current_page = 'kelola_reservasi.php';
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
                             <h4 class="font-serif fw-bold m-0" style="color: var(--green-main);">
                                 <span v-if="isAddMode">Buat Reservasi Baru</span>
-                                <span v-else>{{ isEditMode ? 'Ubah Data Reservasi' : 'Informasi Reservasi' }} 
-                                    <span v-if="activeRes.id">
-
-                                </span>
+                                <span v-else>{{ isEditMode ? 'Ubah Data Reservasi' : 'Informasi Reservasi' }}</span>
                             </h4>
                             <button class="btn-close" @click="showDetailModal = false"></button>
                         </div>
@@ -162,19 +179,39 @@ $current_page = 'kelola_reservasi.php';
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Nomor WhatsApp / HP</label>
-                                <input type="text" class="form-control p-2" v-model="activeRes.noHp" :disabled="!isEditMode && !isAddMode" placeholder="Contoh: 08123456789">
+                                <input type="text" class="form-control p-2" v-model="activeRes.noHp" @input="activeRes.noHp = activeRes.noHp.replace(/[^0-9]/g, '')" :disabled="!isEditMode && !isAddMode" placeholder="Contoh: 08123456789">
                             </div>
-                            <div class="col-md-6">
+
+                        <div class="col-md-6">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Tanggal Pelaksanaan</label>
-                                <input type="text" class="form-control p-2" v-model="activeRes.tanggal" :disabled="!isEditMode && !isAddMode" placeholder="Contoh: 20 April 2026">
+                                <input type="date" class="form-control p-2" v-model="activeRes.tanggal" :min="todayDate" @change="calculateTotal" :disabled="!isEditMode && !isAddMode">
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Area / Lokasi Fasilitas</label>
-                                <select class="form-select p-2" v-model="activeRes.lokasi" :disabled="!isEditMode && !isAddMode">
-                                    <option value="Pendopo">Pendopo Oemah Keboen</option>
-                                    <option value="Gazebo">Gazebo Privat</option>
-                                    <option value="Halaman Depan">Halaman Depan (Outdoor)</option>
+                                <select class="form-select p-2" v-model="activeRes.fasilitas_id" @change="calculateTotal" :disabled="!isEditMode && !isAddMode">
+                                    <option value="" disabled>-- Pilih Area Fasilitas --</option>
+                                    <option v-for="fasil in fasilitasOptions" :key="fasil.id" :value="fasil.id">
+                                        {{ fasil.nama }} ({{ formatRupiah(fasil.harga) }}/org)
+                                    </option>
                                 </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Jumlah Orang</label>
+                                <input type="number" class="form-control p-2" v-model="activeRes.jumlah_orang" min="1" @input="calculateTotal" :disabled="!isEditMode && !isAddMode">
+                            </div>
+                            <div class="col-md-9">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Total Harga (Otomatis)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">Rp</span>
+                                    <input type="number" class="form-control p-2 border-start-0" v-model="activeRes.total_harga" :disabled="!isEditMode && !isAddMode">
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Catatan Tambahan</label>
+                                <textarea class="form-control p-2" rows="2" v-model="activeRes.catatan" :disabled="!isEditMode && !isAddMode" placeholder="Ada request khusus? Tulis di sini..."></textarea>
                             </div>
 
                             <div class="col-12" v-if="!isEditMode && !isAddMode">
@@ -200,8 +237,9 @@ $current_page = 'kelola_reservasi.php';
 
                             <div class="d-flex gap-2">
                                 <button class="btn btn-outline-green px-4 rounded-3" @click="showDetailModal = false">Tutup</button>
-                                <button v-if="isAddMode" class="btn btn-gold px-4 rounded-3" @click="saveNew">Simpan Reservasi</button>
-                                <button v-if="isEditMode" class="btn btn-gold px-4 rounded-3" @click="saveEdit">Update Perubahan</button>
+                                <button v-if="isAddMode || isEditMode" class="btn btn-gold px-4 rounded-3" @click="saveReservasi">
+                                    {{ isAddMode ? 'Simpan Reservasi' : 'Update Perubahan' }}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -218,7 +256,7 @@ $current_page = 'kelola_reservasi.php';
                         <p class="text-muted mb-4">{{ confirmData.message }}</p>
 
                         <div class="d-flex justify-content-center gap-3">
-                            <button class="btn btn-outline-secondary px-4 rounded-3" @click="showConfirmModal = false">Batal</button>
+                            <button class="btn btn-outline-secondary px-4 rounded-3" @click="showConfirmModal = false">Tutup</button>
                             <button class="btn px-4 rounded-3 text-white shadow-sm" :class="confirmData.btnClass" @click="executeConfirm">
                                 {{ confirmData.btnText }}
                             </button>
@@ -227,19 +265,9 @@ $current_page = 'kelola_reservasi.php';
                 </div>
             </transition>
 
-            <transition name="fade">
-                <div class="modal-overlay" v-if="showAlert" style="z-index: 3000;">
-                    <div class="modal-box text-center border-warning" style="max-width: 350px; border-top: 5px solid orange;">
-                        <i class="bi bi-exclamation-circle text-warning mb-2" style="font-size: 3.5rem;"></i>
-                        <h5 class="fw-bold mt-2">Oops! Form Belum Lengkap</h5>
-                        <p class="text-muted small">{{ alertMessage }}</p>
-                        <button class="btn btn-gold w-100 mt-2" @click="showAlert = false">Perbaiki Sekarang</button>
-                    </div>
-                </div>
-            </transition>
-
-        </div> <div class="admin-footer text-center py-4 border-top mt-auto">
-            <small class="text-muted">© 2026 Oemah Keboen Samarinda | Dashboard Management System v1.2</small>
+        </div> 
+        <div class="admin-footer text-center py-4 border-top mt-auto">
+            <small class="text-muted">© 2026 Oemah Keboen Samarinda | Reservation Management System v1.5</small>
         </div>
     </div>
 </div>
@@ -253,92 +281,190 @@ $current_page = 'kelola_reservasi.php';
     createApp({
         data() {
             return {
-
                 isLoaded: false,
                 isSidebarCollapsed: false,
-                showLogoutModal: false,
                 currentFilter: 'Semua',
                 searchQuery: '',
 
                 showDetailModal: false,
                 isEditMode: false,
                 isAddMode: false,
-                activeRes: { id: null, nama: '', noHp: '', tanggal: '', lokasi: 'Pendopo', status: '' },
+                activeRes: {},
 
                 showConfirmModal: false,
                 pendingAction: { type: '', id: null },
                 confirmData: { title: '', message: '', icon: '', iconClass: '', btnText: '', btnClass: '' },
 
-                showAlert: false,
-                alertMessage: '',
+                reservations: [],
+                fasilitasOptions: [], 
 
-                reservations: [
-                    { id: 1, tanggal: '20 April 2026', nama: 'Keluarga Bpk. Budi', noHp: '0812-3456-7890', lokasi: 'Pendopo', status: 'Menunggu Review' },
-                    { id: 2, tanggal: '22 April 2026', nama: 'Komunitas Gowes', noHp: '0853-1122-3344', lokasi: 'Gazebo', status: 'Lunas' },
-                    { id: 3, tanggal: '25 April 2026', nama: 'TK Harapan Bangsa', noHp: '0811-9988-7766', lokasi: 'Halaman Depan', status: 'Menunggu Review' },
-                    { id: 4, tanggal: '28 April 2026', nama: 'Ibu Ratna', noHp: '0822-5555-4444', lokasi: 'Pendopo', status: 'Dibatalkan' },
-                    { id: 5, tanggal: '02 Mei 2026', nama: 'Reuni Akbar Alumni 2010', noHp: '0899-7766-5544', lokasi: 'Pendopo', status: 'Menunggu Review' }
-                ]
+                currentPage: 1,
+                itemsPerPage: 10,
+                todayDate: new Date().toISOString().split('T')[0],
+
+                toast: { show: false, message: '', type: 'success', icon: 'bi-check-circle' }
             }
         },
         computed: {
             filteredReservations() {
                 let res = this.reservations;
-
                 if (this.currentFilter !== 'Semua') {
                     res = res.filter(r => r.status === this.currentFilter);
                 }
-
                 if (this.searchQuery) {
                     const q = this.searchQuery.toLowerCase();
                     res = res.filter(r => 
                         r.nama.toLowerCase().includes(q) || 
                         r.id.toString().includes(q) ||
-                        r.lokasi.toLowerCase().includes(q)
+                        (r.lokasi_nama && r.lokasi_nama.toLowerCase().includes(q))
                     );
                 }
                 return res;
+            },
+            totalPages() { return Math.ceil(this.filteredReservations.length / this.itemsPerPage) || 1; },
+            paginatedReservations() {
+                const start = (this.currentPage - 1) * this.itemsPerPage;
+                return this.filteredReservations.slice(start, start + this.itemsPerPage);
             }
         },
+        watch: {
+            searchQuery() { this.currentPage = 1; },
+            currentFilter() { this.currentPage = 1; }
+        },
         methods: {
+            showToastMsg(message, type = 'success') {
+                this.toast.message = message; this.toast.type = type;
+                this.toast.icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
+                this.toast.show = true;
+                setTimeout(() => { this.toast.show = false; }, 3000);
+            },
+            formatTanggalCantik(tgl) {
+                if(!tgl) return '';
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                return new Date(tgl).toLocaleDateString('id-ID', options);
+            },
+            formatRupiah(n) {
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n || 0);
+            },
+
+            calculateTotal() {
+
+                if (this.activeRes.fasilitas_id && this.activeRes.jumlah_orang && this.activeRes.tanggal) {
+                    const fasil = this.fasilitasOptions.find(f => f.id === this.activeRes.fasilitas_id);
+                    if (fasil) {
+                        let hargaPerKepala = parseInt(fasil.harga);
+                        const bookingDate = new Date(this.activeRes.tanggal);
+                        const orderDate = new Date(this.todayDate);
+                        const selisihWaktu = bookingDate.getTime() - orderDate.getTime();
+                        const selisihHari = Math.ceil(selisihWaktu / (1000 * 3600 * 24));
+
+                        if (selisihHari < 7) {
+                            hargaPerKepala += 5000;
+                        }
+                        this.activeRes.total_harga = hargaPerKepala * this.activeRes.jumlah_orang;
+                    }
+                }
+            },
+
+            async fetchReservations() {
+                try {
+                    const response = await fetch('../../controllers/ReservasiController.php?action=read');
+                    const rawText = await response.text();
+                    try {
+                        const data = JSON.parse(rawText);
+                        if (data.status === 'error') { this.showToastMsg("Akses ditolak!", 'error'); return; }
+                        this.reservations = data;
+                    } catch (e) { console.error(rawText); }
+                } catch (e) { this.showToastMsg("Koneksi gagal!", 'error'); }
+            },
+            async fetchFasilitasOptions() {
+                try {
+                    const response = await fetch('../../controllers/FasilitasController.php?action=read');
+                    const rawText = await response.text();
+                    try {
+                        const data = JSON.parse(rawText);
+                        if (data.status !== 'error') {
+                            this.fasilitasOptions = data.filter(f => f.status === 'Tersedia');
+                        }
+                    } catch (e) { console.error("Gagal load fasilitas"); }
+                } catch (e) { console.error("Koneksi load fasilitas gagal"); }
+            },
+
             openAdd() {
                 this.isEditMode = false;
                 this.isAddMode = true;
-                this.activeRes = { id: null, nama: '', noHp: '', tanggal: '', lokasi: 'Pendopo', status: 'Menunggu Review' };
+                this.activeRes = { id: null, nama: '', noHp: '', tanggal: '', fasilitas_id: '', jumlah_orang: 1, total_harga: 0, catatan: '', status: 'Menunggu Review' };
                 this.showDetailModal = true;
-            },
-            saveNew() {
-                if (!this.activeRes.nama || !this.activeRes.tanggal || !this.activeRes.noHp) {
-                    this.alertMessage = "Semua field harus diisi sebelum menyimpan data baru.";
-                    this.showAlert = true; 
-                    return;
-                }
-
-                const maxId = this.reservations.length > 0 ? Math.max(...this.reservations.map(r => r.id)) : 0;
-                this.activeRes.id = maxId + 1;
-                this.reservations.unshift({...this.activeRes});
-                this.showDetailModal = false;
             },
             openDetail(res, isEdit) {
                 this.isAddMode = false;
                 this.isEditMode = isEdit;
                 this.activeRes = JSON.parse(JSON.stringify(res)); 
+                this.activeRes.noHp = res.noHp || res.no_hp; 
                 this.showDetailModal = true;
             },
-            saveEdit() {
-                if (!this.activeRes.nama || !this.activeRes.tanggal) {
-                    this.alertMessage = "Nama Pemesan dan Tanggal Acara tidak boleh kosong.";
-                    this.showAlert = true; 
+
+            async saveReservasi() {
+                this.activeRes.nama = this.activeRes.nama ? this.activeRes.nama.trim() : '';
+                const nameRegex = /^[a-zA-Z0-9\s.,'-]+$/;
+
+                if (!this.activeRes.nama || this.activeRes.nama.length < 3) {
+                    this.showToastMsg("Nama pemesan minimal 3 karakter!", "warning"); return;
+                }
+                if (!nameRegex.test(this.activeRes.nama)) {
+                    this.showToastMsg("Nama pemesan dilarang mengandung emoji!", "error"); return;
+                }
+                if (!this.activeRes.noHp || this.activeRes.noHp.length < 10) {
+                    this.showToastMsg("Nomor HP minimal 10 angka!", "warning"); return;
+                }
+                if (!this.activeRes.tanggal) {
+                    this.showToastMsg("Tanggal wajib dipilih!", "warning"); return;
+                }
+                if (!this.activeRes.fasilitas_id) {
+                    this.showToastMsg("Area fasilitas wajib dipilih!", "warning"); return;
+                }
+                if (this.activeRes.tanggal < this.todayDate) {
+                    this.showToastMsg("Tidak bisa membooking untuk tanggal masa lalu!", "error"); 
                     return;
                 }
-                const i = this.reservations.findIndex(r => r.id === this.activeRes.id);
-                if(i !== -1) this.reservations[i] = this.activeRes;
-                this.showDetailModal = false;
+
+                const bentrok = this.reservations.find(r => 
+                    r.tanggal === this.activeRes.tanggal && 
+                    r.fasilitas_id === this.activeRes.fasilitas_id && 
+                    r.status !== 'Dibatalkan' && 
+                    r.id !== this.activeRes.id
+                );
+
+                if (bentrok) {
+                    this.showToastMsg("Area ini sudah dibooking pada tanggal tersebut!", "error");
+                    return;
+                }
+
+                try {
+                    const payload = { action: this.isAddMode ? 'create' : 'update', ...this.activeRes };
+                    const response = await fetch('../../controllers/ReservasiController.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const rawText = await response.text();
+                    try {
+                        const result = JSON.parse(rawText);
+                        if (result.status === 'success') {
+                            this.showDetailModal = false;
+                            this.fetchReservations();
+                            this.showToastMsg(result.message, 'success');
+                        } else {
+                            this.showToastMsg(result.message || "Gagal menyimpan data.", 'error');
+                        }
+                    } catch (e) { this.showToastMsg("Kesalahan sistem server.", 'error'); }
+                } catch (e) { this.showToastMsg("Koneksi bermasalah!", 'error'); }
             },
+
             openConfirm(type, id) {
                 this.pendingAction = { type, id };
                 if (type === 'lunas') {
-                    this.confirmData = { title: 'Konfirmasi DP Lunas', message: 'Tandai pembayaran reservasi ini sebagai LUNAS?', icon: 'bi-check-circle-fill', iconClass: 'text-success', btnText: 'Ya, Konfirmasi', btnClass: 'btn-success' };
+                    this.confirmData = { title: 'Konfirmasi Lunas', message: 'Tandai pembayaran reservasi ini sebagai LUNAS?', icon: 'bi-check-circle-fill', iconClass: 'text-success', btnText: 'Ya, Konfirmasi', btnClass: 'btn-success' };
                 } else if (type === 'batal') {
                     this.confirmData = { title: 'Batalkan Reservasi', message: 'Anda yakin ingin membatalkan jadwal booking ini?', icon: 'bi-x-circle-fill', iconClass: 'text-warning', btnText: 'Ya, Batalkan', btnClass: 'btn-warning' };
                 } else if (type === 'hapus') {
@@ -346,20 +472,41 @@ $current_page = 'kelola_reservasi.php';
                 }
                 this.showConfirmModal = true;
             },
-            executeConfirm() {
+
+            async executeConfirm() {
                 const { type, id } = this.pendingAction;
-                const i = this.reservations.findIndex(r => r.id === id);
-                if (i !== -1) {
-                    if (type === 'lunas') this.reservations[i].status = 'Lunas';
-                    if (type === 'batal') this.reservations[i].status = 'Dibatalkan';
-                    if (type === 'hapus') this.reservations.splice(i, 1);
+                let payload = { id: id };
+                if (type === 'hapus') {
+                    payload.action = 'delete';
+                } else {
+                    payload.action = 'update_status';
+                    payload.status = type === 'lunas' ? 'Lunas' : 'Dibatalkan';
                 }
-                this.showConfirmModal = false;
-                this.showDetailModal = false;
+
+                try {
+                    const response = await fetch('../../controllers/ReservasiController.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const rawText = await response.text();
+                    try {
+                        const result = JSON.parse(rawText);
+                        if (result.status === 'success') {
+                            this.showConfirmModal = false;
+                            this.showDetailModal = false;
+                            this.fetchReservations();
+                            this.showToastMsg(result.message, 'success');
+                        } else {
+                            this.showToastMsg(result.message || "Gagal mengeksekusi perintah.", 'error');
+                        }
+                    } catch (e) { this.showToastMsg("Kesalahan sistem server.", 'error'); }
+                } catch (e) { this.showToastMsg("Koneksi bermasalah!", 'error'); }
             }
         },
         mounted() {
-
+            this.fetchReservations();
+            this.fetchFasilitasOptions();
             const toggle = document.getElementById('sidebarToggle');
             if(toggle) {
                 toggle.addEventListener('click', () => {
@@ -367,7 +514,6 @@ $current_page = 'kelola_reservasi.php';
                     document.getElementById('sidebar').classList.toggle('collapsed');
                 });
             }
-
             setTimeout(() => { this.isLoaded = true; }, 200);
         }
     }).mount('#app');

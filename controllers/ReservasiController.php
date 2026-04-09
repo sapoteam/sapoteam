@@ -1,0 +1,74 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+header('Content-Type: application/json'); 
+
+require_once __DIR__ . '/../config/conn.php';
+require_once __DIR__ . '/../models/ReservasiModel.php';
+require_once __DIR__ . '/AuthController.php';
+
+global $conn;
+$auth = new AuthController($conn);
+
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit;
+}
+
+$reservasiModel = new ReservasiModel($conn);
+
+$data = json_decode(file_get_contents('php://input'), true) ?: [];
+$action = $data['action'] ?? ($_GET['action'] ?? '');
+
+switch ($action) {
+    case 'read':
+        echo json_encode($reservasiModel->getAllReservasi());
+        break;
+
+    case 'create':
+
+        if ($reservasiModel->checkDoubleBooking($data['tanggal'], $data['fasilitas_id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Area sudah dibooking pada tanggal tersebut!']);
+            break;
+        }
+
+        if ($reservasiModel->createReservasi($data)) {
+            echo json_encode(['status' => 'success', 'message' => 'Reservasi berhasil ditambahkan!']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan ke database.']);
+        }
+        break;
+
+    case 'update':
+
+        if ($reservasiModel->checkDoubleBooking($data['tanggal'], $data['fasilitas_id'], $data['id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Area sudah dibooking pada tanggal tersebut!']);
+            break;
+        }
+
+        if ($reservasiModel->updateReservasi($data)) {
+            echo json_encode(['status' => 'success', 'message' => 'Data reservasi berhasil diupdate!']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Gagal mengupdate database.']);
+        }
+        break;
+
+    case 'update_status':
+        if ($reservasiModel->updateStatus($data['id'], $data['status'])) {
+            echo json_encode(['status' => 'success', 'message' => 'Status berhasil diubah!']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Gagal mengubah status.']);
+        }
+        break;
+
+    case 'delete':
+        if ($reservasiModel->deleteReservasi($data['id'])) {
+            echo json_encode(['status' => 'success', 'message' => 'Reservasi dihapus permanen.']);
+        } else {
+            echo json_encode(['status' => 'error']);
+        }
+        break;
+
+    default:
+        echo json_encode(['status' => 'error', 'message' => 'Aksi tidak valid']);
+        break;
+}
+?>
