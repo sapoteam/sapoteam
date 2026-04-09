@@ -8,18 +8,23 @@ require_once __DIR__ . '/AuthController.php';
 
 global $conn;
 $auth = new AuthController($conn);
-
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit;
-}
-
 $reservasiModel = new ReservasiModel($conn);
 
 $data = json_decode(file_get_contents('php://input'), true) ?: [];
 $action = $data['action'] ?? ($_GET['action'] ?? '');
 
+$protected_actions = ['update', 'update_status', 'delete'];
+
+if (in_array($action, $protected_actions)) {
+    if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); 
+        exit;
+    }
+}
+
 switch ($action) {
     case 'read':
+
         echo json_encode($reservasiModel->getAllReservasi());
         break;
 
@@ -29,7 +34,6 @@ switch ($action) {
             echo json_encode(['status' => 'error', 'message' => 'Area sudah dibooking pada tanggal tersebut!']);
             break;
         }
-
         if ($reservasiModel->createReservasi($data)) {
             echo json_encode(['status' => 'success', 'message' => 'Reservasi berhasil ditambahkan!']);
         } else {
@@ -38,12 +42,10 @@ switch ($action) {
         break;
 
     case 'update':
-
         if ($reservasiModel->checkDoubleBooking($data['tanggal'], $data['fasilitas_id'], $data['id'])) {
             echo json_encode(['status' => 'error', 'message' => 'Area sudah dibooking pada tanggal tersebut!']);
             break;
         }
-
         if ($reservasiModel->updateReservasi($data)) {
             echo json_encode(['status' => 'success', 'message' => 'Data reservasi berhasil diupdate!']);
         } else {

@@ -10,7 +10,6 @@ global $conn;
 
 $action = $_GET['action'] ?? ($_POST['action'] ?? '');
 
-// Action publik — tidak perlu auth admin
 if ($action === 'read' || $action === 'get') {
     $productModel = new ProductModel($conn);
     if ($action === 'read') {
@@ -27,7 +26,6 @@ if ($action === 'read' || $action === 'get') {
     exit;
 }
 
-// Auth check untuk action admin
 $auth = new AuthController($conn);
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit;

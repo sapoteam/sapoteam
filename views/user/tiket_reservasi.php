@@ -1,3 +1,6 @@
+<?php
+$current_page = 'tiketreservasi.php'; 
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -14,7 +17,8 @@
 </head>
 <body>
   <div id="app">
-  <?php include 'navbar.php'; ?>
+    <?php include 'navbar.php'; ?>
+
     <section class="reservation-hero">
       <div class="container">
         <div class="row justify-content-center text-center">
@@ -41,10 +45,7 @@
           </div>
 
           <div class="ticket-info-block">
-            <p>
-              Nikmati suasana kebun terbuka di Oemah Keboen sambil merasakan pengalaman
-              melihat dan memetik buah langsung dari pohonnya.
-            </p>
+            <p>Nikmati suasana kebun terbuka di Oemah Keboen sambil merasakan pengalaman melihat dan memetik buah langsung dari pohonnya.</p>
           </div>
 
           <div class="ticket-info-block">
@@ -78,18 +79,20 @@
       <div class="container">
         <div class="section-heading">
           <h2 class="section-title">Fasilitas Reservasi</h2>
-          <p class="section-subtitle">
-            Pilih area yang paling sesuai untuk acara kamu di Oemah Keboen.
-          </p>
+          <p class="section-subtitle">Pilih area yang paling sesuai untuk acara kamu di Oemah Keboen.</p>
         </div>
 
-        <div class="row g-4">
-          <div class="col-md-6 col-lg-4" v-for="facility in facilities" :key="facility.name">
+        <div v-if="isLoadingFacilities" class="text-center py-4">
+            <div class="spinner-border text-success" role="status"></div>
+        </div>
+
+        <div v-else class="row g-4">
+          <div class="col-md-6 col-lg-4" v-for="facility in facilities" :key="facility.id">
             <div class="facility-card">
-              <img :src="facility.image" :alt="facility.name" class="facility-image">
+              <img :src="facility.image ? facility.image : '../../assets/img/produk_default.jpg'" :alt="facility.nama" class="facility-image">
               <div class="facility-body">
-                <h3 class="facility-title">{{ facility.name }}</h3>
-                <p class="facility-desc">{{ facility.desc }}</p>
+                <h3 class="facility-title">{{ facility.nama }}</h3>
+                <p class="facility-desc">{{ facility.deskripsi }}</p>
               </div>
             </div>
           </div>
@@ -114,47 +117,28 @@
 
               <div class="calendar-card">
                 <div class="calendar-header">
-                  <button class="calendar-nav" @click="prevMonth">
-                    <i class="bi bi-chevron-left"></i>
-                  </button>
+                  <button class="calendar-nav" @click="prevMonth"><i class="bi bi-chevron-left"></i></button>
                   <h4>{{ monthNames[currentMonth] }} {{ currentYear }}</h4>
-                  <button class="calendar-nav" @click="nextMonth">
-                    <i class="bi bi-chevron-right"></i>
-                  </button>
+                  <button class="calendar-nav" @click="nextMonth"><i class="bi bi-chevron-right"></i></button>
                 </div>
 
                 <div class="calendar-weekdays">
-                  <span>Min</span>
-                  <span>Sen</span>
-                  <span>Sel</span>
-                  <span>Rab</span>
-                  <span>Kam</span>
-                  <span>Jum</span>
-                  <span>Sab</span>
+                  <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
                 </div>
 
                 <div class="calendar-grid">
-                  <div
-                    v-for="(day, index) in calendarDays"
-                    :key="index"
+                  <div v-for="(day, index) in calendarDays" :key="index"
                     class="calendar-day"
-                    :class="{
-                      'empty': !day.date,
-                      'booked': day.booked,
-                      'today': day.isToday
-                    }"
-                  >
+                    :class="{ 'empty': !day.date, 'booked': day.booked, 'today': day.isToday }">
                     {{ day.date || '' }}
-                    <div v-if="day.event" class="tooltip-event">
-                      {{ day.event }}
-                    </div>
+                    <div v-if="day.event" class="tooltip-event">{{ day.event }}</div>
                   </div>
                 </div>
               </div>
 
-              <div class="calendar-legend">
-                <span class="legend-dot booked-dot"></span>
-                <span>Sudah Terisi (Booked)</span>
+              <div class="calendar-legend mt-3">
+                <span class="legend-dot booked-dot" style="display:inline-block; width:12px; height:12px; background-color:var(--gold-btn); border-radius:50%; margin-right:8px;"></span>
+                <span style="font-size:0.9rem; color:var(--text-muted);">Sudah Terisi (Booked)</span>
               </div>
             </div>
 
@@ -164,25 +148,30 @@
 
                 <div class="reservation-select-wrap">
                   <select class="form-select reservation-select" v-model="selectedPlace">
-                    <option value="Pendopo">Pendopo</option>
-                    <option value="Gazebo">Gazebo</option>
-                    <option value="Halaman Depan">Halaman Depan</option>
+                    <option v-if="facilities.length === 0" value="">Memuat data...</option>
+                    <option v-for="fac in facilities" :key="fac.id" :value="fac.nama">
+                      {{ fac.nama }}
+                    </option>
                   </select>
                   <i class="bi bi-chevron-down dropdown-icon"></i>
                 </div>
 
-                <div class="selected-place-box">
+                <div class="selected-place-box mt-3">
                   <div class="selected-place-label">Tempat Terpilih</div>
-                  <div class="selected-place-value">{{ selectedPlace }}</div>
+                  <div class="selected-place-value">{{ selectedPlace || 'Belum dipilih' }}</div>
                 </div>
-                <a :href="'form_reservasi.php?tempat=' + selectedPlace" class="btn btn-gold w-100 mt-4 py-2 fw-bold" style="border-radius: 12px; font-size: 1.1rem;">
+
+                <a :href="selectedPlace ? 'form_reservasi.php?tempat=' + encodeURIComponent(selectedPlace) : '#'" 
+                   class="btn btn-gold w-100 mt-4 py-2 fw-bold" 
+                   :class="{'disabled': !selectedPlace}"
+                   style="border-radius: 12px; font-size: 1.1rem;">
                   Lanjut Buat Reservasi <i class="bi bi-arrow-right ms-1"></i>
                 </a>
               </div>
             </div>
           </div>
 
-          <div class="reservation-details">
+          <div class="reservation-details mt-5">
             <div class="reservation-detail-block">
               <p>
                 Nikmati pengalaman wisata di Oemah Keboen dengan suasana kebun terbuka yang cocok
@@ -231,22 +220,31 @@
     <?php include 'footer.php'; ?>
   </div>
 
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <?php include 'navbar_scripts.php'; ?>
+
   <script>
     const { createApp } = Vue;
 
     createApp({
       data() {
+        const today = new Date(); 
         return {
-          selectedPlace: 'Pendopo',
-          currentMonth: 3,
-          currentYear: 2026,
-          monthNames: [
-            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-          ],
+          isLoadingFacilities: true,
+          facilities: [], 
+
+          allReservations: [], 
+
+          selectedPlace: '', 
+
+          currentMonth: today.getMonth(),
+          currentYear: today.getFullYear(),
+          todayDate: today.getDate(),
+          todayMonth: today.getMonth(),
+          todayYear: today.getFullYear(),
+          monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+
           bookedData: {
             Pendopo: [
               { date: 1, event: 'Acara Keluarga' },
@@ -263,25 +261,7 @@
               { date: 20, event: 'Event Sekolah' },
               { date: 27, event: 'Workshop' }
             ]
-          },
-          facilities: [
-            {
-              name: 'Pendopo',
-              desc: 'Area luas dan nyaman untuk acara keluarga, komunitas, atau kegiatan bersama rombongan.',
-              // Perbaikan Path Gambar di Vue Data
-              image: '../../assets/img/pendopo.jpg'
-            },
-            {
-              name: 'Gazebo',
-              desc: 'Tempat santai yang cocok untuk kumpul dalam skala kecil dengan suasana kebun yang asri.',
-              image: '../../assets/img/gazebo.jpg'
-            },
-            {
-              name: 'Halaman Depan',
-              desc: 'Area terbuka yang fleksibel untuk berbagai aktivitas luar ruangan dan acara santai.',
-              image: '../../assets/img/halaman-depan.jpg'
-            }
-          ]
+          }
         }
       },
       computed: {
@@ -292,39 +272,51 @@
           const daysInMonth = new Date(year, month + 1, 0).getDate();
           const prevMonthDays = new Date(year, month, 0).getDate();
 
-          const bookedList = this.bookedData[this.selectedPlace] || [];
+          const dummyBookedList = this.bookedData[this.selectedPlace] || [];
+
+          const dbBookedThisMonth = this.allReservations.filter(res => {
+              if (res.status !== 'Disetujui' && res.status !== 'Lunas') return false; 
+              if (res.lokasi_nama !== this.selectedPlace) return false; 
+
+              const resDate = new Date(res.tanggal); 
+              return resDate.getFullYear() === year && resDate.getMonth() === month;
+          });
+
           const days = [];
 
           for (let i = firstDay - 1; i >= 0; i--) {
-            days.push({
-              date: prevMonthDays - i,
-              booked: false,
-              event: null,
-              isToday: false,
-              isCurrentMonth: false
-            });
+            days.push({ date: prevMonthDays - i, booked: false, event: null, isToday: false });
           }
 
           for (let i = 1; i <= daysInMonth; i++) {
-            const foundBooking = bookedList.find(item => item.date === i);
+            let isBooked = false;
+            let eventName = null;
+
+            const foundDummy = dummyBookedList.find(item => item.date === i);
+            if (foundDummy) {
+                isBooked = true;
+                eventName = foundDummy.event;
+            }
+
+            const foundDb = dbBookedThisMonth.find(b => new Date(b.tanggal).getDate() === i);
+            if (foundDb) {
+                isBooked = true;
+                eventName = foundDb.catatan || 'Telah direservasi'; 
+
+            }
+
+            const isToday = (i === this.todayDate && month === this.todayMonth && year === this.todayYear);
 
             days.push({
               date: i,
-              booked: !!foundBooking,
-              event: foundBooking ? foundBooking.event : null,
-              isToday: false,
-              isCurrentMonth: true
+              booked: isBooked,
+              event: eventName, 
+              isToday: isToday
             });
           }
 
           while (days.length < 42) {
-            days.push({
-              date: days.length - (firstDay + daysInMonth) + 1,
-              booked: false,
-              event: null,
-              isToday: false,
-              isCurrentMonth: false
-            });
+            days.push({ date: days.length - (firstDay + daysInMonth) + 1, booked: false, event: null, isToday: false });
           }
 
           return days;
@@ -346,7 +338,43 @@
           } else {
             this.currentMonth++;
           }
+        },
+        async fetchFacilities() {
+            try {
+                const res = await fetch('../../controllers/FasilitasController.php?action=read');
+                const text = await res.text();
+                const data = JSON.parse(text);
+
+                if(Array.isArray(data)) {
+                    this.facilities = data;
+
+                    if(this.facilities.length > 0) {
+                        this.selectedPlace = this.facilities[0].nama; 
+                    }
+                }
+            } catch(e) {
+                console.error("Gagal load fasilitas", e);
+            } finally {
+                this.isLoadingFacilities = false;
+            }
+        },
+        async fetchReservations() {
+            try {
+                const res = await fetch('../../controllers/ReservasiController.php?action=read');
+                const text = await res.text();
+                const data = JSON.parse(text);
+
+                if(Array.isArray(data)) {
+                    this.allReservations = data;
+                }
+            } catch(e) {
+                console.error("Gagal load kalender reservasi", e);
+            }
         }
+      },
+      mounted() {
+        this.fetchFacilities();
+        this.fetchReservations();
       }
     }).mount('#app');
   </script>
