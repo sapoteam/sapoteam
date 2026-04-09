@@ -180,12 +180,58 @@ body {
     color: white;
 }
 
-.table-custom { background-color: transparent; }
-.table-custom thead { background-color: var(--green-light); }
-.table-custom th { color: var(--green-main); font-weight: 600; border: none; padding: 15px 20px; }
+/* ===================== TABLE ===================== */
+.table-custom {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+}
+
+.table-custom table {
+    border-collapse: collapse !important;
+    border-spacing: 0;
+}
+
+.table-custom thead { 
+    background-color: var(--green-light) !important; 
+}
+
+.table-custom th { 
+    color: var(--green-main); 
+    font-weight: 600; 
+    border: none !important;
+    box-shadow: none !important;
+    padding: 15px 20px; 
+}
+
 .table-custom th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
 .table-custom th:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-.table-custom td { padding: 18px 20px; border-bottom: 1px solid rgba(95, 122, 86, 0.2); vertical-align: middle; color: var(--text-dark); }
+
+/* Hapus semua border bawaan Bootstrap di thead row */
+.table-custom thead tr {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.table-custom td { 
+    padding: 18px 20px; 
+    border: none !important;
+    border-bottom: 1px solid rgba(95, 122, 86, 0.2) !important; 
+    vertical-align: middle; 
+    color: var(--text-dark);
+    box-shadow: none !important;
+}
+
+.table-custom tbody tr {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.table-custom tbody tr:last-child td {
+    border-bottom: none !important;
+}
+/* ================================================= */
 
 .badge-status { padding: 8px 16px; border-radius: 20px; font-weight: 500; font-size: 0.85rem; }
 .badge-menunggu { background-color: var(--gold-btn); color: white; }
@@ -295,11 +341,30 @@ body {
 
 .facility-card-admin, 
 .prod-thumb, 
-.review-img-admin,
-.table-custom tr {
-
+.review-img-admin {
     transform: translateZ(0);
     backface-visibility: hidden;
-
     will-change: opacity, transform; 
 }
+
+/* Toast notif konfig */
+.toast-custom {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 15px 25px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 500;
+    z-index: 9999;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.toast-success { background: var(--green-main); }
+.toast-error { background: #dc3545; }
+.toast-warning { background: #ffc107; color: #000; }
+
+.toast-slide-enter-active, .toast-slide-leave-active { transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+.toast-slide-enter-from, .toast-slide-leave-to { opacity: 0; transform: translateY(50px); }

@@ -1,10 +1,8 @@
 <?php
-
 require_once '../../config/conn.php';
 require_once '../../controllers/AuthController.php';
 
 $auth = new AuthController($conn);
-
 $auth->requireRole('Admin'); 
 
 $admin_name = $_SESSION['admin_name'];
@@ -23,63 +21,27 @@ $current_page = 'kelola_pegawai.php';
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
     <link rel="stylesheet" href="admin-style.css">
 
     <style>
-
         .avatar-circle {
-            width: 48px;
-            height: 48px;
-            background-color: #E9EDC9;
-            color: #5F7A56;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-weight: 700;
-            font-size: 1.3rem;
+            width: 48px; height: 48px;
+            background-color: #E9EDC9; color: #5F7A56;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; font-weight: 700; font-size: 1.3rem;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-
         .text-hp {
-            font-size: 0.85rem;
-            color: #6b7564;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 2px;
+            font-size: 0.85rem; color: #6b7564;
+            display: flex; align-items: center; gap: 6px; margin-top: 2px;
         }
-
         .form-switch .form-check-input {
-            width: 2.8em;
-            height: 1.4em;
-            cursor: pointer;
-            transition: 0.3s;
+            width: 2.8em; height: 1.4em; cursor: pointer; transition: 0.3s;
         }
         .form-switch .form-check-input:checked {
-            background-color: var(--green-main);
-            border-color: var(--green-main);
+            background-color: var(--green-main); border-color: var(--green-main);
         }
-        .status-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-left: 5px;
-        }
-
-        .list-enter-active, .list-leave-active {
-            transition: all 0.4s ease;
-        }
-        .list-enter-from {
-            opacity: 0;
-            transform: translateX(-30px);
-        }
-        .list-leave-to {
-            opacity: 0;
-            transform: scale(0.9);
-        }
-
-        .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+        .status-label { font-size: 0.85rem; font-weight: 600; margin-left: 5px; }
     </style>
 </head>
 <body>
@@ -87,13 +49,22 @@ $current_page = 'kelola_pegawai.php';
 <div id="app">
     <?php include 'sidebar.php'; ?>
 
-    <div class="main-content" id="mainContent" :class="{'expanded': isSidebarCollapsed}">
+    <div class="main-content" :class="{'expanded': isSidebarCollapsed}">
 
         <?php include 'topbar.php'; ?>
 
         <div class="content-wrapper">
+
+            <transition name="toast-slide">
+                <div v-if="toast.show" class="toast-custom" :class="'toast-' + toast.type">
+                    <i class="bi fs-5" :class="toast.icon"></i>
+                    {{ toast.message }}
+                </div>
+            </transition>
+
             <transition name="fade" appear>
                 <div v-show="isLoaded">
+
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                         <div>
                             <h3 class="font-serif fw-bold" style="color: var(--text-dark);">Daftar Pegawai Operasional</h3>
@@ -104,31 +75,33 @@ $current_page = 'kelola_pegawai.php';
                         </button>
                     </div>
 
-                    <div class="table-custom p-0 bg-transparent shadow-none border-0 mb-3">
-                        <div class="search-wrapper w-100" style="max-width: 400px;">
-                            <i class="bi bi-search"></i>
-                            <input type="text" class="form-control shadow-sm" v-model="searchQuery" placeholder="Cari nama atau username pegawai...">
-                        </div>
-                    </div>
-
+                    <!-- Table - struktur 1:1 sama dashboard -->
                     <div class="table-custom">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="search-wrapper" style="max-width: 400px;">
+                                <i class="bi bi-search"></i>
+                                <input type="text" class="form-control" v-model="searchQuery" placeholder="Cari nama atau username pegawai...">
+                            </div>
+                            <span class="text-muted small" v-if="users.length > 0">Total: {{ filteredUsers.length }} pegawai</span>
+                        </div>
+
                         <div class="table-responsive">
-                            <table class="table table-borderless align-middle text-nowrap">
+                            <table class="table table-borderless mt-3 text-nowrap align-middle">
                                 <thead>
                                     <tr>
-                                        <th style="width: 40%;">Profil Pegawai</th>
-                                        <th style="width: 20%;">ID Pengguna</th>
-                                        <th style="width: 20%;">Status Akun</th>
-                                        <th style="width: 20%;" class="text-center">Aksi Pengelola</th>
+                                        <th style="width: 40%;"><i class="bi bi-person me-2"></i> Profil Pegawai</th>
+                                        <th style="width: 20%;"><i class="bi bi-at me-2"></i> Username Pengguna</th>
+                                        <th style="width: 20%;"><i class="bi bi-toggle-on me-2"></i> Status Akun</th>
+                                        <th style="width: 20%;" class="text-center"><i class="bi bi-gear me-2"></i> Aksi Pengelola</th>
                                     </tr>
                                 </thead>
                                 <transition-group name="list" tag="tbody">
-                                    <tr v-for="(user, index) in filteredUsers" :key="user.id" :style="{ transitionDelay: (index * 0.05) + 's' }">
+                                    <tr v-for="(user, index) in paginatedUsers" :key="user.id" :style="{ transitionDelay: (index * 0.1) + 's' }">
                                         <td>
                                             <div class="d-flex align-items-center gap-3">
                                                 <div class="avatar-circle">{{ user.nama.charAt(0) }}</div>
                                                 <div>
-                                                    <div class="fw-bold text-dark fs-6">{{ user.nama }}</div>
+                                                    <div class="fw-medium">{{ user.nama }}</div>
                                                     <div class="text-hp">
                                                         <i class="bi bi-whatsapp text-success"></i> {{ user.no_hp }}
                                                     </div>
@@ -161,17 +134,38 @@ $current_page = 'kelola_pegawai.php';
                                     </tr>
                                 </transition-group>
                             </table>
+                        </div>
 
-                            <div v-if="filteredUsers.length === 0" class="text-center py-5 text-muted">
-                                <i class="bi bi-people fs-1 mb-3 d-block"></i>
-                                <h5 class="fw-bold">Pegawai Tidak Ditemukan</h5>
-                                <p class="small">Tidak ada data pegawai yang cocok dengan kriteria pencarian Anda.</p>
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top" v-if="filteredUsers.length > 0">
+                            <small class="text-muted fw-medium">
+                                Menampilkan {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredUsers.length) }} dari {{ filteredUsers.length }} data
+                            </small>
+                            <div class="d-flex align-items-center gap-3">
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" :disabled="currentPage === 1" @click="currentPage--">
+                                    <i class="bi bi-chevron-left small me-1"></i> Prev
+                                </button>
+                                <span class="text-muted small fw-bold">
+                                    Halaman <span class="text-dark">{{ currentPage }}</span> dari {{ totalPages }}
+                                </span>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" :disabled="currentPage === totalPages" @click="currentPage++">
+                                    Next <i class="bi bi-chevron-right small ms-1"></i>
+                                </button>
                             </div>
                         </div>
+
+                        <!-- Empty state -->
+                        <div v-if="filteredUsers.length === 0" class="text-center py-5 text-muted">
+                            <i class="bi bi-people fs-1 mb-3 d-block"></i>
+                            <h5 class="fw-bold">Pegawai Tidak Ditemukan</h5>
+                            <p class="small">Tidak ada data pegawai yang cocok dengan kriteria pencarian Anda.</p>
+                        </div>
                     </div>
+
                 </div>
             </transition>
 
+            <!-- Modal Form Tambah/Edit -->
             <transition name="fade">
                 <div class="modal-overlay" v-if="showFormModal" style="z-index: 1100;">
                     <div class="modal-box shadow-lg" style="max-width: 500px;">
@@ -181,19 +175,18 @@ $current_page = 'kelola_pegawai.php';
                             </h4>
                             <button class="btn-close" @click="showFormModal = false"></button>
                         </div>
-
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">NAMA LENGKAP</label>
-                                <input type="text" class="form-control p-2" v-model="activeUser.nama" placeholder="Masukkan nama pegawai...">
+                                <input type="text" class="form-control p-2" v-model="activeUser.nama" maxlength="50" placeholder="Masukkan nama pegawai...">
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label small fw-bold text-muted">NOMOR HP / WHATSAPP</label>
-                                <input type="text" class="form-control p-2" v-model="activeUser.no_hp" placeholder="Contoh: 081234567890">
+                                <input type="text" class="form-control p-2" v-model="activeUser.no_hp" @input="activeUser.no_hp = activeUser.no_hp.replace(/[^0-9]/g, '')" maxlength="15" placeholder="Contoh: 081234567890">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-muted">USERNAME</label>
-                                <input type="text" class="form-control p-2" v-model="activeUser.username" placeholder="user_oemah">
+                                <input type="text" class="form-control p-2" v-model="activeUser.username" @input="activeUser.username = activeUser.username.replace(/\s/g, '')" maxlength="30" placeholder="user_oemah">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-muted">PASSWORD</label>
@@ -201,7 +194,6 @@ $current_page = 'kelola_pegawai.php';
                                 <small class="text-muted" style="font-size: 0.7rem;" v-if="!isAddMode">*Kosongkan jika tidak ingin ganti</small>
                             </div>
                         </div>
-
                         <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                             <button class="btn btn-outline-secondary px-4 rounded-3" @click="showFormModal = false">Batal</button>
                             <button class="btn btn-gold px-4 rounded-3" @click="saveUser">
@@ -212,6 +204,7 @@ $current_page = 'kelola_pegawai.php';
                 </div>
             </transition>
 
+            <!-- Modal Konfirmasi Hapus -->
             <transition name="fade">
                 <div class="modal-overlay" v-if="showConfirm" style="z-index: 1200; background: rgba(0,0,0,0.7);">
                     <div class="modal-box text-center shadow-lg" style="max-width: 380px; border-top: 5px solid #dc3545;">
@@ -220,7 +213,6 @@ $current_page = 'kelola_pegawai.php';
                         </div>
                         <h4 class="font-serif fw-bold mb-2">Hapus Akun?</h4>
                         <p class="text-muted mb-4 small">Akun pegawai ini akan dihapus permanen. Seluruh akses ke sistem akan dicabut segera.</p>
-
                         <div class="d-flex justify-content-center gap-3">
                             <button class="btn btn-outline-secondary px-4 rounded-3" @click="showConfirm = false">Batal</button>
                             <button class="btn btn-danger px-4 rounded-3 shadow-sm" @click="executeDelete">Ya, Hapus Akun</button>
@@ -229,7 +221,9 @@ $current_page = 'kelola_pegawai.php';
                 </div>
             </transition>
 
-        </div> <div class="admin-footer text-center py-4">
+        </div>
+
+        <div class="admin-footer">
             &copy; 2026 Oemah Keboen Samarinda | HR Management System v1.0
         </div>
     </div>
@@ -244,26 +238,24 @@ $current_page = 'kelola_pegawai.php';
     createApp({
         data() {
             return {
-
                 isLoaded: false,
                 isSidebarCollapsed: false,
-                showLogoutModal: false, 
-
+                showLogoutModal: false,
                 searchQuery: '',
-
                 showFormModal: false,
                 showConfirm: false,
                 isAddMode: true,
                 activeUser: {},
                 selectedId: null,
-
-                users: [
-                    { id: 101, nama: 'Satria Aegis', no_hp: '0811-5522-124', username: 'satria_aegis', is_active: true },
-                    { id: 102, nama: 'Bambang Kusumo', no_hp: '0852-4433-990', username: 'bambang_k', is_active: true },
-                    { id: 103, nama: 'Riana Putri', no_hp: '0821-8877-112', username: 'riana_p', is_active: false },
-                    { id: 104, nama: 'Ahmad Faisal', no_hp: '0813-2211-009', username: 'faisal_ahmad', is_active: true },
-                    { id: 105, nama: 'Siti Nurhaliza', no_hp: '0852-9900-1122', username: 'siti_n', is_active: true }
-                ]
+                users: [],
+                currentPage: 1,
+                itemsPerPage: 10,
+                toast: {
+                    show: false,
+                    message: '',
+                    type: 'success',
+                    icon: 'bi-check-circle'
+                }
             }
         },
         computed: {
@@ -274,58 +266,111 @@ $current_page = 'kelola_pegawai.php';
                     u.nama.toLowerCase().includes(q) || 
                     u.username.toLowerCase().includes(q)
                 );
+            },
+            totalPages() {
+                return Math.ceil(this.filteredUsers.length / this.itemsPerPage) || 1;
+            },
+            paginatedUsers() {
+                const start = (this.currentPage - 1) * this.itemsPerPage;
+                return this.filteredUsers.slice(start, start + this.itemsPerPage);
             }
         },
+        watch: {
+            searchQuery() { this.currentPage = 1; }
+        },
         methods: {
-            toggleStatus(user) {
-                user.is_active = !user.is_active;
-
+            showToastMsg(message, type = 'success') {
+                this.toast.message = message;
+                this.toast.type = type;
+                this.toast.icon = type === 'success' ? 'bi-check-circle' : (type === 'error' ? 'bi-exclamation-circle' : 'bi-exclamation-triangle');
+                this.toast.show = true;
+                setTimeout(() => { this.toast.show = false; }, 3000);
+            },
+            async fetchUsers() {
+                try {
+                    const response = await fetch('../../controllers/UserController.php?action=read');
+                    const rawText = await response.text();
+                    try {
+                        const data = JSON.parse(rawText);
+                        if (data.status === 'error') { this.showToastMsg("Akses ditolak!", 'error'); return; }
+                        this.users = data;
+                    } catch (e) { console.error("Gagal parse JSON:", rawText); }
+                } catch (e) { this.showToastMsg("Koneksi gagal!", 'error'); }
+            },
+            async toggleStatus(user) {
+                const newStatus = !user.is_active;
+                await fetch('../../controllers/UserController.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'toggle', id: user.id, is_active: newStatus })
+                });
+                this.fetchUsers();
+                this.showToastMsg(`Status ${user.nama} berhasil diubah!`, 'success');
             },
             openAdd() {
                 this.isAddMode = true;
-                this.activeUser = { id: Date.now(), nama: '', no_hp: '', username: '', password: '', is_active: true };
+                this.activeUser = { nama: '', no_hp: '', username: '', password: '', is_active: true };
                 this.showFormModal = true;
             },
             openEdit(user) {
                 this.isAddMode = false;
                 this.activeUser = JSON.parse(JSON.stringify(user));
-                this.activeUser.password = ''; 
-
+                this.activeUser.password = '';
                 this.showFormModal = true;
             },
-            saveUser() {
-                if(!this.activeUser.nama || !this.activeUser.username) {
-                    alert('Nama dan Username wajib diisi!');
-                    return;
+            async saveUser() {
+                if (!this.activeUser.nama || !this.activeUser.username) {
+                    this.showToastMsg('Nama dan Username tidak boleh kosong!', 'error'); return;
                 }
-
-                if(this.isAddMode) {
-                    this.users.unshift({...this.activeUser});
-                } else {
-                    const i = this.users.findIndex(u => u.id === this.activeUser.id);
-                    if(i !== -1) this.users[i] = this.activeUser;
+                if (this.isAddMode && !this.activeUser.password) {
+                    this.showToastMsg('Password wajib diisi untuk akun baru!', 'warning'); return;
                 }
-                this.showFormModal = false;
+                if (!this.activeUser.no_hp || this.activeUser.no_hp.length < 10) {
+                    this.showToastMsg('Nomor HP tidak valid (min 10 angka)!', 'warning'); return;
+                }
+                try {
+                    const response = await fetch('../../controllers/UserController.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: this.isAddMode ? 'create' : 'update', ...this.activeUser })
+                    });
+                    const rawText = await response.text();
+                    try {
+                        const result = JSON.parse(rawText);
+                        if (result.status === 'success') {
+                            this.showFormModal = false;
+                            this.fetchUsers();
+                            this.showToastMsg(this.isAddMode ? "Pegawai berhasil ditambahkan!" : "Data berhasil diperbarui!", 'success');
+                        } else {
+                            this.showToastMsg(result.message || "Gagal menyimpan. Username mungkin sudah dipakai.", 'error');
+                        }
+                    } catch (e) { this.showToastMsg("Terjadi kesalahan sistem.", 'error'); }
+                } catch (e) { this.showToastMsg("Koneksi bermasalah!", 'error'); }
             },
             openConfirmDelete(id) {
                 this.selectedId = id;
                 this.showConfirm = true;
             },
-            executeDelete() {
-                this.users = this.users.filter(u => u.id !== this.selectedId);
+            async executeDelete() {
+                await fetch('../../controllers/UserController.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', id: this.selectedId })
+                });
                 this.showConfirm = false;
+                this.fetchUsers();
+                this.showToastMsg("Pegawai berhasil dihapus permanen.", 'success');
             }
         },
         mounted() {
-
-            const toggleBtn = document.getElementById('sidebarToggle');
-            if(toggleBtn) {
-                toggleBtn.addEventListener('click', () => {
+            this.fetchUsers();
+            const btn = document.getElementById('sidebarToggle');
+            if (btn) {
+                btn.addEventListener('click', () => {
                     this.isSidebarCollapsed = !this.isSidebarCollapsed;
                     document.getElementById('sidebar').classList.toggle('collapsed');
                 });
             }
-
             setTimeout(() => { this.isLoaded = true; }, 100);
         }
     }).mount('#app');
