@@ -1,15 +1,11 @@
 <?php
-session_start();
 
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header("Location: login.php");
-    exit;
-}
+require_once '../../config/conn.php';
+require_once '../../controllers/AuthController.php';
 
-if ($_SESSION['admin_name'] !== 'Dewi (Admin)') {
-    echo "<script>alert('Akses Ditolak! Halaman ini hanya untuk Super Admin.'); window.location.href='dashboard.php';</script>";
-    exit;
-}
+$auth = new AuthController($conn);
+
+$auth->requireRole('Admin'); 
 
 $admin_name = $_SESSION['admin_name'];
 $current_page = 'kelola_pegawai.php';

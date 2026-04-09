@@ -1,9 +1,10 @@
 <?php
-session_start();
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header("Location: login.php");
-    exit;
-}
+require_once '../../config/conn.php';
+require_once '../../controllers/AuthController.php';
+
+$auth = new AuthController($conn);
+$auth->checkAuth(); 
+
 $admin_name = $_SESSION['admin_name'];
 $current_page = 'kelola_fasilitas.php';
 ?>

@@ -1,26 +1,10 @@
 <?php
-session_start();
+require_once '../../controllers/AuthController.php';
 
-if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-    header("Location: dashboard.php");
-    exit;
-}
+global $conn; 
+$auth = new AuthController($conn);
 
-$error_msg = '';
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-
-    if ($username === 'admin' && $password === '12345') {
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_name'] = 'Dewi (Admin)';
-        header("Location: dashboard.php");
-        exit;
-    } else {
-        $error_msg = "Username atau Password salah. Silakan coba lagi.";
-    }
-}
+$error_msg = $auth->login();    
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -150,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <div class="mb-4">
-                <label class="form-label">Password</label>
+                <label class="form-label">Password</label>  
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
                     <input type="password" name="password" class="form-control" placeholder="••••••••" required>
