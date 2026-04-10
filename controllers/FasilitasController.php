@@ -4,21 +4,24 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/conn.php';
 require_once __DIR__ . '/../models/FasilitasModel.php'; 
-
 require_once __DIR__ . '/AuthController.php';
 
 global $conn;
-$auth = new AuthController($conn);
-
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit;
-}
-
 $fasilitasModel = new FasilitasModel($conn); 
 
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
 $data = array_merge($_POST, $input);
 $action = $data['action'] ?? ($_GET['action'] ?? '');
+
+$protected_actions = ['create', 'update', 'delete'];
+
+if (in_array($action, $protected_actions)) {
+    $auth = new AuthController($conn);
+    if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); 
+        exit;
+    }
+}
 
 $targetDir = __DIR__ . '/../assets/img/facilities/';
 if (!file_exists($targetDir)) { mkdir($targetDir, 0777, true); }
@@ -26,6 +29,10 @@ if (!file_exists($targetDir)) { mkdir($targetDir, 0777, true); }
 switch ($action) {
     case 'read':
         echo json_encode($fasilitasModel->getAllFasilitas());
+        break;
+
+    case 'readU':
+        echo json_encode($fasilitasModel->getAllFasilitasUser());
         break;
 
     case 'create':

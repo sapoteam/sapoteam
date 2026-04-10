@@ -28,6 +28,10 @@ switch ($action) {
         echo json_encode($reservasiModel->getAllReservasi());
         break;
 
+    case 'readU':
+        echo json_encode($reservasiModel->getAllReservasi());
+        break;
+
     case 'create':
 
         if ($reservasiModel->checkDoubleBooking($data['tanggal'], $data['fasilitas_id'])) {

@@ -289,7 +289,7 @@ $current_page = 'tiket';
         },
         async fetchFacilities() {
             try {
-                const res = await fetch('../../controllers/FasilitasController.php?action=read');
+                const res = await fetch('../../controllers/FasilitasController.php?action=readU');
                 const text = await res.text();
                 const data = JSON.parse(text);
                 

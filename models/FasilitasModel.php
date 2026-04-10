@@ -20,6 +20,18 @@ class FasilitasModel {
         return $data;
     }
 
+    public function getAllFasilitasUser() {
+        $query = "SELECT * FROM fasilitas WHERE status = 'Tersedia' ORDER BY id DESC";
+        $result = $this->conn->query($query);
+        $data = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $data[] = $row;
+            }
+        }
+        return $data;
+    }
+
     public function getFasilitasById($id) {
         $id = (int)$id;
         $result = $this->conn->query("SELECT * FROM fasilitas WHERE id=$id");
