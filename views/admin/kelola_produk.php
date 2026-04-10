@@ -261,6 +261,7 @@ $current_page = 'kelola_produk.php';
             return {
                 isLoaded: false,
                 isSidebarCollapsed: false,
+                showLogoutModal: false,    
                 currentFilter: 'Semua',
                 searchQuery: '',
                 

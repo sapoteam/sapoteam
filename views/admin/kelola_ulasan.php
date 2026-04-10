@@ -281,6 +281,7 @@ $current_page = 'kelola_ulasan.php';
             return {
                 isLoaded: false,
                 isSidebarCollapsed: false,
+                showLogoutModal: false,
 
                 searchQuery: '',
                 ratingFilter: 'Semua',

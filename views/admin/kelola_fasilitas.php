@@ -221,6 +221,7 @@ $current_page = 'kelola_fasilitas.php';
             return {
                 isLoaded: false,
                 isSidebarCollapsed: false,
+                showLogoutModal: false,
                 
                 searchQuery: '',
                 showFormModal: false,
@@ -231,7 +232,7 @@ $current_page = 'kelola_fasilitas.php';
 
                 facilities: [],
                 currentPage: 1,
-                itemsPerPage: 6, // Pagination 6 data per halaman untuk desain Card
+                itemsPerPage: 6, 
 
                 toast: { show: false, message: '', type: 'success', icon: 'bi-check-circle' }
             }

@@ -283,6 +283,7 @@ $current_page = 'kelola_reservasi.php';
             return {
                 isLoaded: false,
                 isSidebarCollapsed: false,
+                showLogoutModal: false,
                 currentFilter: 'Semua',
                 searchQuery: '',
 
