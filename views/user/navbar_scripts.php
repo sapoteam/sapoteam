@@ -12,7 +12,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    fetch('/sapoteam/controllers/PublicController.php')
+    fetch('../../controllers/PublicController.php')
         .then(async (response) => {
             if (!response.ok) throw new Error("HTTP error " + response.status);
             const text = await response.text(); 
