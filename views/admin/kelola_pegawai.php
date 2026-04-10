@@ -190,7 +190,7 @@ $current_page = 'kelola_pegawai.php';
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-muted">PASSWORD</label>
-                                <input type="password" class="form-control p-2" v-model="activeUser.password" placeholder="••••••••">
+                                <input type="password" class="form-control p-2" v-model="activeUser.password" placeholder="Masukkan password...">
                                 <small class="text-muted" style="font-size: 0.7rem;" v-if="!isAddMode">*Kosongkan jika tidak ingin ganti</small>
                             </div>
                         </div>

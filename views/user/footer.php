@@ -24,7 +24,9 @@
 
       <div class="col-md-4 col-lg-3">
         <h6 class="footer-title">Alamat</h6>
+        <a href="https://www.google.com/maps/place/Oemah+Keboen+Samarinda/@-0.491534,117.1985551,17z/data=!3m1!4b1!4m6!3m5!1s0x2df5d5239dd0475f:0xb28c192756bb6e3f!8m2!3d-0.4915394!4d117.20113!16s%2Fg%2F11sy1dsm0g?entry=ttu&g_ep=EgoyMDI2MDQwNy4wIKXMDSoASAFQAw%3D%3D" target="_blank" style="text-decoration: none; color: inherit;"> 
         <p>Jl. Bendungan No.RT 15, Sambutan, Kec. Sambutan, Kota Samarinda, Kalimantan Timur 75241, Indonesia</p>
+        </a>
       </div>
 
       <div class="col-md-4 col-lg-2">

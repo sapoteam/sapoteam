@@ -97,7 +97,7 @@ $current_page = 'produk';
             <div class="col-md-6 col-lg-4" v-for="item in products" :key="item.id">
               <div class="product-card" @click="goToDetail(item.id)">
                 <div class="product-img-wrapper">
-                  <img :src="item.image ? item.image : '../../assets/img/produk_default.jpg'" :alt="item.nama" class="product-card-img">
+                  <img :src="item.image ? item.image : '../../assets/img/logo.png'" :alt="item.nama" class="product-card-img">
                   <div class="product-img-overlay">
                     <button class="btn-hover-cart">
                       <i class="bi bi-cart-plus"></i> Pesan Sekarang

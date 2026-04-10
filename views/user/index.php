@@ -102,23 +102,76 @@
         </div>
       </section>
 
-      <section class="section-padding">
-          <div class="container">
-              <div class="text-center mb-5"><h2 class="section-title">FAQ</h2></div>
-              <div class="accordion" id="faqAccordion">
-                  <div class="accordion-item" v-for="(faq, index) in faqs" :key="index">
-                      <h2 class="accordion-header">
-                          <button class="accordion-button" :class="{ collapsed: index !== 0 }" type="button" data-bs-toggle="collapse" :data-bs-target="'#faq' + index">
-                              {{ faq.question }}
-                          </button>
-                      </h2>
-                      <div :id="'faq' + index" class="accordion-collapse collapse" :class="{ show: index === 0 }" data-bs-parent="#faqAccordion">
-                          <div class="accordion-body">{{ faq.answer }}</div>
-                      </div>
-                  </div>
-              </div>
+      <section class="section-padding" id="lokasi">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="section-title">Lokasi Oemah Keboen</h2>
+          <p class="section-subtitle">
+            Kunjungi Oemah Keboen dan nikmati suasana wisata alam yang nyaman di Samarinda.
+          </p>
+        </div>
+
+        <div class="row g-4 align-items-stretch">
+          <div class="col-lg-7">
+            <div class="location-map h-100">
+              <iframe
+                src="https://www.google.com/maps?q=Oemah%20Keboen%20Samarinda&z=15&output=embed"
+                width="100%"
+                height="420"
+                style="border:0;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+              </iframe>
+            </div>
           </div>
-      </section>
+          <div class="col-lg-5">
+            <div class="location-info">
+              <h5>Informasi Lokasi</h5>
+              <p><strong>Nama Tempat:</strong> Oemah Keboen</p>
+              <p><strong>Alamat:</strong> Jl. Bendungan No.RT 15, Sambutan, Kec. Sambutan, Kota Samarinda, Kalimantan Timur 75241</p>
+              <p><strong>Jam Operasional:</strong> 09.00 - 17.00 WITA (Jum'at, Sabtu, Minggu)</p>
+              <p><strong>Kontak:</strong> 08115522124</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+      <section class="section-padding" id="tiket">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="section-title">FAQ</h2>
+          <p class="section-subtitle">
+            Pertanyaan yang sering ditanyakan pengunjung sebelum datang ke Oemah Keboen.
+          </p>
+        </div>
+
+        <div class="accordion" id="faqAccordion">
+          <div class="accordion-item" v-for="(faq, index) in faqs" :key="index">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button"
+                :class="{ collapsed: index !== 0 }"
+                type="button"
+                data-bs-toggle="collapse"
+                :data-bs-target="'#faq' + index">
+                {{ faq.question }}
+              </button>
+            </h2>
+            <div
+              :id="'faq' + index"
+              class="accordion-collapse collapse"
+              :class="{ show: index === 0 }"
+              data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                {{ faq.answer }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
   <?php include 'footer.php'; ?>
     </div> <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -144,9 +197,23 @@
               { title: 'Wisata Edukasi', image: '../../assets/img/galeri6.jpg' }
             ],
             faqs: [
-              { question: 'Booking kunjungan?', answer: 'Tidak perlu untuk reguler.' },
-              { question: 'Reservasi rombongan?', answer: 'Ya, hubungi admin.' }
-            ]
+            {
+              question: 'Apakah harus booking untuk kunjungan biasa?',
+              answer: 'Tidak perlu. Pengunjung bisa langsung datang untuk kunjungan reguler selama jam operasional.'
+            },
+            {
+              question: 'Apakah tersedia reservasi untuk rombongan?',
+              answer: 'Ya, reservasi untuk rombongan sekolah, komunitas, atau acara keluarga dapat dilakukan melalui admin.'
+            },
+            {
+              question: 'Apakah bisa melakukan kegiatan melebihi jam operasional?',
+              answer: 'Bisa, tetapi akan dikenakan biaya tambahan Rp5.000 per orang jika melebihi jam operasional.'
+            },
+            {
+              question: 'Apakah Oemah Keboen tetap buka jika tidak musim buah?',
+              answer: 'Tetap buka, terutama untuk kegiatan acara seperti ulang tahun, komunitas, atau kegiatan edukasi.'
+            }
+          ]
           }
         }
       }).mount('#app');

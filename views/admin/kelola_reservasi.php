@@ -205,7 +205,7 @@ $current_page = 'kelola_reservasi.php';
                                 <label class="form-label small fw-bold text-muted text-uppercase">Total Harga (Otomatis)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0">Rp</span>
-                                    <input type="number" class="form-control p-2 border-start-0" v-model="activeRes.total_harga" :disabled="!isEditMode && !isAddMode">
+                                    <input type="number" readonly class="form-control p-2 border-start-0" v-model="activeRes.total_harga" :disabled="!isEditMode && !isAddMode">
                                 </div>
                             </div>
 

@@ -137,7 +137,7 @@ $error_msg = $auth->login();
                 <label class="form-label">Password</label>  
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
-                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                    <input type="password" name="password" class="form-control" placeholder="Masukan Password" required>
                 </div>
             </div>
 
