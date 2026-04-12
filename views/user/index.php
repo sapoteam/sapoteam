@@ -198,21 +198,29 @@
             ],
             faqs: [
             {
-              question: 'Apakah harus booking untuk kunjungan biasa?',
-              answer: 'Tidak perlu. Pengunjung bisa langsung datang untuk kunjungan reguler selama jam operasional.'
-            },
-            {
-              question: 'Apakah tersedia reservasi untuk rombongan?',
-              answer: 'Ya, reservasi untuk rombongan sekolah, komunitas, atau acara keluarga dapat dilakukan melalui admin.'
-            },
-            {
-              question: 'Apakah bisa melakukan kegiatan melebihi jam operasional?',
-              answer: 'Bisa, tetapi akan dikenakan biaya tambahan Rp5.000 per orang jika melebihi jam operasional.'
-            },
-            {
-              question: 'Apakah Oemah Keboen tetap buka jika tidak musim buah?',
-              answer: 'Tetap buka, terutama untuk kegiatan acara seperti ulang tahun, komunitas, atau kegiatan edukasi.'
-            }
+          question: "Apakah boleh memetik buah di kebun?",
+          answer: "Boleh, asalkan meminta izin terlebih dahulu kepada petugas atau pengelola."
+        },
+        {
+          question: "Apakah boleh makan buah langsung di kebun?",
+          answer: "Tidak diperbolehkan. Jika melanggar, akan dikenakan charge sebesar Rp5.000."
+        },
+        {
+          question: "Kapan waktu terbaik untuk berkunjung?",
+          answer: "Waktu terbaik adalah saat musim buah, biasanya pada pertengahan hingga akhir tahun."
+        },
+        {
+          question: "Apakah bisa reschedule untuk reservasi?",
+          answer: "Bisa, jadwal kunjungan dapat diatur ulang sesuai kesepakatan dengan pihak pengelola."
+        },
+        {
+          question: "Apakah boleh membawa makanan dari luar?",
+          answer: "Boleh, selama pengunjung tetap menjaga kebersihan area wisata."
+        },
+        {
+          question: "Bagaimana cara memetik buah?",
+          answer: "Pilih buah yang sudah matang (berwarna cerah), dapat dipandu oleh petani. Setelah dipetik, buah akan ditimbang, dibayar, lalu dapat dikonsumsi."
+        } 
           ]
           }
         }

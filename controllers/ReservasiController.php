@@ -16,7 +16,8 @@ $action = $data['action'] ?? ($_GET['action'] ?? '');
 $protected_actions = ['update', 'update_status', 'delete'];
 
 if (in_array($action, $protected_actions)) {
-    if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
+$allowed_roles = ['Admin', 'Pegawai']; 
+    if (!isset($_SESSION['admin_logged_in']) || !in_array($_SESSION['admin_role'], $allowed_roles)) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); 
         exit;
     }

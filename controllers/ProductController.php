@@ -27,8 +27,10 @@ if ($action === 'read' || $action === 'get') {
 }
 
 $auth = new AuthController($conn);
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit;
+$allowed = ['Admin', 'Pegawai'];
+if (!isset($_SESSION['admin_logged_in']) || !in_array($_SESSION['admin_role'], $allowed)) {
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); 
+    exit;
 }
 
 $productModel = new ProductModel($conn);

@@ -3,7 +3,7 @@ require_once '../../config/conn.php';
 require_once '../../controllers/AuthController.php';
 
 $auth = new AuthController($conn);
-$auth->requireRole('Admin'); 
+$auth->requireRole('Admin, Pegawai');
 
 $admin_name = $_SESSION['admin_name'];
 $current_page = 'kelola_fasilitas.php';

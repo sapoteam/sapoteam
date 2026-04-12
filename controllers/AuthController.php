@@ -34,7 +34,6 @@ class AuthController {
                 $user = $this->userModel->getUserByUsername($username);
 
                 if ($user) {
-
                     if ($password === $user['password'] || password_verify($password, $user['password'])) {
 
                         $_SESSION['admin_logged_in'] = true;
@@ -54,8 +53,8 @@ class AuthController {
         }
 
         return $error; 
-
     }
+
     public function checkAuth() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -67,12 +66,16 @@ class AuthController {
         }
     }
 
-        public function requireRole($allowed_role) {
-
+    public function requireRole($allowed_roles) {
         $this->checkAuth();
 
-        if ($_SESSION['admin_role'] !== $allowed_role) {
-            echo "<script>alert('Akses Ditolak! Halaman ini hanya untuk $allowed_role.'); window.location.href='dashboard.php';</script>";
+        if (is_string($allowed_roles)) {
+            $allowed_roles = array_map('trim', explode(',', $allowed_roles));
+        }
+
+        if (!in_array($_SESSION['admin_role'], $allowed_roles)) {
+            $roles_text = implode(" atau ", $allowed_roles);
+            echo "<script>alert('Akses Ditolak! Halaman ini hanya untuk $roles_text.'); window.location.href='dashboard.php';</script>";
             exit;
         }
     }

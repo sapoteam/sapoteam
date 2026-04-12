@@ -5,8 +5,10 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../config/conn.php';
 require_once __DIR__ . '/../models/DashboardModel.php';
 
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit;
+$allowed_roles = ['Admin', 'Pegawai'];
+if (!isset($_SESSION['admin_logged_in']) || !in_array($_SESSION['admin_role'], $allowed_roles)) {
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); 
+    exit;
 }
 
 $dashboardModel = new DashboardModel($conn);
@@ -21,6 +23,12 @@ switch ($action) {
         break;
 
     case 'toggle_panen':
+
+        if ($_SESSION['admin_role'] !== 'Admin') {
+            echo json_encode(['status' => 'error', 'message' => 'Akses Ditolak! Hanya Admin yang bisa mengubah status panen.']);
+            break;
+        }
+
         $isActive = isset($data['statusPanen']) && $data['statusPanen'] == true;
         if ($dashboardModel->togglePanen($isActive)) {
             echo json_encode(['status' => 'success', 'message' => 'Status Panen berhasil diperbarui!']);

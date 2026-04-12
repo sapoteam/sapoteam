@@ -16,8 +16,10 @@ $targetDir = __DIR__ . '/../assets/img/reviews/';
 if (!file_exists($targetDir)) { mkdir($targetDir, 0777, true); }
 
 function requireAdmin() {
-    if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
-        echo json_encode(['status' => 'error', 'message' => 'Akses Ditolak! Anda bukan Admin.']); 
+    $allowed_roles = ['Admin', 'Pegawai']; 
+
+    if (!isset($_SESSION['admin_logged_in']) || !in_array($_SESSION['admin_role'], $allowed_roles)) {
+        echo json_encode(['status' => 'error', 'message' => 'Akses Ditolak! Anda tidak memiliki izin.']); 
         exit;
     }
 }
@@ -25,24 +27,32 @@ function requireAdmin() {
 switch ($action) {
 
     case 'read_approved':
+
         echo json_encode($ulasanModel->getApprovedUlasan());
         break;
 
-        case 'create':
+    case 'create':
+
         $uploadedFiles = [];
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp']; 
+
         if (isset($_FILES['fotos'])) {
             $totalFiles = count($_FILES['fotos']['name']);
             $limit = min($totalFiles, 5); 
 
             for ($i = 0; $i < $limit; $i++) {
                 if ($_FILES['fotos']['error'][$i] === UPLOAD_ERR_OK) {
-                    $fileExtension = pathinfo($_FILES['fotos']['name'][$i], PATHINFO_EXTENSION);
-                    $newFileName = 'rev_' . time() . '_' . rand(100,999) . '_' . $i . '.' . $fileExtension; 
-                    $targetFilePath = $targetDir . $newFileName;
+                    $fileExtension = strtolower(pathinfo($_FILES['fotos']['name'][$i], PATHINFO_EXTENSION));
 
-                    if (move_uploaded_file($_FILES['fotos']['tmp_name'][$i], $targetFilePath)) {
-                        $uploadedFiles[] = '../../assets/img/reviews/' . $newFileName;
+                    if (in_array($fileExtension, $allowedExtensions)) {
+                        $newFileName = 'rev_' . time() . '_' . rand(100,999) . '_' . $i . '.' . $fileExtension; 
+                        $targetFilePath = $targetDir . $newFileName;
+
+                        if (move_uploaded_file($_FILES['fotos']['tmp_name'][$i], $targetFilePath)) {
+                            $uploadedFiles[] = '../../assets/img/reviews/' . $newFileName;
+                        }
                     }
+
                 }
             }
         }
@@ -56,13 +66,11 @@ switch ($action) {
 
     case 'read_all':
         requireAdmin(); 
-
         echo json_encode($ulasanModel->getAllUlasan());
         break;
 
     case 'approve':
         requireAdmin(); 
-
         if ($ulasanModel->updateStatus($data['id'], 'Approved')) {
             echo json_encode(['status' => 'success', 'message' => 'Ulasan disetujui & tayang!']);
         } else {
@@ -71,26 +79,25 @@ switch ($action) {
         break;
 
     case 'delete':
-            requireAdmin(); 
+        requireAdmin(); 
+        $oldReview = $ulasanModel->getUlasanById($data['id']);
 
-            $oldReview = $ulasanModel->getUlasanById($data['id']);
-
-            if ($oldReview && !empty($oldReview['foto']) && is_array($oldReview['foto'])) {
-                foreach ($oldReview['foto'] as $path) {
-                    if (strpos($path, 'rev_') !== false) {
-                        $oldFileName = basename($path);
-                        $oldFilePhysical = $targetDir . $oldFileName;
-                        if (file_exists($oldFilePhysical)) { unlink($oldFilePhysical); }
-                    }
+        if ($oldReview && !empty($oldReview['foto']) && is_array($oldReview['foto'])) {
+            foreach ($oldReview['foto'] as $path) {
+                if (strpos($path, 'rev_') !== false) {
+                    $oldFileName = basename($path);
+                    $oldFilePhysical = $targetDir . $oldFileName;
+                    if (file_exists($oldFilePhysical)) { unlink($oldFilePhysical); }
                 }
             }
+        }
 
-            if ($ulasanModel->deleteUlasan($data['id'])) {
-                echo json_encode(['status' => 'success', 'message' => 'Ulasan berhasil dihapus.']);
-            } else {
-                echo json_encode(['status' => 'error', 'message' => 'Gagal menghapus ulasan.']);
-            }
-            break;
+        if ($ulasanModel->deleteUlasan($data['id'])) {
+            echo json_encode(['status' => 'success', 'message' => 'Ulasan berhasil dihapus.']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Gagal menghapus ulasan.']);
+        }
+        break;
 
     default:
         echo json_encode(['status' => 'error', 'message' => 'Aksi tidak valid']);
