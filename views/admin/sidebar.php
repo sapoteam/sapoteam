@@ -8,7 +8,11 @@ if (isset($_GET['action']) && $_GET['action'] == 'logout-confirmed') {
 
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <i class="bi bi-flower1 logo-icon"></i>
+        <img
+            src="../../assets/img/logo.png"
+            alt="Logo Oemah Keboen"
+            class="sidebar-logo"
+        >
         <h4 class="font-serif m-0">Oemah Keboen</h4>
         <small style="color: rgba(255,255,255,0.7); font-size: 0.8rem;">Portal Pengelola</small>
     </div>
@@ -17,7 +21,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'logout-confirmed') {
         <li><a href="dashboard.php" class="nav-link <?= ($current_page == 'dashboard.php') ? 'active' : '' ?>"><i class="bi bi-grid-fill"></i> <span>Dashboard</span></a></li>
         <li><a href="kelola_reservasi.php" class="nav-link <?= ($current_page == 'kelola_reservasi.php') ? 'active' : '' ?>"><i class="bi bi-calendar4-week"></i> <span>Kelola Reservasi</span></a></li>
         <li><a href="kelola_produk.php" class="nav-link <?= ($current_page == 'kelola_produk.php') ? 'active' : '' ?>"><i class="bi bi-box-seam"></i> <span>Kelola Produk</span></a></li>
-        <li><a href="kelola_fasilitas.php" class="nav-link <?= ($current_page == 'kelola_fasilitas.php') ? 'active' : '' ?>"><i class="bi bi-building"></i> <span>Kelola Fasilitas </span></a></li>
+        <li><a href="kelola_fasilitas.php" class="nav-link <?= ($current_page == 'kelola_fasilitas.php') ? 'active' : '' ?>"><i class="bi bi-building"></i> <span>Kelola Fasilitas</span></a></li>
         <li><a href="kelola_ulasan.php" class="nav-link <?= ($current_page == 'kelola_ulasan.php') ? 'active' : '' ?>"><i class="bi bi-chat-left-dots"></i> <span>Kelola Ulasan</span></a></li>
         <li><a href="kelola_pegawai.php" class="nav-link <?= ($current_page == 'kelola_pegawai.php') ? 'active' : '' ?>"><i class="bi bi-people-fill"></i> <span>Kelola Pegawai</span></a></li>
     </ul>
@@ -26,6 +30,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'logout-confirmed') {
         <a href="javascript:void(0)" class="btn-logout" @click="showLogoutModal = true">Keluar Sistem</a>
     </div>
 </div>
+
+<div 
+    class="sidebar-overlay" 
+    :class="{ show: isSidebarMobileOpen }" 
+    @click="closeSidebarMobile"
+></div>
 
 <transition name="fade">
     <div class="modal-overlay" v-if="showLogoutModal" style="z-index: 9999; background: rgba(0,0,0,0.6);">

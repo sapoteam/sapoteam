@@ -162,8 +162,9 @@ $current_page = 'dashboard.php';
         data() {
             return {
                 isLoaded: false,
-                isSidebarCollapsed: false, 
-                showLogoutModal: false,    
+                isSidebarCollapsed: false,
+                isSidebarMobileOpen: false,
+                showLogoutModal: false,
 
                 isPanenActive: false,
                 stats: {
@@ -178,7 +179,8 @@ $current_page = 'dashboard.php';
         },
         methods: {
             showToastMsg(message, type = 'success') {
-                this.toast.message = message; this.toast.type = type;
+                this.toast.message = message;
+                this.toast.type = type;
                 this.toast.icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
                 this.toast.show = true;
                 setTimeout(() => { this.toast.show = false; }, 3000);
@@ -203,9 +205,9 @@ $current_page = 'dashboard.php';
 
             async updateStatusPanen() {
                 try {
-                    const payload = { 
-                        action: 'toggle_panen', 
-                        statusPanen: this.isPanenActive 
+                    const payload = {
+                        action: 'toggle_panen',
+                        statusPanen: this.isPanenActive
                     };
 
                     const response = await fetch('../../controllers/DashboardController.php', {
@@ -218,8 +220,7 @@ $current_page = 'dashboard.php';
                     if (result.status === 'success') {
                         this.showToastMsg(result.message, 'success');
                     } else {
-
-                        this.isPanenActive = !this.isPanenActive; 
+                        this.isPanenActive = !this.isPanenActive;
                         this.showToastMsg(result.message, 'error');
                     }
                 } catch (e) {
@@ -228,25 +229,74 @@ $current_page = 'dashboard.php';
                 }
             },
 
-            handleSidebar() {
-                this.isSidebarCollapsed = !this.isSidebarCollapsed;
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar) return;
+
+                if (window.innerWidth <= 768) {
+                    this.isSidebarMobileOpen = !this.isSidebarMobileOpen;
+                    sidebar.classList.toggle('mobile-open', this.isSidebarMobileOpen);
+                    sidebar.classList.remove('collapsed');
+                } else {
+                    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+                    sidebar.classList.toggle('collapsed', this.isSidebarCollapsed);
+                }
+            },
+
+            closeSidebarMobile() {
+                if (window.innerWidth <= 768) {
+                    this.isSidebarMobileOpen = false;
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) sidebar.classList.remove('mobile-open');
+                }
+            },
+
+            handleResize() {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar) return;
+
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('collapsed');
+                    if (!this.isSidebarMobileOpen) {
+                        sidebar.classList.remove('mobile-open');
+                    }
+                } else {
+                    this.isSidebarMobileOpen = false;
+                    sidebar.classList.remove('mobile-open');
+                    sidebar.classList.toggle('collapsed', this.isSidebarCollapsed);
+                }
             }
         },
         mounted() {
-
             this.fetchDashboardData();
 
             const btn = document.getElementById('sidebarToggle');
-            if(btn) {
-                btn.addEventListener('click', () => {
-                    this.handleSidebar();
-                    document.getElementById('sidebar').classList.toggle('collapsed');
-                });
+            if (btn) {
+                btn.addEventListener('click', this.toggleSidebar);
             }
+
+            document.querySelectorAll('.nav-sidebar .nav-link').forEach(link => {
+                link.addEventListener('click', this.closeSidebarMobile);
+            });
+
+            window.addEventListener('resize', this.handleResize);
+            this.handleResize();
 
             setTimeout(() => {
                 this.isLoaded = true;
             }, 100);
+        },
+        beforeUnmount() {
+            const btn = document.getElementById('sidebarToggle');
+            if (btn) {
+                btn.removeEventListener('click', this.toggleSidebar);
+            }
+
+            document.querySelectorAll('.nav-sidebar .nav-link').forEach(link => {
+                link.removeEventListener('click', this.closeSidebarMobile);
+            });
+
+            window.removeEventListener('resize', this.handleResize);
         }
     }).mount('#app');
 </script>

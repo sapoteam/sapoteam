@@ -75,131 +75,177 @@ $current_page = 'tiket';
     }
   </style>
 </head>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const page = document.querySelector('.page-content');
+  if (!page) return;
+
+  // FADE IN saat halaman load
+  page.classList.add('fade-enter');
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      page.classList.remove('fade-enter');
+    });
+  });
+
+  // FADE OUT saat pindah halaman
+  document.querySelectorAll('a[href]').forEach(link => {
+    link.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+
+      if (
+        !href ||
+        href.startsWith('#') ||
+        href.startsWith('javascript:') ||
+        this.target === '_blank' ||
+        this.hasAttribute('download') ||
+        e.ctrlKey || e.metaKey || e.shiftKey || e.altKey
+      ) return;
+
+      const url = new URL(this.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+
+      e.preventDefault();
+
+      page.classList.add('fade-exit');
+
+      setTimeout(() => {
+        window.location.href = this.href;
+      }, 300);
+    });
+  });
+});
+</script>
+
 <body>
   <div id="app">
-    <?php include 'navbar.php'; ?>
+    <div class="page-content">
+      <?php include 'navbar.php'; ?>
 
-    <section class="reservation-hero" style="padding: 60px 0 30px;">
-      <div class="container">
-        <div class="row justify-content-center text-center">
-          <div class="col-lg-8">
-            <h1 class="font-serif fw-bold" style="color: var(--green-main); font-size: 2.5rem;">Formulir Reservasi</h1>
-            <p class="text-muted mt-3">
-              Lengkapi data di bawah ini. Setelah menyimpan data, Anda akan diarahkan ke WhatsApp Admin untuk konfirmasi DP (Down Payment).
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-padding pt-0 mb-5">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-8">
-            
-            <div class="mb-4">
-              <a href="tiket_reservasi.php" class="btn-back">
-                <i class="bi bi-arrow-left"></i> Kembali ke Pilihan Fasilitas
-              </a>
-            </div>
-
-            <div class="form-card">
-              <form @submit.prevent="submitReservation">
-                <div class="row g-4">
-                  <div class="col-md-6">
-                    <label class="form-label">Nama Lengkap Pemesan <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" :class="{'is-invalid': errors.nama}" v-model="form.nama" placeholder="Cth: Satria Aegis">
-                    <div class="invalid-feedback" v-if="errors.nama">{{ errors.nama }}</div>
-                  </div>
-                  
-                  <div class="col-md-6">
-                    <label class="form-label">Nomor WhatsApp Aktif <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" :class="{'is-invalid': errors.noHp}" 
-                           v-model="form.noHp" inputmode="numeric" pattern="[0-9]*" 
-                           @input="form.noHp = form.noHp.replace(/[^0-9]/g, '')" placeholder="Cth: 081234567890">
-                    <div class="invalid-feedback" v-if="errors.noHp">{{ errors.noHp }}</div>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="form-label">Area Fasilitas <span class="text-danger">*</span></label>
-                    <select class="form-select" v-model="form.fasilitas_id" required>
-                      <option v-if="facilities.length === 0" value="">Memuat fasilitas...</option>
-                      <option v-for="fac in facilities" :key="fac.id" :value="fac.id">
-                        {{ fac.nama }} ({{ formatRupiah(fac.harga) }}/org)
-                      </option>
-                    </select>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="form-label">Tanggal Acara <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" v-model="form.tanggal" :min="minDate" required>
-                  </div>
-
-                  <div class="col-md-12">
-                    <label class="form-label">Perkiraan Jumlah Orang <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" v-model="form.jumlahOrang" placeholder="Cth: 20" min="1" required>
-                  </div>
-
-                  <div class="col-12">
-                    <label class="form-label">Catatan / Detail Acara (Opsional)</label>
-                    <textarea class="form-control" v-model="form.catatan" rows="3" placeholder="Ceritakan singkat acara Anda..."></textarea>
-                  </div>
-
-                  <div class="col-12 mt-4" v-if="form.tanggal && form.jumlahOrang">
-                    <div class="summary-box">
-                      <h5 class="fw-bold mb-3" style="color: var(--green-main);">Rincian Biaya Reservasi</h5>
-                      
-                      <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Kategori Waktu Booking:</span>
-                        <span class="fw-medium">H-{{ daysDifference }} <small v-if="daysDifference < 7" class="text-danger">(Kurang dari H-7)</small></span>
-                      </div>
-
-                      <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Harga per Orang:</span>
-                        <span class="fw-medium">{{ formatRupiah(hargaPerOrang) }}</span>
-                      </div>
-                      
-                      <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Jumlah Peserta:</span>
-                        <span class="fw-medium">{{ form.jumlahOrang }} Orang</span>
-                      </div>
-                      
-                      <hr style="border-color: rgba(95, 122, 86, 0.2);">
-                      
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="fw-bold" style="font-size: 1.1rem; color: var(--text-dark);">Total Estimasi:</span>
-                        <span class="fw-bold fs-4" style="color: var(--green-main);">{{ formatRupiah(totalHarga) }}</span>
-                      </div>
-                      
-                      <div class="mt-2 text-end">
-                        <small class="text-muted">Wajib Bayar DP 70%: <strong style="color: var(--gold-btn); font-size: 1.05rem;">{{ formatRupiah(totalHarga * 0.7) }}</strong></small>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-12 mt-2" v-else>
-                    <div class="p-3 bg-light rounded text-center border" style="border-style: dashed !important;">
-                      <i class="bi bi-info-circle-fill text-warning me-2"></i>
-                      <small class="text-muted">Pilih <strong>Tanggal Acara</strong> dan <strong>Jumlah Orang</strong> untuk melihat estimasi biaya dan DP.</small>
-                    </div>
-                  </div>
-
-                  <div class="col-12 mt-4">
-                    <button type="submit" class="btn-submit-wa w-100 d-flex justify-content-center align-items-center gap-2" :disabled="isSubmitting">
-                      <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                      <i v-else class="bi bi-whatsapp fs-5"></i>
-                      <span>{{ isSubmitting ? 'Memproses...' : 'Simpan & Lanjut ke WhatsApp Admin' }}</span>
-                    </button>
-                  </div>
-                </div>
-              </form>
+      <section class="reservation-hero" style="padding: 60px 0 30px;">
+        <div class="container">
+          <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+              <h1 class="font-serif fw-bold" style="color: var(--green-main); font-size: 2.5rem;">Formulir Reservasi</h1>
+              <p class="text-muted mt-3">
+                Lengkapi data di bawah ini. Setelah menyimpan data, Anda akan diarahkan ke WhatsApp Admin untuk konfirmasi DP (Down Payment).
+              </p>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <?php include 'footer.php'; ?>
+      <section class="section-padding pt-0 mb-5">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-8">
+              
+              <div class="mb-4">
+                <a href="tiket_reservasi.php" class="btn-back">
+                  <i class="bi bi-arrow-left"></i> Kembali ke Pilihan Fasilitas
+                </a>
+              </div>
+
+              <div class="form-card">
+                <form @submit.prevent="submitReservation">
+                  <div class="row g-4">
+                    <div class="col-md-6">
+                      <label class="form-label">Nama Lengkap Pemesan <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" :class="{'is-invalid': errors.nama}" v-model="form.nama" placeholder="Cth: Satria Aegis">
+                      <div class="invalid-feedback" v-if="errors.nama">{{ errors.nama }}</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                      <label class="form-label">Nomor WhatsApp Aktif <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" :class="{'is-invalid': errors.noHp}" 
+                            v-model="form.noHp" inputmode="numeric" pattern="[0-9]*" 
+                            @input="form.noHp = form.noHp.replace(/[^0-9]/g, '')" placeholder="Cth: 081234567890">
+                      <div class="invalid-feedback" v-if="errors.noHp">{{ errors.noHp }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Area Fasilitas <span class="text-danger">*</span></label>
+                      <select class="form-select" v-model="form.fasilitas_id" required>
+                        <option v-if="facilities.length === 0" value="">Memuat fasilitas...</option>
+                        <option v-for="fac in facilities" :key="fac.id" :value="fac.id">
+                          {{ fac.nama }} ({{ formatRupiah(fac.harga) }}/org)
+                        </option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Tanggal Acara <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" v-model="form.tanggal" :min="minDate" required>
+                    </div>
+
+                    <div class="col-md-12">
+                      <label class="form-label">Perkiraan Jumlah Orang <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" v-model="form.jumlahOrang" placeholder="Cth: 20" min="1" required>
+                    </div>
+
+                    <div class="col-12">
+                      <label class="form-label">Catatan / Detail Acara (Opsional)</label>
+                      <textarea class="form-control" v-model="form.catatan" rows="3" placeholder="Ceritakan singkat acara Anda..."></textarea>
+                    </div>
+
+                    <div class="col-12 mt-4" v-if="form.tanggal && form.jumlahOrang">
+                      <div class="summary-box">
+                        <h5 class="fw-bold mb-3" style="color: var(--green-main);">Rincian Biaya Reservasi</h5>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                          <span class="text-muted">Kategori Waktu Booking:</span>
+                          <span class="fw-medium">H-{{ daysDifference }} <small v-if="daysDifference < 7" class="text-danger">(Kurang dari H-7)</small></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                          <span class="text-muted">Harga per Orang:</span>
+                          <span class="fw-medium">{{ formatRupiah(hargaPerOrang) }}</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                          <span class="text-muted">Jumlah Peserta:</span>
+                          <span class="fw-medium">{{ form.jumlahOrang }} Orang</span>
+                        </div>
+                        
+                        <hr style="border-color: rgba(95, 122, 86, 0.2);">
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                          <span class="fw-bold" style="font-size: 1.1rem; color: var(--text-dark);">Total Estimasi:</span>
+                          <span class="fw-bold fs-4" style="color: var(--green-main);">{{ formatRupiah(totalHarga) }}</span>
+                        </div>
+                        
+                        <div class="mt-2 text-end">
+                          <small class="text-muted">Wajib Bayar DP 70%: <strong style="color: var(--gold-btn); font-size: 1.05rem;">{{ formatRupiah(totalHarga * 0.7) }}</strong></small>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 mt-2" v-else>
+                      <div class="p-3 bg-light rounded text-center border" style="border-style: dashed !important;">
+                        <i class="bi bi-info-circle-fill text-warning me-2"></i>
+                        <small class="text-muted">Pilih <strong>Tanggal Acara</strong> dan <strong>Jumlah Orang</strong> untuk melihat estimasi biaya dan DP.</small>
+                      </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                      <button type="submit" class="btn-submit-wa w-100 d-flex justify-content-center align-items-center gap-2" :disabled="isSubmitting">
+                        <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <i v-else class="bi bi-whatsapp fs-5"></i>
+                        <span>{{ isSubmitting ? 'Memproses...' : 'Simpan & Lanjut ke WhatsApp Admin' }}</span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <?php include 'footer.php'; ?>
+    </div>
   </div>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -366,7 +412,7 @@ $current_page = 'tiket';
                   const waUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
 
                   window.open(waUrl, '_blank');
-                  window.location.href = 'tiket_reservasi.php';
+                  this.goWithFade('tiket_reservasi.php');
 
               } else {
                   alert("Gagal memproses: " + responseData.message);
@@ -377,6 +423,14 @@ $current_page = 'tiket';
           } finally {
               this.isSubmitting = false;
           }
+        },
+        goWithFade(url) {
+          const page = document.querySelector('.page-content');
+          if (page) page.classList.add('fade-exit');
+
+          setTimeout(() => {
+            window.location.href = url;
+          }, 300);
         }
       },
       mounted() {

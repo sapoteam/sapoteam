@@ -56,124 +56,169 @@
     .fade-enter-from, .fade-leave-to { opacity: 0; }
   </style>
 </head>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const page = document.querySelector('.page-content');
+  if (!page) return;
+
+  // FADE IN saat halaman load
+  page.classList.add('fade-enter');
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      page.classList.remove('fade-enter');
+    });
+  });
+
+  // FADE OUT saat pindah halaman
+  document.querySelectorAll('a[href]').forEach(link => {
+    link.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+
+      if (
+        !href ||
+        href.startsWith('#') ||
+        href.startsWith('javascript:') ||
+        this.target === '_blank' ||
+        this.hasAttribute('download') ||
+        e.ctrlKey || e.metaKey || e.shiftKey || e.altKey
+      ) return;
+
+      const url = new URL(this.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+
+      e.preventDefault();
+
+      page.classList.add('fade-exit');
+
+      setTimeout(() => {
+        window.location.href = this.href;
+      }, 300);
+    });
+  });
+});
+</script>
+
 <body>
   <div id="app">
-  <?php include 'navbar.php'; ?>
+    <div class="page-content">
+      <?php include 'navbar.php'; ?>
 
-    <section class="section-padding review-page">
-      <div class="container">
-        <div class="review-page-topbar">
-          <h1 class="review-page-title">Oemah Keboen: Insider Insights and Visitor Experiences</h1>
-        </div>
-
-        <div class="review-list-page">
-          <div v-if="reviews.length === 0" class="text-center py-5 text-muted">
-             <i class="bi bi-chat-square-heart fs-1 d-block mb-3"></i>
-             <h4>Belum ada ulasan yang ditampilkan.</h4>
-             <p>Jadilah yang pertama membagikan pengalaman seru kamu!</p>
-          </div>
-
-          <div class="review-card-page" v-for="(review, index) in reviews" :key="index">
-            <div class="review-avatar-page">
-              <i class="bi bi-person-fill"></i>
+        <section class="section-padding review-page">
+          <div class="container">
+            <div class="review-page-topbar">
+              <h1 class="review-page-title">Oemah Keboen: Cerita & Pengalaman Pengunjung</h1>
             </div>
 
-            <div class="review-content-page">
-              <h3 class="review-name-page">{{ review.name }}</h3>
-
-              <div class="review-rating-page">
-                <i v-for="star in 5" :key="star" class="bi" :class="star <= review.rating ? 'bi-star-fill text-warning' : 'bi-star text-secondary'"></i>
+            <div class="review-list-page">
+              <div v-if="reviews.length === 0" class="text-center py-5 text-muted">
+                <i class="bi bi-chat-square-heart fs-1 d-block mb-3"></i>
+                <h4>Belum ada ulasan yang ditampilkan.</h4>
+                <p>Jadilah yang pertama membagikan pengalaman seru kamu!</p>
               </div>
 
-              <p class="review-text-page">{{ review.text }}</p>
+              <div class="review-card-page" v-for="(review, index) in reviews" :key="index">
+                <div class="review-avatar-page">
+                  <i class="bi bi-person-fill"></i>
+                </div>
 
-              <div class="review-gallery-page" v-if="review.images && review.images.length > 0">
-                <div class="review-thumb-page" v-for="(img, i) in review.images" :key="i">
-                  <img :src="img" alt="Foto review" style="object-fit: cover; width: 100px; height: 100px; border-radius: 8px;" @click="openLightbox(img)">
+                <div class="review-content-page">
+                  <h3 class="review-name-page">{{ review.name }}</h3>
+
+                  <div class="review-rating-page">
+                    <i v-for="star in 5" :key="star" class="bi" :class="star <= review.rating ? 'bi-star-fill text-warning' : 'bi-star text-secondary'"></i>
+                  </div>
+
+                  <p class="review-text-page">{{ review.text }}</p>
+
+                  <div class="review-gallery-page" v-if="review.images && review.images.length > 0">
+                    <div class="review-thumb-page" v-for="(img, i) in review.images" :key="i">
+                      <img :src="img" alt="Foto review" style="object-fit: cover; width: 100px; height: 100px; border-radius: 8px;" @click="openLightbox(img)">
+                    </div>
+                  </div>
+
+                  <div class="review-date-page text-muted mt-2 small">{{ review.date }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-padding review-form-section" style="background-color: #f9f9f4;">
+          <div class="container">
+            <div class="review-form-page-box bg-white p-4 rounded-4 shadow-sm mx-auto" style="max-width: 800px;">
+              <h2 class="review-form-page-title mb-4">Bagaimana pengalaman Anda di Oemah Keboen?</h2>
+
+              <div v-if="alert.show" class="alert" :class="'alert-' + alert.type" role="alert">
+                <i class="bi me-2" :class="alert.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+                {{ alert.message }}
+              </div>
+
+              <div class="review-form-group mb-3">
+                <label class="fw-bold small mb-1">Nama Lengkap</label>
+                <input type="text" class="form-control review-input" v-model="newReview.name" placeholder="Masukkan nama kamu">
+              </div>
+
+              <div class="review-form-group mb-3">
+                <label class="fw-bold small mb-1">Berikan Penilaian Anda</label>
+                <div class="review-stars-input fs-4" style="cursor: pointer;">
+                  <i v-for="star in 5" :key="star" class="bi me-1" :class="star <= newReview.rating ? 'bi-star-fill text-warning' : 'bi-star text-secondary'" @click="newReview.rating = star"></i>
                 </div>
               </div>
 
-              <div class="review-date-page text-muted mt-2 small">{{ review.date }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-padding review-form-section" style="background-color: #f9f9f4;">
-      <div class="container">
-        <div class="review-form-page-box bg-white p-4 rounded-4 shadow-sm mx-auto" style="max-width: 800px;">
-          <h2 class="review-form-page-title mb-4">How was Oemah Keboen?</h2>
-
-          <div v-if="alert.show" class="alert" :class="'alert-' + alert.type" role="alert">
-             <i class="bi me-2" :class="alert.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
-             {{ alert.message }}
-          </div>
-
-          <div class="review-form-group mb-3">
-            <label class="fw-bold small mb-1">Nama Lengkap</label>
-            <input type="text" class="form-control review-input" v-model="newReview.name" placeholder="Masukkan nama kamu">
-          </div>
-
-          <div class="review-form-group mb-3">
-            <label class="fw-bold small mb-1">Add your rating</label>
-            <div class="review-stars-input fs-4" style="cursor: pointer;">
-              <i v-for="star in 5" :key="star" class="bi me-1" :class="star <= newReview.rating ? 'bi-star-fill text-warning' : 'bi-star text-secondary'" @click="newReview.rating = star"></i>
-            </div>
-          </div>
-
-          <div class="review-form-group mb-3">
-            <label class="fw-bold small mb-1">Tell us about your visit</label>
-            <div class="review-textarea-wrap">
-              <div class="review-textarea-note text-muted small mb-2">
-                Tell us about your trip to inspire and help other travelers.
-              </div>
-              <textarea class="form-control review-textarea" rows="5" v-model="newReview.text" placeholder="Ceritakan pengalamanmu..."></textarea>
-            </div>
-          </div>
-
-          <div class="review-form-group">
-            <label>Add Photos (Optional)</label>
-            <p class="review-upload-desc">
-              Got some cool pics? Drop them here and show what your visit looked like! (Max 2MB per photo)
-            </p>
-
-            <div class="review-upload-box" @click="$refs.fileInput.click()">
-              <input type="file" class="review-upload-input" multiple accept="image/*" @change="handleReviewImages" ref="fileInput" style="display: none;">
-              <i class="bi bi-camera-fill"></i>
-              <span>{{ newReview.files.length }}/5</span>
-            </div>
-
-            <div class="d-flex gap-2 mt-3 flex-wrap" v-if="newReview.previews.length > 0">
-                <div v-for="(prev, index) in newReview.previews" :key="index" style="position: relative;">
-                    <img :src="prev" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
-                    <button class="btn btn-sm btn-danger rounded-circle p-1" style="position: absolute; top: -5px; right: -5px; width: 24px; height: 24px; line-height: 1;" @click.stop="removeImage(index)">
-                        <i class="bi bi-x"></i>
-                    </button>
+              <div class="review-form-group mb-3">
+                <label class="fw-bold small mb-1">Ceritakan pengalaman Anda</label>
+                <div class="review-textarea-wrap">
+                  <div class="review-textarea-note text-muted small mb-2">
+                    Bagikan pengalaman Anda untuk membantu dan menginspirasi pengunjung lainnya.
+                  </div>
+                  <textarea class="form-control review-textarea" rows="5" v-model="newReview.text" placeholder="Ceritakan pengalamanmu..."></textarea>
                 </div>
+              </div>
+
+              <div class="review-form-group">
+                <label>Tambahkan Foto (Opsional)</label>
+                <p class="review-upload-desc">
+                  Punya foto menarik? Unggah di sini untuk menunjukkan pengalaman Anda. (Maks. 2MB per foto)
+                </p>
+
+                <div class="review-upload-box" @click="$refs.fileInput.click()">
+                  <input type="file" class="review-upload-input" multiple accept="image/*" @change="handleReviewImages" ref="fileInput" style="display: none;">
+                  <i class="bi bi-camera-fill"></i>
+                  <span>{{ newReview.files.length }}/5</span>
+                </div>
+
+                <div class="d-flex gap-2 mt-3 flex-wrap" v-if="newReview.previews.length > 0">
+                    <div v-for="(prev, index) in newReview.previews" :key="index" style="position: relative;">
+                        <img :src="prev" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+                        <button class="btn btn-sm btn-danger rounded-circle p-1" style="position: absolute; top: -5px; right: -5px; width: 24px; height: 24px; line-height: 1;" @click.stop="removeImage(index)">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                </div>
+              </div>
+
+              <div class="d-flex gap-3 flex-wrap pt-3 border-top mt-4">
+                <button class="btn fw-bold px-4 py-2 rounded-3 text-white" style="background-color: #C1A570; border: none;" @click="submitReview" :disabled="isSubmitting">
+                    <span v-if="isSubmitting">Mengirim...</span>
+                    <span v-else>Submit Review</span>
+                </button>
+                <button class="btn btn-outline-secondary px-4 py-2 rounded-3" @click="resetForm">Batal</button>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div class="d-flex gap-3 flex-wrap pt-3 border-top mt-4">
-            <button class="btn fw-bold px-4 py-2 rounded-3 text-white" style="background-color: #C1A570; border: none;" @click="submitReview" :disabled="isSubmitting">
-                <span v-if="isSubmitting">Mengirim...</span>
-                <span v-else>Submit Review</span>
-            </button>
-            <button class="btn btn-outline-secondary px-4 py-2 rounded-3" @click="resetForm">Batal</button>
-          </div>
-        </div>
-      </div>
-    </section>
+        <transition name="fade">
+            <div v-if="lightbox.show" class="lightbox-modal" @click="lightbox.show = false">
+                <i class="bi bi-x-circle lightbox-close"></i>
+                <img :src="lightbox.imageUrl" class="lightbox-content" @click.stop>
+            </div>
+        </transition>
 
-    <transition name="fade">
-        <div v-if="lightbox.show" class="lightbox-modal" @click="lightbox.show = false">
-            <i class="bi bi-x-circle lightbox-close"></i>
-            <img :src="lightbox.imageUrl" class="lightbox-content" @click.stop>
-        </div>
-    </transition>
-
-  <?php include 'footer.php'; ?>
-
+      <?php include 'footer.php'; ?>
+    </div>
   </div>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -316,6 +361,14 @@
           } finally {
               this.isSubmitting = false;
           }
+        },
+        goWithFade(url) {
+          const page = document.querySelector('.page-content');
+          if (page) page.classList.add('fade-exit');
+
+          setTimeout(() => {
+            window.location.href = url;
+          }, 300);
         }
       },
       mounted() {

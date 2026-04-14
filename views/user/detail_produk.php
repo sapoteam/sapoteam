@@ -89,110 +89,156 @@ if ($decoded && strpos($decoded, 'ok_') === 0) {
     .btn-back:hover { color: #4a6142; transform: translateX(-5px); }
   </style>
 </head>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const page = document.querySelector('.page-content');
+  if (!page) return;
+
+  // FADE IN saat halaman load
+  page.classList.add('fade-enter');
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      page.classList.remove('fade-enter');
+    });
+  });
+
+  // FADE OUT saat pindah halaman
+  document.querySelectorAll('a[href]').forEach(link => {
+    link.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+
+      if (
+        !href ||
+        href.startsWith('#') ||
+        href.startsWith('javascript:') ||
+        this.target === '_blank' ||
+        this.hasAttribute('download') ||
+        e.ctrlKey || e.metaKey || e.shiftKey || e.altKey
+      ) return;
+
+      const url = new URL(this.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+
+      e.preventDefault();
+
+      page.classList.add('fade-exit');
+
+      setTimeout(() => {
+        window.location.href = this.href;
+      }, 300);
+    });
+  });
+});
+</script>
+
 <body>
   <div id="app">
-    <?php include 'navbar.php'; ?>
+    <div class="page-content">
+      <?php include 'navbar.php'; ?>
 
-    <div style="padding-top: 40px;"></div>
+      <div style="padding-top: 40px;"></div>
 
-    <section class="section-padding pt-0 mb-5">
-      <div class="container">
+      <section class="section-padding pt-0 mb-5">
+        <div class="container">
 
-        <div class="mb-4">
-          <a href="produk.php" class="btn-back">
-            <i class="bi bi-arrow-left"></i> Kembali ke Katalog Produk
-          </a>
-        </div>
-
-        <div v-if="isLoading" class="text-center py-5">
-          <div class="spinner-border text-success" role="status">
-            <span class="visually-hidden">Loading...</span>
+          <div class="mb-4">
+            <a href="produk.php" class="btn-back">
+              <i class="bi bi-arrow-left"></i> Kembali ke Katalog Produk
+            </a>
           </div>
-        </div>
 
-        <div v-else-if="!product" class="text-center py-5 text-muted">
-          <i class="bi bi-exclamation-circle fs-1 d-block mb-3"></i>
-          <h5>Produk tidak ditemukan atau tidak tersedia.</h5>
-        </div>
-
-        <div v-else class="detail-card">
-          <div class="row g-5">
-            <div class="col-lg-5">
-              <img :src="product.image ? product.image : '../../assets/img/produk_default.jpg'" :alt="product.nama" class="product-img-main shadow-sm">
+          <div v-if="isLoading" class="text-center py-5">
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Loading...</span>
             </div>
-            <div class="col-lg-7">
-              <div class="mb-2">
-                <span class="badge-category">{{ product.kategori }}</span>
+          </div>
+
+          <div v-else-if="!product" class="text-center py-5 text-muted">
+            <i class="bi bi-exclamation-circle fs-1 d-block mb-3"></i>
+            <h5>Produk tidak ditemukan atau tidak tersedia.</h5>
+          </div>
+
+          <div v-else class="detail-card">
+            <div class="row g-5">
+              <div class="col-lg-5">
+                <img :src="product.image ? product.image : '../../assets/img/produk_default.jpg'" :alt="product.nama" class="product-img-main shadow-sm">
               </div>
-              <h1 class="font-serif fw-bold mb-2" style="color: var(--text-dark);">{{ product.nama }}</h1>
-              <div class="product-price mb-3">{{ formatRupiah(product.harga) }}</div>
-              <p class="text-muted mb-4" style="line-height: 1.6; white-space: pre-line;">{{ product.deskripsi }}</p>
-
-              <hr style="border-color: rgba(95, 122, 86, 0.2); margin-bottom: 25px;">
-              <h5 class="fw-bold mb-3">Formulir Pemesanan</h5>
-
-              <form @submit.prevent="submitOrder">
-                <div class="row g-3">
-                  <div class="col-12 mb-2">
-                    <label class="form-label d-block">Jumlah Pembelian</label>
-                    <div class="qty-group">
-                      <button type="button" class="btn-qty" @click="decrementQty"><i class="bi bi-dash"></i></button>
-                      <input type="number" class="qty-input" v-model.number="form.qty" min="1" required>
-                      <button type="button" class="btn-qty" @click="incrementQty"><i class="bi bi-plus"></i></button>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" :class="{'is-invalid': errors.nama}"
-                           v-model="form.nama" placeholder="Masukkan nama...">
-                    <div class="invalid-feedback" v-if="errors.nama">{{ errors.nama }}</div>
-                  </div>
-                  <div class="col-md-6">
-                  <label class="form-label">Nomor WhatsApp <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" :class="{'is-invalid': errors.noHp}"
-                        v-model="form.noHp" 
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        placeholder="Cth: 081234567890"
-                        @input="form.noHp = form.noHp.replace(/[^0-9]/g, '')"> <div class="invalid-feedback" v-if="errors.noHp">{{ errors.noHp }}</div>
+              <div class="col-lg-7">
+                <div class="mb-2">
+                  <span class="badge-category">{{ product.kategori }}</span>
                 </div>
-                  <div class="col-12">  
-                    <label class="form-label">Catatan Tambahan (Opsional)</label>
-                    <textarea class="form-control" v-model="form.catatan" rows="2" placeholder="Catatan untuk penjual..."></textarea>
-                  </div>
-                  <div class="col-12 mt-3">
-                    <div class="summary-box">
-                      <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                          <span class="text-muted d-block mb-1">Total Pembayaran:</span>
-                          <small class="text-muted">{{ form.qty || 0 }} x {{ formatRupiah(product.harga) }}</small>
-                        </div>
-                        <span class="fw-bold fs-3" style="color: var(--green-main);">{{ formatRupiah(totalHarga) }}</span>
+                <h1 class="font-serif fw-bold mb-2" style="color: var(--text-dark);">{{ product.nama }}</h1>
+                <div class="product-price mb-3">{{ formatRupiah(product.harga) }}</div>
+                <p class="text-muted mb-4" style="line-height: 1.6; white-space: pre-line;">{{ product.deskripsi }}</p>
+
+                <hr style="border-color: rgba(95, 122, 86, 0.2); margin-bottom: 25px;">
+                <h5 class="fw-bold mb-3">Formulir Pemesanan</h5>
+
+                <form @submit.prevent="submitOrder">
+                  <div class="row g-3">
+                    <div class="col-12 mb-2">
+                      <label class="form-label d-block">Jumlah Pembelian</label>
+                      <div class="qty-group">
+                        <button type="button" class="btn-qty" @click="decrementQty"><i class="bi bi-dash"></i></button>
+                        <input type="number" class="qty-input" v-model.number="form.qty" min="1" required>
+                        <button type="button" class="btn-qty" @click="incrementQty"><i class="bi bi-plus"></i></button>
                       </div>
                     </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" :class="{'is-invalid': errors.nama}"
+                            v-model="form.nama" placeholder="Masukkan nama...">
+                      <div class="invalid-feedback" v-if="errors.nama">{{ errors.nama }}</div>
+                    </div>
+                    <div class="col-md-6">
+                    <label class="form-label">Nomor WhatsApp <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.noHp}"
+                          v-model="form.noHp" 
+                          inputmode="numeric"
+                          pattern="[0-9]*"
+                          placeholder="Cth: 081234567890"
+                          @input="form.noHp = form.noHp.replace(/[^0-9]/g, '')"> <div class="invalid-feedback" v-if="errors.noHp">{{ errors.noHp }}</div>
                   </div>
-                  <div class="col-12 mt-2">
-                    <div class="p-3 bg-light rounded border text-center" style="border-style: dashed !important;">
-                      <i class="bi bi-bag-check-fill text-warning me-2"></i>
-                      <small class="text-muted">Pembayaran dan pengambilan produk dilakukan langsung di <strong>Lokasi Oemah Keboen</strong>.</small>
+                    <div class="col-12">  
+                      <label class="form-label">Catatan Tambahan (Opsional)</label>
+                      <textarea class="form-control" v-model="form.catatan" rows="2" placeholder="Catatan untuk penjual..."></textarea>
+                    </div>
+                    <div class="col-12 mt-3">
+                      <div class="summary-box">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <span class="text-muted d-block mb-1">Total Pembayaran:</span>
+                            <small class="text-muted">{{ form.qty || 0 }} x {{ formatRupiah(product.harga) }}</small>
+                          </div>
+                          <span class="fw-bold fs-3" style="color: var(--green-main);">{{ formatRupiah(totalHarga) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 mt-2">
+                      <div class="p-3 bg-light rounded border text-center" style="border-style: dashed !important;">
+                        <i class="bi bi-bag-check-fill text-warning me-2"></i>
+                        <small class="text-muted">Pembayaran dan pengambilan produk dilakukan langsung di <strong>Lokasi Oemah Keboen</strong>.</small>
+                      </div>
+                    </div>
+                    <div class="col-12 mt-3">
+                      <button type="submit" class="btn-submit-wa w-100 d-flex justify-content-center align-items-center gap-2">
+                        <i class="bi bi-whatsapp fs-5"></i>
+                        <span>Pesan via WhatsApp</span>
+                      </button>
                     </div>
                   </div>
-                  <div class="col-12 mt-3">
-                    <button type="submit" class="btn-submit-wa w-100 d-flex justify-content-center align-items-center gap-2">
-                      <i class="bi bi-whatsapp fs-5"></i>
-                      <span>Pesan via WhatsApp</span>
-                    </button>
-                  </div>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
+
         </div>
+      </section>
 
-      </div>
-    </section>
-
-    <?php include 'footer.php'; ?>
+      <?php include 'footer.php'; ?>
+    </div>
   </div>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>

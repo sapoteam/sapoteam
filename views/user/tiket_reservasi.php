@@ -15,209 +15,212 @@ $current_page = 'tiketreservasi.php';
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div id="app">
-    <?php include 'navbar.php'; ?>
+    <div class="page-content">
+      <?php include 'navbar.php'; ?>
 
-    <section class="reservation-hero">
-      <div class="container">
-        <div class="row justify-content-center text-center">
-          <div class="col-lg-9">
-            <h1 class="reservation-hero-title">Tiket & Reservasi</h1>
-            <p class="reservation-hero-text">
-              Pilih tiket masuk reguler untuk kunjungan santai, atau lakukan reservasi acara
-              untuk menggunakan fasilitas Oemah Keboen seperti pendopo, gazebo, dan halaman depan.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-padding">
-      <div class="container">
-        <div class="ticket-card">
-          <div class="ticket-card-head">
-            <h2 class="ticket-card-title">Tiket Masuk Reguler</h2>
-            <div class="ticket-price-box">
-              <span class="ticket-price-label">Mulai dari</span>
-              <span class="ticket-price">Rp 5.000</span>
-            </div>
-          </div>
-
-          <div class="ticket-info-block">
-            <p>Nikmati suasana kebun terbuka di Oemah Keboen sambil merasakan pengalaman melihat dan memetik buah langsung dari pohonnya.</p>
-          </div>
-
-          <div class="ticket-info-block">
-            <h3>Yang Kamu Dapatkan</h3>
-            <ul class="ticket-list">
-              <li>Area terbuka untuk bersantai</li>
-              <li>Pengalaman melihat dan memetik buah langsung</li>
-              <li>Area nyaman untuk rekreasi keluarga</li>
-            </ul>
-          </div>
-
-          <div class="ticket-info-block">
-            <h3>Wajib Tahu</h3>
-            <ul class="ticket-list">
-              <li><strong>Jam operasional:</strong> Jum’at – Minggu, 09.00 – 17.00</li>
-              <li>Pembelian tiket dilakukan secara langsung di tempat</li>
-              <li>Pengunjung wajib mengikuti aturan yang berlaku</li>
-              <li>Area tertentu mungkin dibatasi jika terdapat reservasi acara</li>
-            </ul>
-          </div>
-
-          <div class="ticket-info-block">
-            <h3>Biaya Tambahan</h3>
-            <p>Dikenakan biaya Rp5.000/orang jika melebihi jam operasional.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-padding reservation-facilities">
-      <div class="container">
-        <div class="section-heading">
-          <h2 class="section-title">Fasilitas Reservasi</h2>
-          <p class="section-subtitle">Pilih area yang paling sesuai untuk acara kamu di Oemah Keboen.</p>
-        </div>
-
-        <div v-if="isLoadingFacilities" class="text-center py-4">
-            <div class="spinner-border text-success" role="status"></div>
-        </div>
-
-        <div v-else class="row g-4">
-          <div class="col-md-6 col-lg-4" v-for="facility in facilities" :key="facility.id">
-            <div class="facility-card">
-              <img :src="facility.image ? facility.image : '../../assets/img/produk_default.jpg'" :alt="facility.nama" class="facility-image">
-              <div class="facility-body">
-                <h3 class="facility-title">{{ facility.nama }}</h3>
-                <p class="facility-desc">{{ facility.deskripsi }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-padding">
-      <div class="container">
-        <div class="reservation-box">
-          <div class="reservation-head">
-            <h2 class="section-title mb-0">Reservasi Acara</h2>
-            <div class="reservation-dp">
-              <span class="reservation-dp-label">Ketentuan</span>
-              <span class="reservation-dp-value">DP 70%</span>
-            </div>
-          </div>
-
-          <div class="row g-4 align-items-start">
-            <div class="col-lg-8">
-              <h3 class="reservation-subtitle">Cek Ketersediaan</h3>
-
-              <div class="calendar-card">
-                <div class="calendar-header">
-                  <button class="calendar-nav" @click="prevMonth"><i class="bi bi-chevron-left"></i></button>
-                  <h4>{{ monthNames[currentMonth] }} {{ currentYear }}</h4>
-                  <button class="calendar-nav" @click="nextMonth"><i class="bi bi-chevron-right"></i></button>
-                </div>
-
-                <div class="calendar-weekdays">
-                  <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
-                </div>
-
-                <div class="calendar-grid">
-                  <div v-for="(day, index) in calendarDays" :key="index"
-                    class="calendar-day"
-                    :class="{ 'empty': !day.date, 'booked': day.booked, 'today': day.isToday }">
-                    {{ day.date || '' }}
-                    <div v-if="day.event" class="tooltip-event">{{ day.event }}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="calendar-legend">
-                <span class="legend-dot booked-dot"></span>
-                <span>Sudah Terisi (Booked)</span>
-              </div>
-            </div>
-
-            <div class="col-lg-4">
-              <div class="reservation-side-card">
-                <h3 class="reservation-subtitle">Pilih Tempat</h3>
-
-                <div class="reservation-select-wrap">
-                  <select class="form-select reservation-select" v-model="selectedPlace">
-                    <option v-if="facilities.length === 0" value="">Memuat data...</option>
-                    <option v-for="fac in facilities" :key="fac.id" :value="fac.nama">
-                      {{ fac.nama }}
-                    </option>
-                  </select>
-                  <i class="bi bi-chevron-down dropdown-icon"></i>
-                </div>
-
-                <div class="selected-place-box mt-3">
-                  <div class="selected-place-label">Tempat Terpilih</div>
-                  <div class="selected-place-value">{{ selectedPlace || 'Belum dipilih' }}</div>
-                </div>
-
-                <a :href="selectedPlace ? 'form_reservasi.php?tempat=' + encodeURIComponent(selectedPlace) : '#'" 
-                   class="btn btn-gold w-100 mt-4 py-2 fw-bold" 
-                   :class="{'disabled': !selectedPlace}"
-                   style="border-radius: 12px; font-size: 1.1rem;">
-                  Lanjut Buat Reservasi <i class="bi bi-arrow-right ms-1"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div class="reservation-details mt-5">
-            <div class="reservation-detail-block">
-              <p>
-                Nikmati pengalaman wisata di Oemah Keboen dengan suasana kebun terbuka yang cocok
-                untuk kegiatan kelompok dan acara bersama.
+      <section class="reservation-hero">
+        <div class="container">
+          <div class="row justify-content-center text-center">
+            <div class="col-lg-9">
+              <h1 class="reservation-hero-title">Tiket & Reservasi</h1>
+              <p class="reservation-hero-text">
+                Pilih tiket masuk reguler untuk kunjungan santai, atau lakukan reservasi acara
+                untuk menggunakan fasilitas Oemah Keboen seperti pendopo, gazebo, dan halaman depan.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div class="reservation-detail-block">
+      <section class="section-padding">
+        <div class="container">
+          <div class="ticket-card">
+            <div class="ticket-card-head">
+              <h2 class="ticket-card-title">Tiket Masuk Reguler</h2>
+              <div class="ticket-price-box">
+                <span class="ticket-price-label">Mulai dari</span>
+                <span class="ticket-price">Rp 5.000</span>
+              </div>
+            </div>
+
+            <div class="ticket-info-block">
+              <p>Nikmati suasana kebun terbuka di Oemah Keboen sambil merasakan pengalaman melihat dan memetik buah langsung dari pohonnya.</p>
+            </div>
+
+            <div class="ticket-info-block">
               <h3>Yang Kamu Dapatkan</h3>
               <ul class="ticket-list">
-                <li>Akses ke area kebun untuk kegiatan kelompok</li>
+                <li>Area terbuka untuk bersantai</li>
                 <li>Pengalaman melihat dan memetik buah langsung</li>
-                <li>Area khusus untuk kegiatan atau acara</li>
-                <li>Fleksibilitas waktu kunjungan sesuai reservasi</li>
+                <li>Area nyaman untuk rekreasi keluarga</li>
               </ul>
             </div>
 
-            <div class="reservation-detail-block">
-              <h3>Harga Reservasi</h3>
-              <ul class="ticket-list">
-                <li><strong>Reservasi H-7:</strong> Rp10.000/orang</li>
-                <li><strong>Reservasi &lt; H-7:</strong> Rp15.000/orang</li>
-              </ul>
-            </div>
-
-            <div class="reservation-detail-block">
+            <div class="ticket-info-block">
               <h3>Wajib Tahu</h3>
               <ul class="ticket-list">
-                <li><strong>Jam operasional:</strong> 09.00 – 17.00</li>
-                <li>Tersedia pilihan reservasi H-7 dan kurang dari H-7</li>
-                <li>Reservasi wajib dilakukan sebelum hari kunjungan</li>
+                <li><strong>Jam operasional:</strong> Jum’at – Minggu, 09.00 – 17.00</li>
+                <li>Pembelian tiket dilakukan secara langsung di tempat</li>
                 <li>Pengunjung wajib mengikuti aturan yang berlaku</li>
                 <li>Area tertentu mungkin dibatasi jika terdapat reservasi acara</li>
               </ul>
             </div>
 
-            <div class="reservation-detail-block">
+            <div class="ticket-info-block">
               <h3>Biaya Tambahan</h3>
               <p>Dikenakan biaya Rp5.000/orang jika melebihi jam operasional.</p>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <?php include 'footer.php'; ?>
+      <section class="section-padding reservation-facilities">
+        <div class="container">
+          <div class="section-heading">
+            <h2 class="section-title">Fasilitas Reservasi</h2>
+            <p class="section-subtitle">Pilih area yang paling sesuai untuk acara kamu di Oemah Keboen.</p>
+          </div>
+
+          <div v-if="isLoadingFacilities" class="text-center py-4">
+              <div class="spinner-border text-success" role="status"></div>
+          </div>
+
+          <div v-else class="row g-4">
+            <div class="col-md-6 col-lg-4" v-for="facility in facilities" :key="facility.id">
+              <div class="facility-card">
+                <img :src="facility.image ? facility.image : '../../assets/img/produk_default.jpg'" :alt="facility.nama" class="facility-image">
+                <div class="facility-body">
+                  <h3 class="facility-title">{{ facility.nama }}</h3>
+                  <p class="facility-desc">{{ facility.deskripsi }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-padding">
+        <div class="container">
+          <div class="reservation-box">
+            <div class="reservation-head">
+              <h2 class="section-title mb-0">Reservasi Acara</h2>
+              <div class="reservation-dp">
+                <span class="reservation-dp-label">Ketentuan</span>
+                <span class="reservation-dp-value">DP 70%</span>
+              </div>
+            </div>
+
+            <div class="row g-4 align-items-start">
+              <div class="col-lg-8">
+                <h3 class="reservation-subtitle">Cek Ketersediaan</h3>
+
+                <div class="calendar-card">
+                  <div class="calendar-header">
+                    <button class="calendar-nav" @click="prevMonth"><i class="bi bi-chevron-left"></i></button>
+                    <h4>{{ monthNames[currentMonth] }} {{ currentYear }}</h4>
+                    <button class="calendar-nav" @click="nextMonth"><i class="bi bi-chevron-right"></i></button>
+                  </div>
+
+                  <div class="calendar-weekdays">
+                    <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
+                  </div>
+
+                  <div class="calendar-grid">
+                    <div v-for="(day, index) in calendarDays" :key="index"
+                      class="calendar-day"
+                      :class="{ 'empty': !day.date, 'booked': day.booked, 'today': day.isToday }">
+                      {{ day.date || '' }}
+                      <div v-if="day.event" class="tooltip-event">{{ day.event }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="calendar-legend">
+                  <span class="legend-dot booked-dot"></span>
+                  <span>Sudah Terisi (Booked)</span>
+                </div>
+              </div>
+
+              <div class="col-lg-4">
+                <div class="reservation-side-card">
+                  <h3 class="reservation-subtitle">Pilih Tempat</h3>
+
+                  <div class="reservation-select-wrap">
+                    <select class="form-select reservation-select" v-model="selectedPlace">
+                      <option v-if="facilities.length === 0" value="">Memuat data...</option>
+                      <option v-for="fac in facilities" :key="fac.id" :value="fac.nama">
+                        {{ fac.nama }}
+                      </option>
+                    </select>
+                    <i class="bi bi-chevron-down dropdown-icon"></i>
+                  </div>
+
+                  <div class="selected-place-box mt-3">
+                    <div class="selected-place-label">Tempat Terpilih</div>
+                    <div class="selected-place-value">{{ selectedPlace || 'Belum dipilih' }}</div>
+                  </div>
+
+                  <a :href="selectedPlace ? 'form_reservasi.php?tempat=' + encodeURIComponent(selectedPlace) : '#'" 
+                    class="btn btn-gold w-100 mt-4 py-2 fw-bold" 
+                    :class="{'disabled': !selectedPlace}"
+                    style="border-radius: 12px; font-size: 1.1rem;">
+                    Lanjut Buat Reservasi <i class="bi bi-arrow-right ms-1"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="reservation-details mt-5">
+              <div class="reservation-detail-block">
+                <p>
+                  Nikmati pengalaman wisata di Oemah Keboen dengan suasana kebun terbuka yang cocok
+                  untuk kegiatan kelompok dan acara bersama.
+                </p>
+              </div>
+
+              <div class="reservation-detail-block">
+                <h3>Yang Kamu Dapatkan</h3>
+                <ul class="ticket-list">
+                  <li>Akses ke area kebun untuk kegiatan kelompok</li>
+                  <li>Pengalaman melihat dan memetik buah langsung</li>
+                  <li>Area khusus untuk kegiatan atau acara</li>
+                  <li>Fleksibilitas waktu kunjungan sesuai reservasi</li>
+                </ul>
+              </div>
+
+              <div class="reservation-detail-block">
+                <h3>Harga Reservasi</h3>
+                <ul class="ticket-list">
+                  <li><strong>Reservasi H-7:</strong> Rp10.000/orang</li>
+                  <li><strong>Reservasi &lt; H-7:</strong> Rp15.000/orang</li>
+                </ul>
+              </div>
+
+              <div class="reservation-detail-block">
+                <h3>Wajib Tahu</h3>
+                <ul class="ticket-list">
+                  <li><strong>Jam operasional:</strong> 09.00 – 17.00</li>
+                  <li>Tersedia pilihan reservasi H-7 dan kurang dari H-7</li>
+                  <li>Reservasi wajib dilakukan sebelum hari kunjungan</li>
+                  <li>Pengunjung wajib mengikuti aturan yang berlaku</li>
+                  <li>Area tertentu mungkin dibatasi jika terdapat reservasi acara</li>
+                </ul>
+              </div>
+
+              <div class="reservation-detail-block">
+                <h3>Biaya Tambahan</h3>
+                <p>Dikenakan biaya Rp5.000/orang jika melebihi jam operasional.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <?php include 'footer.php'; ?>
+    </div>
   </div>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>

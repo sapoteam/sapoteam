@@ -68,60 +68,63 @@ $current_page = 'produk';
     .product-card-price { font-size: 1.3rem; font-weight: 700; color: #4A5D23; margin: 0; }
   </style>
 </head>
+
 <body>
   <?php include 'navbar.php'; ?>
 
   <div id="app">
-    <section class="product-hero">
-      <div class="container text-center py-5">
-        <h1 class="product-hero-title fw-bold">Produk Oemah Keboen</h1>
-        <p class="product-hero-text text-muted">Nikmati berbagai hasil kebun segar dan produk olahan pilihan.</p>
-      </div>
-    </section>
-
-    <section class="section-padding product-section pb-5">
-      <div class="container">
-        
-        <div v-if="isLoading" class="text-center py-5">
-            <div class="spinner-border text-success" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
+    <div class="page-content">
+      <section class="product-hero">
+        <div class="container text-center py-5">
+          <h1 class="product-hero-title fw-bold">Produk Oemah Keboen</h1>
+          <p class="product-hero-text text-muted">Nikmati berbagai hasil kebun segar dan produk olahan pilihan.</p>
         </div>
+      </section>
 
-        <div v-else-if="products.length === 0" class="text-center py-5 text-muted">
-            <i class="bi bi-box-seam fs-1 d-block mb-3"></i>
-            <h5>Belum ada produk yang tersedia saat ini.</h5>
-        </div>
+      <section class="section-padding product-section pb-5">
+        <div class="container">
+          
+          <div v-if="isLoading" class="text-center py-5">
+              <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+          </div>
 
-        <div v-else class="row g-4 justify-content-center">
-            <div class="col-md-6 col-lg-4" v-for="item in products" :key="item.id">
-              <div class="product-card" @click="goToDetail(item.id)">
-                <div class="product-img-wrapper">
-                  <img :src="item.image ? item.image : '../../assets/img/logo.png'" :alt="item.nama" class="product-card-img">
-                  <div class="product-img-overlay">
-                    <button class="btn-hover-cart">
-                      <i class="bi bi-cart-plus"></i> Pesan Sekarang
-                    </button>
+          <div v-else-if="products.length === 0" class="text-center py-5 text-muted">
+              <i class="bi bi-box-seam fs-1 d-block mb-3"></i>
+              <h5>Belum ada produk yang tersedia saat ini.</h5>
+          </div>
+
+          <div v-else class="row g-4 justify-content-center">
+              <div class="col-md-6 col-lg-4" v-for="item in products" :key="item.id">
+                <div class="product-card" @click="goToDetail(item.id)">
+                  <div class="product-img-wrapper">
+                    <img :src="item.image ? item.image : '../../assets/img/logo.png'" :alt="item.nama" class="product-card-img">
+                    <div class="product-img-overlay">
+                      <button class="btn-hover-cart">
+                        <i class="bi bi-cart-plus"></i> Pesan Sekarang
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div class="product-card-body">
-                  <div class="mb-3">
-                    <h3 class="product-card-title">{{ item.nama }}</h3>
-                    <p class="product-card-desc text-truncate">{{ item.deskripsi }}</p>
-                  </div>
-                  <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
-                    <div class="product-card-price">{{ formatRupiah(item.harga) }}</div>
-                    <span class="badge bg-light text-success border border-success border-opacity-25 rounded-pill">{{ item.kategori }}</span>
+                  <div class="product-card-body">
+                    <div class="mb-3">
+                      <h3 class="product-card-title">{{ item.nama }}</h3>
+                      <p class="product-card-desc text-truncate">{{ item.deskripsi }}</p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
+                      <div class="product-card-price">{{ formatRupiah(item.harga) }}</div>
+                      <span class="badge bg-light text-success border border-success border-opacity-25 rounded-pill">{{ item.kategori }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+          </div>
+
         </div>
+      </section>
 
-      </div>
-    </section>
-
-    <?php include 'footer.php'; ?>
+      <?php include 'footer.php'; ?>
+    </div>
   </div>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -143,7 +146,7 @@ $current_page = 'produk';
         },
         goToDetail(id) {
           const encoded = btoa('ok_' + id);
-          window.location.href = 'detail_produk.php?p=' + encoded;
+          this.goWithFade('detail_produk.php?p=' + encoded);
         },
         async fetchProducts() {
           this.isLoading = true;
@@ -161,6 +164,14 @@ $current_page = 'produk';
           } finally {
             this.isLoading = false;
           }
+        },
+        goWithFade(url) {
+          const page = document.querySelector('.page-content');
+          if (page) page.classList.add('fade-exit');
+
+          setTimeout(() => {
+            window.location.href = url;
+          }, 300);
         }
       },
       mounted() {
