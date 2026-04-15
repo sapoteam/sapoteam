@@ -90,49 +90,6 @@ if ($decoded && strpos($decoded, 'ok_') === 0) {
   </style>
 </head>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const page = document.querySelector('.page-content');
-  if (!page) return;
-
-  // FADE IN saat halaman load
-  page.classList.add('fade-enter');
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      page.classList.remove('fade-enter');
-    });
-  });
-
-  // FADE OUT saat pindah halaman
-  document.querySelectorAll('a[href]').forEach(link => {
-    link.addEventListener('click', function (e) {
-      const href = this.getAttribute('href');
-
-      if (
-        !href ||
-        href.startsWith('#') ||
-        href.startsWith('javascript:') ||
-        this.target === '_blank' ||
-        this.hasAttribute('download') ||
-        e.ctrlKey || e.metaKey || e.shiftKey || e.altKey
-      ) return;
-
-      const url = new URL(this.href, window.location.href);
-      if (url.origin !== window.location.origin) return;
-
-      e.preventDefault();
-
-      page.classList.add('fade-exit');
-
-      setTimeout(() => {
-        window.location.href = this.href;
-      }, 300);
-    });
-  });
-});
-</script>
-
 <body>
   <div id="app">
     <div class="page-content">
