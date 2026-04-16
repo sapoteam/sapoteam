@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       setTimeout(() => {
         window.location.href = this.href;
-      }, 300);
+      }, 250);
     });
   });
 });
@@ -58,9 +58,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <body>
   <div id="app" v-cloak>
-    <div class="page-content">
-      <?php include 'navbar.php'; ?>
+    <?php include 'navbar.php'; ?>
 
+    <div class="page-content">
       <section class="hero" id="beranda">
         <div class="container">
           <div class="row">
