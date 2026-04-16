@@ -1361,3 +1361,85 @@ body.lightbox-open {
   opacity: 0;
   transform: translateY(10px);
 }
+/* ===================== */
+/* HARVEST BANNER PANEN  */
+/* ===================== */
+.harvest-banner {
+    background-color: #C1A570;
+    color: white;
+    padding: 10px 40px; 
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    display: none; 
+    align-items: center;
+    justify-content: center; 
+    width: 100%;
+    
+    position: sticky;
+    top: 60px; 
+    z-index: 9998; 
+    
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(-10px); 
+}
+
+.harvest-banner.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.harvest-banner.hide {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.harvest-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto; 
+}
+
+.pulse-icon {
+    font-size: 1.2rem;
+    animation: pulse-star 1.5s infinite;
+    margin: 0 8px;
+}
+
+.close-banner {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: 0.2s;
+    padding: 0;
+    
+    position: absolute; 
+    right: 15px; 
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.close-banner:hover {
+    color: #f8fcf5;
+    transform: translateY(-50%) scale(1.1);
+
+@keyframes pulse-star {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 768px) {
+    .harvest-banner {
+        font-size: 0.85rem;
+        padding: 8px 35px; /* Sesuaikan padding HP */
+        top: 56px; 
+    }
+}}

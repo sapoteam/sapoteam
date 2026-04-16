@@ -31,9 +31,12 @@ $active_produk = in_array($current_page, ['produk.php', 'detail_produk.php']);
   </div>
 </nav>
 
-<div id="harvestBanner" 
-     style="display:none; background-color:#C1A570; color:white; text-align:center; padding:10px 15px; font-weight:600; font-size:0.95rem; letter-spacing:0.5px; align-items:center; justify-content:center; gap:10px; width:100%;">
-    <i class="bi bi-stars"></i>
-    Kabar Gembira! Oemah Keboen sedang musim panen. Ayo datang dan petik buah segar langsung dari pohonnya!
-    <i class="bi bi-stars"></i>
+<div id="harvestBanner" class="harvest-banner">
+    <div class="harvest-content">
+        <i class="bi bi-stars pulse-icon"></i>
+        <span>Oemah Keboen sedang musim panen. Ayo datang dan petik buah segar langsung dari pohonnya!</span>
+    </div>
+    <button class="close-banner" aria-label="Close" onclick="closeHarvestBanner()">
+        <i class="bi bi-x"></i>
+    </button>
 </div>
