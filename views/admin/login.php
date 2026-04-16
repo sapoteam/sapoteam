@@ -106,6 +106,20 @@ $error_msg = $auth->login();
             margin-bottom: 20px;
             text-align: center;
         }
+
+        .btn-toggle-password {
+            background-color: var(--bg-krem);
+            border-color: #dce8d2;
+            color: var(--primary);
+            border-top-right-radius: 12px !important;
+            border-bottom-right-radius: 12px !important;
+        }
+
+        .btn-toggle-password:hover {
+            background-color: #eef2e6;
+            color: var(--primary);
+            border-color: #dce8d2;
+        }
     </style>
 </head>
 <body>
@@ -137,7 +151,10 @@ $error_msg = $auth->login();
                 <label class="form-label">Password</label>  
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
-                    <input type="password" name="password" class="form-control" placeholder="Masukan Password" required>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Masukan Password" required>
+                    <button class="btn btn-outline-secondary btn-toggle-password" type="button" id="togglePassword">
+                        <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                    </button>
                 </div>
             </div>
 
@@ -153,6 +170,26 @@ $error_msg = $auth->login();
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    const toggleIcon = document.querySelector('#toggleIcon');
+
+    togglePassword.addEventListener('click', function () {
+
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+
+        if (type === 'text') {
+            toggleIcon.classList.remove('bi-eye-slash');
+            toggleIcon.classList.add('bi-eye');
+        } else {
+            toggleIcon.classList.remove('bi-eye');
+            toggleIcon.classList.add('bi-eye-slash');
+        }
+    });
+</script>
 
 </body>
 </html>

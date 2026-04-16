@@ -13,7 +13,6 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-
     .review-gallery-page img {
         cursor: zoom-in;
         transition: transform 0.2s ease;
@@ -210,12 +209,24 @@ document.addEventListener('DOMContentLoaded', function () {
           </div>
         </section>
 
-        <transition name="fade">
-            <div v-if="lightbox.show" class="lightbox-modal" @click="lightbox.show = false">
-                <i class="bi bi-x-circle lightbox-close"></i>
-                <img :src="lightbox.imageUrl" class="lightbox-content" @click.stop>
-            </div>
-        </transition>
+      <teleport to="body">
+        <div
+          v-if="lightbox.show"
+          class="lightbox-modal"
+          @click="closeLightbox"
+        >
+          <button type="button" class="lightbox-close" @click.stop="closeLightbox">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+
+          <img
+            :src="lightbox.imageUrl"
+            alt="Preview Galeri"
+            class="lightbox-content"
+            @click.stop
+          >
+        </div>
+      </teleport>
 
       <?php include 'footer.php'; ?>
     </div>
@@ -254,9 +265,18 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => { this.alert.show = false; }, 5000);
         },
 
+        // OPEN LIGHTBOX SAMA PERSIS KAYAK INDEX.PHP
         openLightbox(imgUrl) {
-            this.lightbox.imageUrl = imgUrl;
-            this.lightbox.show = true;
+          this.lightbox.imageUrl = imgUrl;
+          this.lightbox.show = true;
+          document.body.classList.add('lightbox-open');
+        },
+        
+        // CLOSE LIGHTBOX SAMA PERSIS KAYAK INDEX.PHP
+        closeLightbox() {
+          this.lightbox.show = false;
+          this.lightbox.imageUrl = '';
+          document.body.classList.remove('lightbox-open');
         },
 
         async fetchReviews() {

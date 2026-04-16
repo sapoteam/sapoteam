@@ -283,6 +283,7 @@ $current_page = 'kelola_reservasi.php';
             return {
                 isLoaded: false,
                 isSidebarCollapsed: false,
+                isSidebarMobileOpen: false,
                 showLogoutModal: false,
                 currentFilter: 'Semua',
                 searchQuery: '',
@@ -503,19 +504,69 @@ $current_page = 'kelola_reservasi.php';
                         }
                     } catch (e) { this.showToastMsg("Kesalahan sistem server.", 'error'); }
                 } catch (e) { this.showToastMsg("Koneksi bermasalah!", 'error'); }
+            },
+
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar) return;
+
+                if (window.innerWidth <= 768) {
+                    this.isSidebarMobileOpen = !this.isSidebarMobileOpen;
+                    sidebar.classList.toggle('mobile-open', this.isSidebarMobileOpen);
+                    sidebar.classList.remove('collapsed');
+                } else {
+                    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+                    sidebar.classList.toggle('collapsed', this.isSidebarCollapsed);
+                }
+            },
+
+            closeSidebarMobile() {
+                if (window.innerWidth <= 768) {
+                    this.isSidebarMobileOpen = false;
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) sidebar.classList.remove('mobile-open');
+                }
+            },
+
+            handleResize() {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar) return;
+
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('collapsed');
+                    if (!this.isSidebarMobileOpen) {
+                        sidebar.classList.remove('mobile-open');
+                    }
+                } else {
+                    this.isSidebarMobileOpen = false;
+                    sidebar.classList.remove('mobile-open');
+                    sidebar.classList.toggle('collapsed', this.isSidebarCollapsed);
+                }
             }
         },
         mounted() {
             this.fetchReservations();
             this.fetchFasilitasOptions();
-            const toggle = document.getElementById('sidebarToggle');
-            if(toggle) {
-                toggle.addEventListener('click', () => {
-                    this.isSidebarCollapsed = !this.isSidebarCollapsed;
-                    document.getElementById('sidebar').classList.toggle('collapsed');
-                });
+            const btn = document.getElementById('sidebarToggle');
+            if (btn) {
+                btn.addEventListener('click', this.toggleSidebar);
             }
+            document.querySelectorAll('.nav-sidebar .nav-link').forEach(link => {
+                link.addEventListener('click', this.closeSidebarMobile);
+            });
+            window.addEventListener('resize', this.handleResize);
+            this.handleResize(); 
             setTimeout(() => { this.isLoaded = true; }, 200);
+        },
+        beforeUnmount() {
+            const btn = document.getElementById('sidebarToggle');
+            if (btn) {
+                btn.removeEventListener('click', this.toggleSidebar);
+            }
+            document.querySelectorAll('.nav-sidebar .nav-link').forEach(link => {
+                link.removeEventListener('click', this.closeSidebarMobile);
+            });
+            window.removeEventListener('resize', this.handleResize);
         }
     }).mount('#app');
 </script>
