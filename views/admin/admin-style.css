@@ -101,19 +101,19 @@ body {
 .sidebar-footer { padding: 20px; }
 
 .btn-logout {
-    background-color: transparent;
+    background-color: var(--gold-btn);
     border: 2px solid var(--gold-btn);
-    color: var(--gold-btn);
+    color: white;
     width: 100%;
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 10px;    
     font-weight: 600;
     text-align: center;
     display: block;
     text-decoration: none;
     transition: 0.3s;
 }
-.btn-logout:hover { background-color: var(--gold-btn); color: white; }
+.btn-logout:hover { background-color: #dc3545; color: white; border-color: #dc3545; }
 
 .main-content {
     margin-left: 260px;

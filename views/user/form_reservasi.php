@@ -7,6 +7,8 @@ $current_page = 'tiket';
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Formulir Reservasi - Oemah Keboen</title>
+      <link rel="icon" type="image/x-icon" href="../../assets/img/logo.png">
+
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

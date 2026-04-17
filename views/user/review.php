@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Review - Oemah Keboen</title>
+      <link rel="icon" type="image/x-icon" href="../../assets/img/logo.png">
+
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -61,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const page = document.querySelector('.page-content');
   if (!page) return;
 
-  // FADE IN saat halaman load
   page.classList.add('fade-enter');
 
   requestAnimationFrame(() => {
@@ -70,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // FADE OUT saat pindah halaman
   document.querySelectorAll('a[href]').forEach(link => {
     link.addEventListener('click', function (e) {
       const href = this.getAttribute('href');
@@ -265,14 +265,12 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => { this.alert.show = false; }, 5000);
         },
 
-        // OPEN LIGHTBOX SAMA PERSIS KAYAK INDEX.PHP
         openLightbox(imgUrl) {
           this.lightbox.imageUrl = imgUrl;
           this.lightbox.show = true;
           document.body.classList.add('lightbox-open');
         },
         
-        // CLOSE LIGHTBOX SAMA PERSIS KAYAK INDEX.PHP
         closeLightbox() {
           this.lightbox.show = false;
           this.lightbox.imageUrl = '';
