@@ -1,4 +1,4 @@
-<img width="2424" height="1795" alt="sapoteam test_8080_views_user_tiket_reservasi php" src="https://github.com/user-attachments/assets/b5362920-3663-432d-8c70-77b69d5519aa" /><h1 align="center"> Oemah Keboen Samarinda </h1>
+<h1 align="center"> Oemah Keboen Samarinda </h1>
 
 ## 📌Deskripsi
 Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web yang dirancang untuk memperkenalkan Oemah Keboen kepada masyarakat luas serta memudahkan proses reservasi acara. Website ini terdiri dari dua sisi utama: sisi pengunjung (user) dan sisi pengelola (admin). Sisi pengunjung dapat diakses oleh siapa saja tanpa perlu login, sedangkan sisi admin hanya dapat diakses oleh pengelola yang memiliki akun terdaftar.
@@ -32,7 +32,7 @@ Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web
 
 <img width="2424" height="1795" alt="sapoteam test_8080_views_user_tiket_reservasi php" src="https://github.com/user-attachments/assets/5f93fa1c-d887-4b13-8adb-0d1f30574d17" />
 
-
+<img width="2424" height="1795" alt="sapoteam test_8080_views_user_tiket_reservasi php" src="https://github.com/user-attachments/assets/b5362920-3663-432d-8c70-77b69d5519aa" />
 
 
 
