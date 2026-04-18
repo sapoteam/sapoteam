@@ -13,9 +13,9 @@ Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web
 ### 👥Pengunjung 
 
 1. Beranda
-<img width="720" height="auto" alt="sapoteam test_8080_views_user_ (1)" src="https://github.com/user-attachments/assets/c433718f-0bac-42cb-a836-5be86f1af0c8" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_user_ (1)" src="https://github.com/user-attachments/assets/c433718f-0bac-42cb-a836-5be86f1af0c8" />
 
-<img width="720" height="auto" alt="sapoteam test_8080_views_user_" src="https://github.com/user-attachments/assets/d1da7764-320a-4877-9c38-99561afb367c" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_user_" src="https://github.com/user-attachments/assets/d1da7764-320a-4877-9c38-99561afb367c" />
 
 <img width="720" height="auto" alt="sapoteam test_8080_views_user_ (2)" src="https://github.com/user-attachments/assets/6dd28cd9-a0c3-4e0f-a086-d40aace8c91c" />
 
