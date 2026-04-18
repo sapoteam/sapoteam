@@ -1,4 +1,4 @@
-<h1 align="center"> Oemah Keboen Samarinda </h1>
+<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_produk php (1)" src="https://github.com/user-attachments/assets/3efb38ec-26c9-46fe-9375-943722eb70f5" /><h1 align="center"> Oemah Keboen Samarinda </h1>
 
 ## 📌Deskripsi
 Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web yang dirancang untuk memperkenalkan Oemah Keboen kepada masyarakat luas serta memudahkan proses reservasi acara. Website ini terdiri dari dua sisi utama: sisi pengunjung (user) dan sisi pengelola (admin). Sisi pengunjung dapat diakses oleh siapa saja tanpa perlu login, sedangkan sisi admin hanya dapat diakses oleh pengelola yang memiliki akun terdaftar.
@@ -38,17 +38,50 @@ Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web
 
 <img width="2048" height="1292" alt="sapoteam test_8080_views_user_tiket_reservasi php (2)" src="https://github.com/user-attachments/assets/df0b8a9a-fa34-4576-82de-6aab5a13e628" />
 
+<img width="2048" height="1292" alt="sapoteam test_8080_views_user_form_reservasi php_tempat=Halaman%20Depan" src="https://github.com/user-attachments/assets/4a6602ba-7890-4a50-bcba-53d3898dbbfb" />
+
+<img width="2048" height="1292" alt="sapoteam test_8080_views_user_form_reservasi php_tempat=Halaman%20Depan (1)" src="https://github.com/user-attachments/assets/629700ca-2614-46f7-b819-92a556a6f1ba" />
+
+
 
 3. Produk
 
+<img width="1280" height="1234" alt="screencapture-sapoteam-test-8080-views-user-produk-php-2026-04-18-23_15_22" src="https://github.com/user-attachments/assets/68eab873-6da6-40f6-b4c5-9077db3c3b72" />
+
+<img width="1280" height="1456" alt="screencapture-sapoteam-test-8080-views-user-detail-produk-php-2026-04-18-23_18_17" src="https://github.com/user-attachments/assets/08190165-aa30-410b-a13a-ab384c7b1471" />
+
+
+### Admin
+
+1. Dashboard
+
+2. Manajemen Reservasi
+
+<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_reservasi php" src="https://github.com/user-attachments/assets/9872180d-9d78-4ddd-99b6-0fc61feca734" />
+
+<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_dashboard php" src="https://github.com/user-attachments/assets/65fd76fc-8d86-4122-a6ca-7adecf6fde7b" />
+
+
+3. Manajemen Produk
+
+<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_produk php" src="https://github.com/user-attachments/assets/05cdb2ef-5ecb-465f-ba06-e46c4e244bce" />
+
+<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_reservasi php (1)" src="https://github.com/user-attachments/assets/ce7d777b-44be-447e-93fa-01eef2fb66c2" />
+
+
+4. Manajemen Fasilitas
+
+<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_fasilitas php" src="https://github.com/user-attachments/assets/aa8c9815-c3e8-4daa-bfa6-777e519dc5bc" />
 
 
 
+5. Manajemen Ulasan
 
+<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_ulasan php" src="https://github.com/user-attachments/assets/f8c84372-8f62-4345-9647-655c76130fe2" />
 
+6. Manajemen Pegawai
 
-
-
+<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_pegawai php" src="https://github.com/user-attachments/assets/b8230a75-d6b7-4af9-9a4e-72ed579fa9e0" />
 
 
 
