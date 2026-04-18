@@ -19,18 +19,18 @@ Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web
 
 <img width="720" height="auto" alt="sapoteam test_8080_views_user_ (2)" src="https://github.com/user-attachments/assets/6dd28cd9-a0c3-4e0f-a086-d40aace8c91c" />
 
-<img width="720" height="auto" alt="sapoteam test_8080_views_user_ (3)" src="https://github.com/user-attachments/assets/bce99e4f-5a1b-4c16-a584-47bf1472121c" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_user_ (3)" src="https://github.com/user-attachments/assets/bce99e4f-5a1b-4c16-a584-47bf1472121c" />
 
-<img width="720" height="auto" alt="sapoteam test_8080_views_user_ (5)" src="https://github.com/user-attachments/assets/511c1a93-4c7e-4fc2-bf8b-53c62513dba4" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_user_ (5)" src="https://github.com/user-attachments/assets/511c1a93-4c7e-4fc2-bf8b-53c62513dba4" />
 
-<img width="720" height="auto" alt="sapoteam test_8080_views_user_ (6)" src="https://github.com/user-attachments/assets/aedfd8d7-97b4-454a-ab7a-269cdadaf116" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_user_ (6)" src="https://github.com/user-attachments/assets/aedfd8d7-97b4-454a-ab7a-269cdadaf116" />
 
-<img width="720" height="auto" alt="sapoteam test_8080_views_user_ (7)" src="https://github.com/user-attachments/assets/e914bef7-20dd-4d75-9bca-4cb8fa2e3e7c" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_user_ (7)" src="https://github.com/user-attachments/assets/e914bef7-20dd-4d75-9bca-4cb8fa2e3e7c" />
 
 
 2. Tiket & Reservasi
 
-<img width="720" height="auto" alt="sapoteam test_8080_views_user_tiket_reservasi php" src="https://github.com/user-attachments/assets/5f93fa1c-d887-4b13-8adb-0d1f30574d17" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_user_tiket_reservasi php" src="https://github.com/user-attachments/assets/5f93fa1c-d887-4b13-8adb-0d1f30574d17" />
 
 <img width="2048" height="1292" alt="sapoteam test_8080_views_user_tiket_reservasi php (1)" src="https://github.com/user-attachments/assets/faf2707d-5392-45f3-bd3b-7c9400dc425e" />
 
@@ -62,34 +62,34 @@ Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web
 
 2. Manajemen Reservasi
 
-<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_reservasi php" src="https://github.com/user-attachments/assets/9872180d-9d78-4ddd-99b6-0fc61feca734" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_reservasi php" src="https://github.com/user-attachments/assets/9872180d-9d78-4ddd-99b6-0fc61feca734" />
 
-<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_dashboard php" src="https://github.com/user-attachments/assets/65fd76fc-8d86-4122-a6ca-7adecf6fde7b" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_admin_dashboard php" src="https://github.com/user-attachments/assets/65fd76fc-8d86-4122-a6ca-7adecf6fde7b" />
 
 
-<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_reservasi php (1)" src="https://github.com/user-attachments/assets/ce7d777b-44be-447e-93fa-01eef2fb66c2" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_reservasi php (1)" src="https://github.com/user-attachments/assets/ce7d777b-44be-447e-93fa-01eef2fb66c2" />
 
 3. Manajemen Produk
 
-<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_produk php" src="https://github.com/user-attachments/assets/05cdb2ef-5ecb-465f-ba06-e46c4e244bce" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_produk php" src="https://github.com/user-attachments/assets/05cdb2ef-5ecb-465f-ba06-e46c4e244bce" />
 
-<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_produk php (1)" src="https://github.com/user-attachments/assets/f41e4b0b-f0b2-43d9-9407-1b886ab67077" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_produk php (1)" src="https://github.com/user-attachments/assets/f41e4b0b-f0b2-43d9-9407-1b886ab67077" />
 
 4. Manajemen Fasilitas
 
-<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_fasilitas php" src="https://github.com/user-attachments/assets/aa8c9815-c3e8-4daa-bfa6-777e519dc5bc" />
+<img width="2328" height="auto" alt="sapoteam test_8080_views_admin_kelola_fasilitas php" src="https://github.com/user-attachments/assets/aa8c9815-c3e8-4daa-bfa6-777e519dc5bc" />
 
-<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_fasilitas php (1)" src="https://github.com/user-attachments/assets/439704d6-af0a-418d-b12f-7eed54019544" />
+<img width="2328" height="auto" alt="sapoteam test_8080_views_admin_kelola_fasilitas php (1)" src="https://github.com/user-attachments/assets/439704d6-af0a-418d-b12f-7eed54019544" />
 
 5. Manajemen Ulasan
 
-<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_ulasan php" src="https://github.com/user-attachments/assets/f8c84372-8f62-4345-9647-655c76130fe2" />
+<img width="2328" height="auto" alt="sapoteam test_8080_views_admin_kelola_ulasan php" src="https://github.com/user-attachments/assets/f8c84372-8f62-4345-9647-655c76130fe2" />
 
 6. Manajemen Pegawai
 
-<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_pegawai php" src="https://github.com/user-attachments/assets/b8230a75-d6b7-4af9-9a4e-72ed579fa9e0" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_pegawai php" src="https://github.com/user-attachments/assets/b8230a75-d6b7-4af9-9a4e-72ed579fa9e0" />
 
-<img width="2328" height="1292" alt="sapoteam test_8080_views_admin_kelola_pegawai php (1)" src="https://github.com/user-attachments/assets/053f7132-5a01-45c4-90b3-380ae0542957" />
+<img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_pegawai php (1)" src="https://github.com/user-attachments/assets/053f7132-5a01-45c4-90b3-380ae0542957" />
 
 
 
