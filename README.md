@@ -11,41 +11,41 @@ Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web
 
 Menu:
 
-Beranda
+- Beranda
 
-Tiket & Reservasi
+- Tiket & Reservasi
 
-Produk
+- Produk
 
-Review
+- Review
 
 **🏠 1. Beranda**
 
 Fitur:
 
-Hero section (informasi utama)
+- Hero section (informasi utama)
 
-Tentang Oemah Keboen
+- Tentang Oemah Keboen
 
-Galeri foto
+- Galeri foto
 
-Lokasi (Google Maps)
+- Lokasi (Google Maps)
 
-FAQ
+- FAQ
 
-Status musim panen (dibuka / ditutup oleh admin)
+- Status musim panen (dibuka / ditutup oleh admin)
 
 **🎟️ 2. Tiket & Reservasi**
 
 Fitur:
 
-Informasi tiket masuk
+- Informasi tiket masuk
 
-Daftar fasilitas / area
+- Daftar fasilitas / area
 
-Pilih lokasi reservasi
+- Pilih lokasi reservasi
 
-Kalender ketersediaan
+- Kalender ketersediaan
 
 ➡️ Mengarahkan user ke form reservasi
 
@@ -53,91 +53,39 @@ Kalender ketersediaan
 
 Fitur:
 
-Input:
+- Input: Nama, Nomor HP, Tanggal, Fasilitas, Jumlah orang
 
-Nama
+- Perhitungan otomatis: Harga total
 
-Nomor HP
+- Validasi: Nomor HP valid, Tidak boleh tanggal lampau
 
-Tanggal
-
-Fasilitas
-
-Jumlah orang
-
-Perhitungan otomatis:
-
-Harga total
-
-Validasi:
-
-Nomor HP valid
-
-Tidak boleh tanggal lampau
-
-Output:
-
-Data dikirim ke admin
-
-Redirect ke WhatsApp
+Output: Data dikirim ke admin, Redirect ke WhatsApp
 
 **🛍️ 4. Produk**
 
 Fitur:
 
-Menampilkan daftar produk:
+- Menampilkan daftar produk: Buah, Minuman, Paket edukasi
 
-Buah
-
-Minuman
-
-Paket edukasi
-
-Klik produk → detail produk
+- Klik produk → detail produk
 
 **📦 5. Detail Produk**
 
 Fitur:
 
-Informasi produk:
+- Informasi produk: Nama, Harga, Deskripsi
 
-Nama
-
-Harga
-
-Deskripsi
-
-Form pemesanan:
-
-Jumlah beli
-
-Nama
-
-No HP
-
-Order langsung via WhatsApp
+-Form pemesanan: Jumlah beli, Nama, No HP, Order langsung via WhatsApp
 
 **⭐ 6. Review**
 
 Fitur:
 
-Lihat ulasan pengunjung lain
+- Lihat ulasan pengunjung lain
 
-Tambah ulasan:
+- Tambah ulasan: Nama, Rating ⭐, Komentar, Upload foto
 
-Nama
-
-Rating ⭐
-
-Komentar
-
-Upload foto
-
-Status:
-
-Pending (menunggu admin)
-
-Tampil setelah disetujui
+- Status: Pending (menunggu admin), Tampil setelah disetujui
 
 ## 🎨UI Website
 
