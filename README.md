@@ -5,8 +5,9 @@ Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web
 
 ## ⚙️Fitur
 
-## 👤 FITUR PENGUNJUNG
-🔝 Navbar User
+### 👤 FITUR PENGUNJUNG
+
+**🔝 Navbar User**
 
 Menu:
 
@@ -14,7 +15,8 @@ Beranda
 Tiket & Reservasi
 Produk
 Review
-🏠 1. Beranda
+
+**🏠 1. Beranda**
 
 Fitur:
 
@@ -24,7 +26,8 @@ Galeri foto
 Lokasi (Google Maps)
 FAQ
 Status musim panen (dibuka / ditutup oleh admin)
-🎟️ 2. Tiket & Reservasi
+
+**🎟️ 2. Tiket & Reservasi**
 
 Fitur:
 
@@ -35,7 +38,7 @@ Kalender ketersediaan
 
 ➡️ Mengarahkan user ke form reservasi
 
-📝 3. Form Reservasi
+**📝 3. Form Reservasi**
 
 Fitur:
 
@@ -53,7 +56,8 @@ Tidak boleh tanggal lampau
 Output:
 Data dikirim ke admin
 Redirect ke WhatsApp
-🛍️ 4. Produk
+
+**🛍️ 4. Produk**
 
 Fitur:
 
@@ -62,7 +66,8 @@ Buah
 Minuman
 Paket edukasi
 Klik produk → detail produk
-📦 5. Detail Produk
+
+**📦 5. Detail Produk**
 
 Fitur:
 
@@ -75,7 +80,8 @@ Jumlah beli
 Nama
 No HP
 Order langsung via WhatsApp
-⭐ 6. Review
+
+**⭐ 6. Review**
 
 Fitur:
 
@@ -93,7 +99,8 @@ Tampil setelah disetujui
 
 ### 👥Pengunjung 
 
-1. Beranda
+**1. Beranda**
+
 <img width="2048" height="auto" alt="sapoteam test_8080_views_user_ (1)" src="https://github.com/user-attachments/assets/c433718f-0bac-42cb-a836-5be86f1af0c8" />
 
 <img width="2048" height="auto" alt="sapoteam test_8080_views_user_" src="https://github.com/user-attachments/assets/d1da7764-320a-4877-9c38-99561afb367c" />
@@ -109,7 +116,7 @@ Tampil setelah disetujui
 <img width="2048" height="auto" alt="sapoteam test_8080_views_user_ (7)" src="https://github.com/user-attachments/assets/e914bef7-20dd-4d75-9bca-4cb8fa2e3e7c" />
 
 
-2. Tiket & Reservasi
+**2. Tiket & Reservasi**
 
 <img width="2048" height="auto" alt="sapoteam test_8080_views_user_tiket_reservasi php" src="https://github.com/user-attachments/assets/5f93fa1c-d887-4b13-8adb-0d1f30574d17" />
 
@@ -123,17 +130,19 @@ Tampil setelah disetujui
 
 
 
-3. Produk
+**3. Produk**
 
 <img width="1280" height="1234" alt="screencapture-sapoteam-test-8080-views-user-produk-php-2026-04-18-23_15_22" src="https://github.com/user-attachments/assets/68eab873-6da6-40f6-b4c5-9077db3c3b72" />
 
 <img width="1280" height="1456" alt="screencapture-sapoteam-test-8080-views-user-detail-produk-php-2026-04-18-23_18_17" src="https://github.com/user-attachments/assets/08190165-aa30-410b-a13a-ab384c7b1471" />
 
-5. Review
+
+**5. Review**
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b8d6fb31-8674-492f-9af7-f3faf8b6f498" />
 
 <img width="1910" height="1213" alt="screencapture-sapoteam-test-8080-views-user-review-php-2026-04-18-23_47_42" src="https://github.com/user-attachments/assets/f91b1814-d289-476e-b304-b783a86267b9" />
+
 
 ### Admin
 
