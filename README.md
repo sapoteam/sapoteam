@@ -87,6 +87,81 @@ Fitur:
 
 - Status: Pending (menunggu admin), Tampil setelah disetujui
 
+### 🔐 FITUR ADMIN
+
+**📂 Sidebar Admin**
+
+Menu:
+
+- Dashboard
+
+- Kelola Reservasi
+
+- Kelola Produk
+
+- Kelola Fasilitas
+
+- Kelola Ulasan
+
+- Kelola Pegawai
+
+**🔑 1. Login**
+
+Fitur:
+
+- Login username & password
+- Validasi akun
+- Redirect ke dashboard
+
+**🏠 2. Dashboard**
+
+Fitur:
+
+- Statistik: Total reservasi, Ulasan pending, Produk aktif
+- Status panen (toggle)
+- Reservasi terbaru
+
+**📅 3. Kelola Reservasi**
+
+Fitur:
+
+- Lihat semua reservasi
+- Filter: Semua, Menunggu Review, Lunas, Dibatalkan
+- Aksi: Tambah manual, Edit, Hapus, Konfirmasi pembayaran, Batalkan booking
+- Validasi: Tidak boleh tanggal lampau, Cek bentrok jadwal
+
+**🛍️ 4. Kelola Produk**
+
+Fitur:
+
+- CRUD produk: Tambah, Edit, Hapus
+- Upload gambar
+- Filter kategori
+- Status: Tersedia / Habis
+  
+**🏞️ 5. Kelola Fasilitas**
+
+Fitur:
+
+- CRUD area: Tambah, Edit,  Hapus
+- Data: Nama, Deskripsi, Harga,Status, Foto
+
+**⭐ 6. Kelola Ulasan**
+
+Fitur:
+
+- Moderasi review: Approve, Hapus
+- Filter: Pending, xRating
+- Lihat detail + foto
+
+**👥 7. Kelola Pegawai (Admin Only)**
+
+Fitur:
+
+- CRUD pegawai:Tambah, Edit, Hapus
+- Status akun: Aktif / Nonaktif
+- Data: Nama, Username, Password, No HP
+
 ## 🎨UI Website
 
 ### 👥Pengunjung 
@@ -146,7 +221,6 @@ Fitur:
 
 <img width="2048" height="auto" alt="sapoteam test_8080_views_admin_dashboard php" src="https://github.com/user-attachments/assets/65fd76fc-8d86-4122-a6ca-7adecf6fde7b" />
 
-
 <img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_reservasi php (1)" src="https://github.com/user-attachments/assets/ce7d777b-44be-447e-93fa-01eef2fb66c2" />
 
 3. Manajemen Produk
@@ -170,19 +244,3 @@ Fitur:
 <img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_pegawai php" src="https://github.com/user-attachments/assets/b8230a75-d6b7-4af9-9a4e-72ed579fa9e0" />
 
 <img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_pegawai php (1)" src="https://github.com/user-attachments/assets/053f7132-5a01-45c4-90b3-380ae0542957" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Admin
