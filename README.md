@@ -12,8 +12,11 @@ Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web
 Menu:
 
 Beranda
+
 Tiket & Reservasi
+
 Produk
+
 Review
 
 **🏠 1. Beranda**
@@ -21,10 +24,15 @@ Review
 Fitur:
 
 Hero section (informasi utama)
+
 Tentang Oemah Keboen
+
 Galeri foto
+
 Lokasi (Google Maps)
+
 FAQ
+
 Status musim panen (dibuka / ditutup oleh admin)
 
 **🎟️ 2. Tiket & Reservasi**
@@ -32,8 +40,11 @@ Status musim panen (dibuka / ditutup oleh admin)
 Fitur:
 
 Informasi tiket masuk
+
 Daftar fasilitas / area
+
 Pilih lokasi reservasi
+
 Kalender ketersediaan
 
 ➡️ Mengarahkan user ke form reservasi
@@ -43,18 +54,31 @@ Kalender ketersediaan
 Fitur:
 
 Input:
+
 Nama
+
 Nomor HP
+
 Tanggal
+
 Fasilitas
+
 Jumlah orang
+
 Perhitungan otomatis:
+
 Harga total
+
 Validasi:
+
 Nomor HP valid
+
 Tidak boleh tanggal lampau
+
 Output:
+
 Data dikirim ke admin
+
 Redirect ke WhatsApp
 
 **🛍️ 4. Produk**
@@ -62,9 +86,13 @@ Redirect ke WhatsApp
 Fitur:
 
 Menampilkan daftar produk:
+
 Buah
+
 Minuman
+
 Paket edukasi
+
 Klik produk → detail produk
 
 **📦 5. Detail Produk**
@@ -72,13 +100,21 @@ Klik produk → detail produk
 Fitur:
 
 Informasi produk:
+
 Nama
+
 Harga
+
 Deskripsi
+
 Form pemesanan:
+
 Jumlah beli
+
 Nama
+
 No HP
+
 Order langsung via WhatsApp
 
 **⭐ 6. Review**
@@ -86,13 +122,21 @@ Order langsung via WhatsApp
 Fitur:
 
 Lihat ulasan pengunjung lain
+
 Tambah ulasan:
+
 Nama
+
 Rating ⭐
+
 Komentar
+
 Upload foto
+
 Status:
+
 Pending (menunggu admin)
+
 Tampil setelah disetujui
 
 ## 🎨UI Website
