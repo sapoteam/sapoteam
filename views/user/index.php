@@ -58,6 +58,107 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<style>
+/* Animasi scroll */
+.anim-fade-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.anim-fade-left {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.anim-fade-right {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.anim-visible {
+    opacity: 1 !important;
+    transform: translate(0) !important;
+}
+
+/* Delay untuk card berurutan */
+.anim-delay-1 { transition-delay: 0.1s; }
+.anim-delay-2 { transition-delay: 0.2s; }
+.anim-delay-3 { transition-delay: 0.3s; }
+.anim-delay-4 { transition-delay: 0.4s; }
+
+/* Galeri hover lebih smooth */
+.gallery-card {
+    overflow: hidden;
+}
+.gallery-card img {
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+.gallery-card:hover img {
+    transform: scale(1.08) !important;
+}
+.gallery-card .gallery-caption {
+    transition: color 0.3s ease;
+}
+.gallery-card:hover .gallery-caption {
+    color: var(--primary) !important;
+    font-weight: 600;
+}
+
+/* Why card hover */
+.why-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+.why-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 20px 40px rgba(67, 100, 59, 0.15) !important;
+}
+
+/* Accordion animasi */
+.accordion-item {
+    transition: box-shadow 0.3s ease;
+}
+.accordion-item:hover {
+    box-shadow: 0 8px 20px rgba(67, 100, 59, 0.08);
+}
+</style>
+
+<script>
+// Intersection Observer untuk animasi scroll
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('anim-visible');
+            observer.unobserve(entry.target); // animasi hanya sekali
+        }
+    });
+}, {
+    threshold: 0.15,
+    rootMargin: '0px 0px -50px 0px'
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Section Tentang — foto slide kiri, teks slide kanan
+    const aboutImg = document.querySelector('.about-image-wrap');
+    const aboutText = document.querySelector('.about-text');
+    if (aboutImg) { aboutImg.classList.add('anim-fade-left'); observer.observe(aboutImg); }
+    if (aboutText) { aboutText.classList.add('anim-fade-right'); observer.observe(aboutText); }
+
+
+    // Galeri — fade up berurutan
+    document.querySelectorAll('.gallery-card').forEach((card, i) => {
+        const delay = (i % 3) + 1;
+        card.classList.add('anim-fade-up', `anim-delay-${delay}`);
+        observer.observe(card);
+    });
+
+    // FAQ accordion — fade up
+    document.querySelectorAll('.accordion-item').forEach((item, i) => {
+        item.classList.add('anim-fade-up', `anim-delay-${Math.min(i + 1, 4)}`);
+        observer.observe(item);
+    });
+});
+</script>
+
 <body>
   <div id="app" v-cloak>
     <?php include 'navbar.php'; ?>
