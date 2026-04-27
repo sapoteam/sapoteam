@@ -332,18 +332,23 @@ $current_page = 'tiketreservasi.php';
           const firstDay = new Date(year, month, 1).getDay();
           const daysInMonth = new Date(year, month + 1, 0).getDate();
           const prevMonthDays = new Date(year, month, 0).getDate();
-          
+
           const dbBookedThisMonth = this.allReservations.filter(res => {
-            if (res.status !== 'Disetujui' && res.status !== 'Lunas') return false;
+
+            if (res.status === 'Dibatalkan' || res.status === 'Cancelled') return false;
+
             if (res.lokasi_nama !== this.selectedPlace) return false;
+
             const resDate = new Date(res.tanggal);
             return resDate.getFullYear() === year && resDate.getMonth() === month;
           });
 
           const days = [];
+
           for (let i = firstDay - 1; i >= 0; i--) {
             days.push({ date: prevMonthDays - i, booked: false, isPrevNext: true });
           }
+
           for (let i = 1; i <= daysInMonth; i++) {
             let isBooked = false;
             const foundDb = dbBookedThisMonth.find(b => new Date(b.tanggal).getDate() === i);
@@ -351,6 +356,7 @@ $current_page = 'tiketreservasi.php';
             const isToday = (i === this.todayDate && month === this.todayMonth && year === this.todayYear);
             days.push({ date: i, booked: isBooked, isToday: isToday, isPrevNext: false });
           }
+
           let nextMonthDate = 1;
           while (days.length < 42) {
             days.push({ date: nextMonthDate++, booked: false, isPrevNext: true });
