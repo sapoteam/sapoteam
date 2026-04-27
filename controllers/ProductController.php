@@ -5,6 +5,7 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../config/conn.php';
 require_once __DIR__ . '/../models/ProductModel.php';
 require_once __DIR__ . '/AuthController.php';
+require_once __DIR__ . '/../config/cloudinary_helper.php'; 
 
 global $conn;
 
@@ -38,29 +39,28 @@ $input = json_decode(file_get_contents('php://input'), true) ?: [];
 $data = array_merge($_POST, $input);
 $action = $data['action'] ?? ($_GET['action'] ?? '');
 
-$targetDir = __DIR__ . '/../assets/img/products/';
-if (!file_exists($targetDir)) { mkdir($targetDir, 0777, true); }
-
 switch ($action) {
     case 'create':
     case 'update':
-        $oldImagePath = '';
+        $oldImageUrl = '';
         if ($action === 'update') {
             $oldProduct = $productModel->getProductById($data['id']);
-            $oldImagePath = $oldProduct ? $oldProduct['image'] : '';
+            $oldImageUrl = $oldProduct ? $oldProduct['image'] : '';
         }
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $newFileName = 'prod_' . time() . '.' . $fileExtension;
-            $targetFilePath = $targetDir . $newFileName;
 
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
-                $data['image'] = '../../assets/img/products/' . $newFileName;
+            $cloudUrl = uploadToCloudinary(
+                $_FILES['image']['tmp_name'],
+                'oemahkeboen/products'
+            );
 
-                if (!empty($oldImagePath) && strpos($oldImagePath, 'prod_') !== false) {
-                    $oldFilePhysical = $targetDir . basename($oldImagePath);
-                    if (file_exists($oldFilePhysical)) unlink($oldFilePhysical);
+            if ($cloudUrl) {
+                $data['image'] = $cloudUrl;
+
+                if (!empty($oldImageUrl)) {
+                    $publicId = getPublicIdFromUrl($oldImageUrl);
+                    if ($publicId) deleteFromCloudinary($publicId);
                 }
             }
         }
@@ -81,9 +81,10 @@ switch ($action) {
 
     case 'delete':
         $oldProduct = $productModel->getProductById($data['id']);
-        if ($oldProduct && !empty($oldProduct['image']) && strpos($oldProduct['image'], 'prod_') !== false) {
-            $oldFilePhysical = $targetDir . basename($oldProduct['image']);
-            if (file_exists($oldFilePhysical)) unlink($oldFilePhysical);
+        if ($oldProduct && !empty($oldProduct['image'])) {
+
+            $publicId = getPublicIdFromUrl($oldProduct['image']);
+            if ($publicId) deleteFromCloudinary($publicId);
         }
 
         echo json_encode($productModel->deleteProduct($data['id'])

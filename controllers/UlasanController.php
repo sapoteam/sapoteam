@@ -5,6 +5,7 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/conn.php';
 require_once __DIR__ . '/../models/UlasanModel.php';
+require_once __DIR__ . '/../config/cloudinary_helper.php'; 
 
 $ulasanModel = new UlasanModel($conn);
 
@@ -12,12 +13,8 @@ $input = json_decode(file_get_contents('php://input'), true) ?: [];
 $data = array_merge($_POST, $input);
 $action = $data['action'] ?? ($_GET['action'] ?? '');
 
-$targetDir = __DIR__ . '/../assets/img/reviews/';
-if (!file_exists($targetDir)) { mkdir($targetDir, 0777, true); }
-
 function requireAdmin() {
     $allowed_roles = ['Admin', 'Pegawai']; 
-
     if (!isset($_SESSION['admin_logged_in']) || !in_array($_SESSION['admin_role'], $allowed_roles)) {
         echo json_encode(['status' => 'error', 'message' => 'Akses Ditolak! Anda tidak memiliki izin.']); 
         exit;
@@ -27,12 +24,10 @@ function requireAdmin() {
 switch ($action) {
 
     case 'read_approved':
-
         echo json_encode($ulasanModel->getApprovedUlasan());
         break;
 
     case 'create':
-
         $uploadedFiles = [];
         $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp']; 
 
@@ -45,14 +40,15 @@ switch ($action) {
                     $fileExtension = strtolower(pathinfo($_FILES['fotos']['name'][$i], PATHINFO_EXTENSION));
 
                     if (in_array($fileExtension, $allowedExtensions)) {
-                        $newFileName = 'rev_' . time() . '_' . rand(100,999) . '_' . $i . '.' . $fileExtension; 
-                        $targetFilePath = $targetDir . $newFileName;
 
-                        if (move_uploaded_file($_FILES['fotos']['tmp_name'][$i], $targetFilePath)) {
-                            $uploadedFiles[] = '../../assets/img/reviews/' . $newFileName;
+                        $cloudUrl = uploadToCloudinary(
+                            $_FILES['fotos']['tmp_name'][$i],
+                            'oemahkeboen/reviews'
+                        );
+                        if ($cloudUrl) {
+                            $uploadedFiles[] = $cloudUrl;
                         }
                     }
-
                 }
             }
         }
@@ -83,12 +79,10 @@ switch ($action) {
         $oldReview = $ulasanModel->getUlasanById($data['id']);
 
         if ($oldReview && !empty($oldReview['foto']) && is_array($oldReview['foto'])) {
-            foreach ($oldReview['foto'] as $path) {
-                if (strpos($path, 'rev_') !== false) {
-                    $oldFileName = basename($path);
-                    $oldFilePhysical = $targetDir . $oldFileName;
-                    if (file_exists($oldFilePhysical)) { unlink($oldFilePhysical); }
-                }
+            foreach ($oldReview['foto'] as $url) {
+
+                $publicId = getPublicIdFromUrl($url);
+                if ($publicId) deleteFromCloudinary($publicId);
             }
         }
 

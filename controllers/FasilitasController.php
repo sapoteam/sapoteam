@@ -5,6 +5,7 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../config/conn.php';
 require_once __DIR__ . '/../models/FasilitasModel.php'; 
 require_once __DIR__ . '/AuthController.php';
+require_once __DIR__ . '/../config/cloudinary_helper.php'; 
 
 global $conn;
 $fasilitasModel = new FasilitasModel($conn); 
@@ -23,9 +24,6 @@ if (in_array($action, $protected_actions)) {
     }
 }
 
-$targetDir = __DIR__ . '/../assets/img/facilities/';
-if (!file_exists($targetDir)) { mkdir($targetDir, 0777, true); }
-
 switch ($action) {
     case 'read':
         echo json_encode($fasilitasModel->getAllFasilitas());
@@ -37,24 +35,25 @@ switch ($action) {
 
     case 'create':
     case 'update':
-        $oldImagePath = '';
+        $oldImageUrl = '';
         if ($action === 'update') {
             $oldFasil = $fasilitasModel->getFasilitasById($data['id']);
-            $oldImagePath = $oldFasil ? $oldFasil['image'] : '';
+            $oldImageUrl = $oldFasil ? $oldFasil['image'] : '';
         }
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $newFileName = 'fasil_' . time() . '.' . $fileExtension; 
-            $targetFilePath = $targetDir . $newFileName;
 
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
-                $data['image'] = '../../assets/img/facilities/' . $newFileName;
+            $cloudUrl = uploadToCloudinary(
+                $_FILES['image']['tmp_name'],
+                'oemahkeboen/facilities'
+            );
 
-                if (!empty($oldImagePath) && strpos($oldImagePath, 'fasil_') !== false) {
-                    $oldFileName = basename($oldImagePath); 
-                    $oldFilePhysical = $targetDir . $oldFileName;
-                    if (file_exists($oldFilePhysical)) { unlink($oldFilePhysical); }
+            if ($cloudUrl) {
+                $data['image'] = $cloudUrl;
+
+                if (!empty($oldImageUrl)) {
+                    $publicId = getPublicIdFromUrl($oldImageUrl);
+                    if ($publicId) deleteFromCloudinary($publicId);
                 }
             }
         }
@@ -72,12 +71,11 @@ switch ($action) {
         break;
 
     case 'delete':
-
         $oldFasil = $fasilitasModel->getFasilitasById($data['id']);
-        if ($oldFasil && !empty($oldFasil['image']) && strpos($oldFasil['image'], 'fasil_') !== false) {
-            $oldFileName = basename($oldFasil['image']);
-            $oldFilePhysical = $targetDir . $oldFileName;
-            if (file_exists($oldFilePhysical)) { unlink($oldFilePhysical); }
+        if ($oldFasil && !empty($oldFasil['image'])) {
+
+            $publicId = getPublicIdFromUrl($oldFasil['image']);
+            if ($publicId) deleteFromCloudinary($publicId);
         }
 
         if ($fasilitasModel->deleteFasilitas($data['id'])) echo json_encode(['status' => 'success']);
