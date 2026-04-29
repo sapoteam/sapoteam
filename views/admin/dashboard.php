@@ -162,6 +162,66 @@ $current_page = 'dashboard.php';
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <script>
+        async function submitUpdatePassword() {
+    const oldPw = document.getElementById('old_pw').value;
+    const newPw = document.getElementById('new_pw').value;
+    const confirmPw = document.getElementById('confirm_pw').value;
+    const errorBox = document.getElementById('pwErrorMsg');
+    const successBox = document.getElementById('pwSuccessMsg');
+    const btn = document.getElementById('btnSavePw');
+
+    errorBox.classList.add('d-none');
+    successBox.classList.add('d-none');
+
+    if(!oldPw || !newPw || !confirmPw) {
+        errorBox.textContent = "Semua kolom wajib diisi!";
+        errorBox.classList.remove('d-none'); return;
+    }
+    if(newPw !== confirmPw) {
+        errorBox.textContent = "Konfirmasi password tidak cocok!";
+        errorBox.classList.remove('d-none'); return;
+    }
+    if(newPw.length < 8) {
+        errorBox.textContent = "Password baru minimal 8 karakter!";
+        errorBox.classList.remove('d-none'); return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+
+    try {
+        const res = await fetch('../../controllers/UpdatePassword.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ old_password: oldPw, new_password: newPw })
+        });
+        const data = await res.json();
+        
+        if(data.status === 'success') {
+            successBox.textContent = data.message;
+            successBox.classList.remove('d-none');
+            document.getElementById('old_pw').value = '';
+            document.getElementById('new_pw').value = '';
+            document.getElementById('confirm_pw').value = '';
+            
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
+                if(modal) modal.hide();
+                successBox.classList.add('d-none');
+            }, 1500);
+        } else {
+            errorBox.textContent = data.message;
+            errorBox.classList.remove('d-none');
+        }
+    } catch (err) {
+        errorBox.textContent = "Koneksi bermasalah!";
+        errorBox.classList.remove('d-none');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Simpan';
+    }
+}
+
     const { createApp } = Vue;
 
     createApp({
