@@ -225,8 +225,11 @@ Fitur:
 1. Dashboard
 
 <img width="2048" height="auto" alt="sapoteam test_8080_views_admin_dashboard php" src="https://github.com/user-attachments/assets/65fd76fc-8d86-4122-a6ca-7adecf6fde7b" />
+<img width="410" height="auto" alt="menu_topbar" src="https://github.com/user-attachments/assets/54c0b907-e82b-4fdf-a76b-67ce4a26615a" />
+<img width="802" height="auto" alt="modal_update_password" src="https://github.com/user-attachments/assets/86a8cd93-7ddd-4159-9a72-09ba4aeec44e" />
 
-3. Manajemen Reservasi
+
+2. Manajemen Reservasi
 
 <img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_reservasi php" src="https://github.com/user-attachments/assets/9872180d-9d78-4ddd-99b6-0fc61feca734" />
 
