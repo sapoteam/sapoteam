@@ -31,7 +31,7 @@
 ></div>
 
 <transition name="fade">
-    <div class="modal-overlay" v-if="showLogoutModal" style="z-index: 9999; background: rgba(0,0,0,0.6);">
+    <div class="modal-overlay" v-if="showLogoutModal" style="z-index: 9999; background: rgba(0,0,0,0.6);" @click.self="showLogoutModal = false">
         <div class="modal-box text-center" style="max-width: 380px;">
             <div class="text-warning mb-3" style="font-size: 3.5rem;"><i class="bi bi-box-arrow-left"></i></div>
             <h4 class="font-serif fw-bold mb-2 text-dark">Konfirmasi Keluar</h4>

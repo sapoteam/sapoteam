@@ -34,8 +34,8 @@
         <div class="social-wrapper">
           <a href="https://wa.me/628115522124" class="social-icon" target="_blank"><i class="bi bi-whatsapp"></i></a>
           <a href="https://instagram.com/oemahkeboen.smd" class="social-icon" target="_blank"><i class="bi bi-instagram"></i></a>
-          <a href="#" class="social-icon" target="_blank"><i class="bi bi-facebook"></i></a>
-          <a href="#" class="social-icon" target="_blank"><i class="bi bi-tiktok"></i></a>
+          <a href="https://www.facebook.com/oemahkeboen.smd" class="social-icon" target="_blank"><i class="bi bi-facebook"></i></a>
+          <a href="https://www.tiktok.com/@oemahkeboensmd" class="social-icon" target="_blank"><i class="bi bi-tiktok"></i></a>
         </div>
       </div>
     </div>

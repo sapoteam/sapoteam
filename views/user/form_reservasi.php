@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               if (responseData.status === 'success') {
                   const facName = this.facilities.find(f => f.id === this.form.fasilitas_id)?.nama || 'Fasilitas';
-                  const waNumber = "6285753556422";
+                  const waNumber = "6282252962600";
 
                   let message = `Halo Admin Oemah Keboen, saya baru saja menyimpan data reservasi di website dengan rincian:\n\n`;
                   message += `*Nama:* ${this.form.nama}\n`;

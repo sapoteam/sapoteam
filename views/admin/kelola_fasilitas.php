@@ -182,7 +182,7 @@ $current_page = 'kelola_fasilitas.php';
             </transition>
 
             <transition name="fade">
-                <div class="modal-overlay" v-if="showFormModal" style="z-index: 1100;">
+                <div class="modal-overlay" v-if="showFormModal" style="z-index: 1100;" @click.self="showFormModal = false">
                     <div class="modal-box modal-lg">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
                             <h4 class="font-serif fw-bold m-0" style="color: var(--green-main);">
@@ -253,7 +253,7 @@ $current_page = 'kelola_fasilitas.php';
             </transition>
 
             <transition name="fade">
-                <div class="modal-overlay" v-if="showConfirmModal" style="z-index: 1200; background: rgba(0,0,0,0.6);">
+                <div class="modal-overlay" v-if="showConfirmModal" style="z-index: 1200; background: rgba(0,0,0,0.6);" @click.self="showConfirmModal = false">
                     <div class="modal-box text-center shadow-lg" style="max-width: 400px;">
                         <i class="bi bi-exclamation-triangle text-danger fs-1 mb-3 d-block"></i>
                         <h4 class="font-serif fw-bold mb-2">Hapus Area?</h4>

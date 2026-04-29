@@ -205,7 +205,7 @@ $current_page = 'kelola_produk.php';
             </transition>
 
             <transition name="fade">
-                <div class="modal-overlay" v-if="showFormModal" style="z-index: 1070;">
+                <div class="modal-overlay" v-if="showFormModal" style="z-index: 1070;" @click.self="showFormModal = false">
                     <div class="modal-box modal-lg">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
                             <h4 class="font-serif fw-bold m-0" style="color: var(--green-main);">
@@ -285,7 +285,7 @@ $current_page = 'kelola_produk.php';
             </transition>
 
             <transition name="fade">
-                <div class="modal-overlay" v-if="showConfirmModal" style="z-index: 2050; background: rgba(0,0,0,0.7);">
+                <div class="modal-overlay" v-if="showConfirmModal" style="z-index: 2050; background: rgba(0,0,0,0.7);" @click.self="showConfirmModal = false">
                     <div class="modal-box text-center shadow-lg" style="max-width: 400px;">
                         <i class="bi bi-trash3 text-danger mb-3" style="font-size: 3rem;"></i>
                         <h4 class="font-serif fw-bold mb-2">Hapus Produk?</h4>

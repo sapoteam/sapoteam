@@ -50,7 +50,8 @@ if ($decoded && strpos($decoded, 'ok_') === 0) {
     }
     .qty-group {
         display: inline-flex; align-items: center;
-        border: 2px solid var(--green-main); border-radius: 12px;
+        border: 2px solid var(--green-main); 
+        border-radius: 12px;
         background: #fff; overflow: hidden;
     }
     .btn-qty {
@@ -58,8 +59,8 @@ if ($decoded && strpos($decoded, 'ok_') === 0) {
         color: var(--green-main); font-size: 1.5rem;
         display: flex; align-items: center; justify-content: center;
         transition: 0.2s; cursor: pointer;
+        -webkit-tap-highlight-color: transparent; 
     }
-    .btn-qty:hover { background: var(--green-main); color: white; }
     .qty-input {
         width: 60px; height: 45px; text-align: center;
         font-weight: bold; font-size: 1.2rem; border: none;
@@ -88,7 +89,19 @@ if ($decoded && strpos($decoded, 'ok_') === 0) {
         color: var(--green-main); font-weight: 600; text-decoration: none;
         display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
     }
-    .btn-back:hover { color: #4a6142; transform: translateX(-5px); }
+    @media (hover: hover) {
+        .btn-qty:hover { 
+            background: var(--green-main); 
+            color: white; 
+        }
+    }
+
+    @media (hover: none) {
+        .btn-qty:active { 
+            background: rgba(95, 122, 86, 0.15); 
+            color: var(--green-main);
+        }
+    }
   </style>
 </head>
 

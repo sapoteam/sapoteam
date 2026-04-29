@@ -188,7 +188,7 @@ $current_page = 'kelola_pegawai.php';
 
             <!-- Modal Form Tambah/Edit -->
             <transition name="fade">
-                <div class="modal-overlay" v-if="showFormModal" style="z-index: 1100;">
+                <div class="modal-overlay" v-if="showFormModal" style="z-index: 1100;" @click.self="showFormModal = false">
                     <div class="modal-box shadow-lg" style="max-width: 500px;">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
                             <h4 class="font-serif fw-bold m-0" style="color: var(--green-main);">
@@ -227,7 +227,7 @@ $current_page = 'kelola_pegawai.php';
 
             <!-- Modal Konfirmasi Hapus -->
             <transition name="fade">
-                <div class="modal-overlay" v-if="showConfirm" style="z-index: 1200; background: rgba(0,0,0,0.7);">
+                <div class="modal-overlay" v-if="showConfirm" style="z-index: 1200; background: rgba(0,0,0,0.7);" @click.self="showConfirm = false">
                     <div class="modal-box text-center shadow-lg" style="max-width: 380px; border-top: 5px solid #dc3545;">
                         <div class="text-danger mb-3" style="font-size: 4rem;">
                             <i class="bi bi-person-x-fill"></i>

@@ -188,7 +188,7 @@ $current_page = 'kelola_reservasi.php';
             </transition>
 
             <transition name="fade">
-                <div class="modal-overlay" v-if="showDetailModal" style="z-index: 1060;">
+                <div class="modal-overlay" v-if="showDetailModal" style="z-index: 1060;" @click.self="showDetailModal = false">
                     <div class="modal-box modal-lg">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
                             <h4 class="font-serif fw-bold m-0" style="color: var(--green-main);">
@@ -301,7 +301,7 @@ $current_page = 'kelola_reservasi.php';
             </transition>
 
             <transition name="fade">
-                <div class="modal-overlay" v-if="showConfirmModal" style="z-index: 2050; background: rgba(0,0,0,0.7);">
+                <div class="modal-overlay" v-if="showConfirmModal" style="z-index: 2050; background: rgba(0,0,0,0.7);" @click.self="showConfirmModal = false">
                     <div class="modal-box text-center shadow-lg" style="max-width: 400px; border: 2px solid white;">
                         <div class="modal-icon-big mb-3" :class="confirmData.iconClass">
                             <i :class="confirmData.icon"></i>

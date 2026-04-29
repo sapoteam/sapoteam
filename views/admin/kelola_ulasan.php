@@ -233,7 +233,7 @@ $current_page = 'kelola_ulasan.php';
             </transition>
 
             <transition name="fade">
-                <div class="modal-overlay" v-if="showModal" style="z-index: 1100;">
+                <div class="modal-overlay" v-if="showModal" style="z-index: 1100;" @click.self="showModal = false">
                     <div class="modal-box modal-lg">
                         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
                             <h4 class="font-serif fw-bold m-0" style="color: var(--green-main);">Detail Ulasan</h4>
@@ -275,7 +275,7 @@ $current_page = 'kelola_ulasan.php';
             </transition>
 
             <transition name="fade">
-                <div class="modal-overlay" v-if="showConfirm" style="z-index: 1200; background: rgba(0,0,0,0.6);">
+                <div class="modal-overlay" v-if="showConfirm" style="z-index: 1200; background: rgba(0,0,0,0.6);" @click.self="showConfirm = false">
                     <div class="modal-box text-center shadow-lg" style="max-width: 350px;">
                         <i class="bi fs-1 mb-3 d-block" :class="confirmData.action === 'delete' ? 'bi-trash text-danger' : 'bi-check-circle text-success'"></i>
                         <h5 class="fw-bold font-serif">{{ confirmData.title }}</h5>
