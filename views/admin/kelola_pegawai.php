@@ -212,11 +212,11 @@ $current_page = 'kelola_pegawai.php';
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-muted">NAMA LENGKAP</label>
-                                <input type="text" class="form-control p-2" v-model="activeUser.nama" maxlength="50" placeholder="Masukkan nama pegawai...">
+                                <input type="text" class="form-control p-2" v-model="activeUser.nama" maxlength="60" placeholder="Masukkan nama pegawai...">
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label small fw-bold text-muted">NOMOR HP / WHATSAPP</label>
-                                <input type="text" class="form-control p-2" v-model="activeUser.no_hp" @input="activeUser.no_hp = activeUser.no_hp.replace(/[^0-9]/g, '')" maxlength="15" placeholder="Contoh: 081234567890">
+                                <input type="text" class="form-control p-2" v-model="activeUser.no_hp" @input="activeUser.no_hp = activeUser.no_hp.replace(/[^0-9]/g, '')" maxlength="14" placeholder="Contoh: 081234567890">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-muted">USERNAME</label>

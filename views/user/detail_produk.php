@@ -162,7 +162,7 @@ if ($decoded && strpos($decoded, 'ok_') === 0) {
                     <div class="col-md-6">
                       <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" :class="{'is-invalid': errors.nama}"
-                            v-model="form.nama" placeholder="Masukkan nama...">
+                            v-model="form.nama" required maxlength="60" placeholder="Masukkan nama...">
                       <div class="invalid-feedback" v-if="errors.nama">{{ errors.nama }}</div>
                     </div>
                     <div class="col-md-6">
@@ -171,12 +171,13 @@ if ($decoded && strpos($decoded, 'ok_') === 0) {
                           v-model="form.noHp" 
                           inputmode="numeric"
                           pattern="[0-9]*"
+                          maxlength="14"
                           placeholder="Cth: 081234567890"
                           @input="form.noHp = form.noHp.replace(/[^0-9]/g, '')"> <div class="invalid-feedback" v-if="errors.noHp">{{ errors.noHp }}</div>
                   </div>
                     <div class="col-12">  
                       <label class="form-label">Catatan Tambahan (Opsional)</label>
-                      <textarea class="form-control" v-model="form.catatan" rows="2" placeholder="Catatan untuk penjual..."></textarea>
+                      <textarea class="form-control" v-model="form.catatan" rows="2" maxlength="100" placeholder="Catatan untuk penjual..."></textarea>
                     </div>
                     <div class="col-12 mt-3">
                       <div class="summary-box">

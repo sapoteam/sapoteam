@@ -195,11 +195,11 @@ $current_page = 'kelola_fasilitas.php';
                             <div class="col-md-7">
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">NAMA AREA</label>
-                                    <input type="text" class="form-control" v-model="activeFasil.nama" placeholder="Misal: Gazebo B">
+                                    <input type="text" class="form-control" v-model="activeFasil.nama" maxlength="40" placeholder="Misal: Gazebo B">
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">DESKRIPSI</label>
-                                    <textarea class="form-control" rows="4" v-model="activeFasil.deskripsi" placeholder="Ceritakan fasilitas yang ada di area ini..."></textarea>
+                                    <textarea class="form-control" rows="4" v-model="activeFasil.deskripsi" maxlength="200"placeholder="Ceritakan fasilitas yang ada di area ini..."></textarea>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
@@ -207,6 +207,7 @@ $current_page = 'kelola_fasilitas.php';
                                         <div class="input-rupiah-wrapper">
                                             <span>Rp</span>
                                             <input type="text" inputmode="numeric"
+                                                   maxlength="10"
                                                    :value="formatHargaInput(activeFasil.harga)"
                                                    @input="activeFasil.harga = parseHarga($event.target.value)"
                                                    placeholder="0">

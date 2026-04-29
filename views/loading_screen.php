@@ -297,6 +297,10 @@
 }
 
 /* ── Hide konten saat loading ── */
+body.ok-loading {
+  overflow: hidden !important; 
+}
+
 body.ok-loading .page-content,
 body.ok-loading .content-wrapper {
   opacity: 0 !important;

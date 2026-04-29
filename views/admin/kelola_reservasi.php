@@ -206,6 +206,7 @@ $current_page = 'kelola_reservasi.php';
                                 <label class="form-label small fw-bold text-muted text-uppercase">Nama Lengkap Pemesan</label>
                                 <input type="text" class="form-control" v-model="activeRes.nama"
                                     :disabled="!isEditMode && !isAddMode"
+                                    maxlength="60"
                                     placeholder="Masukkan nama...">
                             </div>
 
@@ -214,6 +215,7 @@ $current_page = 'kelola_reservasi.php';
                                 <input type="text" class="form-control" v-model="activeRes.noHp"
                                     @input="activeRes.noHp = activeRes.noHp.replace(/[^0-9]/g, '')"
                                     :disabled="!isEditMode && !isAddMode"
+                                    maxlength="14"
                                     placeholder="Contoh: 08123456789">
                             </div>
 
@@ -268,6 +270,7 @@ $current_page = 'kelola_reservasi.php';
                                 <label class="form-label small fw-bold text-muted text-uppercase">Catatan Tambahan</label>
                                 <textarea class="form-control" rows="2" v-model="activeRes.catatan"
                                         :disabled="!isEditMode && !isAddMode"
+                                            maxlength="100"
                                         placeholder="Ada request khusus? Tulis di sini..."></textarea>
                             </div>
 

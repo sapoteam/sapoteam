@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
               <div class="review-form-group mb-3">
                 <label class="fw-bold small mb-1">Nama Lengkap</label>
-                <input type="text" class="form-control review-input" v-model="newReview.name" placeholder="Masukkan nama kamu">
+                <input type="text" class="form-control review-input" required maxlength="60" v-model="newReview.name" placeholder="Masukkan nama kamu">
               </div>
 
               <div class="review-form-group mb-3">
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   <div class="review-textarea-note text-muted small mb-2">
                     Bagikan pengalaman Anda untuk membantu dan menginspirasi pengunjung lainnya.
                   </div>
-                  <textarea class="form-control review-textarea" rows="5" v-model="newReview.text" placeholder="Ceritakan pengalamanmu..."></textarea>
+                  <textarea class="form-control review-textarea" rows="5" required maxlength="100" v-model="newReview.text" placeholder="Ceritakan pengalamanmu..."></textarea>
                 </div>
               </div>
 

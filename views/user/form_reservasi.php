@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   <div class="row g-4">
                     <div class="col-md-6">
                       <label class="form-label">Nama Lengkap Pemesan <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" :class="{'is-invalid': errors.nama}" v-model="form.nama" placeholder="Cth: Satria Aegis">
+                      <input type="text" class="form-control" :class="{'is-invalid': errors.nama}" v-model="form.nama" required maxlength="60" placeholder="Cth: Satria Aegis">
                       <div class="invalid-feedback" v-if="errors.nama">{{ errors.nama }}</div>
                     </div>
                     
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
                       <label class="form-label">Nomor WhatsApp Aktif <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" :class="{'is-invalid': errors.noHp}" 
                             v-model="form.noHp" inputmode="numeric" pattern="[0-9]*" 
-                            @input="form.noHp = form.noHp.replace(/[^0-9]/g, '')" placeholder="Cth: 081234567890">
+                            @input="form.noHp = form.noHp.replace(/[^0-9]/g, '')" maxlength="14" placeholder="Cth: 081234567890">
                       <div class="invalid-feedback" v-if="errors.noHp">{{ errors.noHp }}</div>
                     </div>
 
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     <div class="col-12">
                       <label class="form-label">Catatan / Detail Acara (Opsional)</label>
-                      <textarea class="form-control" v-model="form.catatan" rows="3" placeholder="Ceritakan singkat acara Anda..."></textarea>
+                      <textarea class="form-control" v-model="form.catatan" rows="3" maxlength="100" placeholder="Ceritakan singkat acara Anda..."></textarea>
                     </div>
 
                     <div class="col-12 mt-4" v-if="form.tanggal && form.jumlahOrang">

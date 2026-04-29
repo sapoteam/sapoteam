@@ -219,7 +219,7 @@ $current_page = 'kelola_produk.php';
                                 <div class="row g-3">
                                     <div class="col-12">
                                         <label class="form-label small fw-bold text-muted">NAMA PRODUK</label>
-                                        <input type="text" class="form-control" v-model="activeProd.nama">
+                                        <input type="text" class="form-control" v-model="activeProd.nama" maxlength="40" placeholder="Masukan Nama Produk">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label small fw-bold text-muted">KATEGORI</label>
@@ -235,6 +235,7 @@ $current_page = 'kelola_produk.php';
                                         <div class="input-rupiah-wrapper">
                                             <span>Rp</span>
                                             <input type="text" inputmode="numeric"
+                                                maxlength="10"
                                                 :value="formatHargaInput(activeProd.harga)"
                                                 @input="activeProd.harga = parseHarga($event.target.value)"
                                                 placeholder="0">
@@ -242,7 +243,7 @@ $current_page = 'kelola_produk.php';
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label small fw-bold text-muted">DESKRIPSI</label>
-                                        <textarea class="form-control" rows="3" v-model="activeProd.deskripsi"></textarea>
+                                        <textarea class="form-control" rows="3" v-model="activeProd.deskripsi" maxlength="100" placeholder="Isi Deskripsi Produk"></textarea>
                                     </div>
                                 </div>
                             </div>
