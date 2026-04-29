@@ -1,4 +1,13 @@
-<h1 align="center"> Oemah Keboen Samarinda </h1>
+<h1> Oemah Keboen Samarinda </h1>
+
+## 👥 Profil Kelompok:
+
+| NIM | Nama | Program Studi / Kelas |
+| :--- | :--- | :--- |
+| 2409116041 | Shafa Rizqi Nur Wahidah | Sistem Informasi |
+| 2409116049 | Rabiatul Hikmah | Sistem Informasi  |
+| 2409116061 | Nayla Lelyanggraheni Hutomo | Sistem Informasi |
+| 2409116067 | Satria Rajawali Ektya Antara | Sistem Informasi  |
 
 ## 📌Deskripsi
 Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web yang dirancang untuk memperkenalkan Oemah Keboen kepada masyarakat luas serta memudahkan proses reservasi acara. Website ini terdiri dari dua sisi utama: sisi pengunjung (user) dan sisi pengelola (admin). Sisi pengunjung dapat diakses oleh siapa saja tanpa perlu login, sedangkan sisi admin hanya dapat diakses oleh pengelola yang memiliki akun terdaftar.
@@ -215,11 +224,11 @@ Fitur:
 
 1. Dashboard
 
-2. Manajemen Reservasi
+<img width="2048" height="auto" alt="sapoteam test_8080_views_admin_dashboard php" src="https://github.com/user-attachments/assets/65fd76fc-8d86-4122-a6ca-7adecf6fde7b" />
+
+3. Manajemen Reservasi
 
 <img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_reservasi php" src="https://github.com/user-attachments/assets/9872180d-9d78-4ddd-99b6-0fc61feca734" />
-
-<img width="2048" height="auto" alt="sapoteam test_8080_views_admin_dashboard php" src="https://github.com/user-attachments/assets/65fd76fc-8d86-4122-a6ca-7adecf6fde7b" />
 
 <img width="2048" height="auto" alt="sapoteam test_8080_views_admin_kelola_reservasi php (1)" src="https://github.com/user-attachments/assets/ce7d777b-44be-447e-93fa-01eef2fb66c2" />
 
