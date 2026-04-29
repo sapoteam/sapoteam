@@ -16,7 +16,9 @@ $current_page = 'tiket';
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="style.css">
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
   <style>
     .form-card {
         background: #fff;
@@ -170,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     <div class="col-md-6">
                       <label class="form-label">Area Fasilitas <span class="text-danger">*</span></label>
-                      <select class="form-select" v-model="form.fasilitas_id" required>
+                      <select class="form-select" v-model="form.fasilitas_id" @change="initFlatpickr" required>
                         <option v-if="facilities.length === 0" value="">Memuat fasilitas...</option>
                         <option v-for="fac in facilities" :key="fac.id" :value="fac.id">
                           {{ fac.nama }} ({{ formatRupiah(fac.harga) }}/org)
@@ -180,7 +182,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     <div class="col-md-6">
                       <label class="form-label">Tanggal Acara <span class="text-danger">*</span></label>
-                      <input type="date" class="form-control" v-model="form.tanggal" :min="minDate" required>
+                      <input type="text" id="tanggalPicker" class="form-control" 
+                             :class="form.fasilitas_id ? 'bg-white' : 'bg-light'"
+                             v-model="form.tanggal" 
+                             :disabled="!form.fasilitas_id"
+                             :placeholder="form.fasilitas_id ? 'Pilih tanggal...' : 'Pilih area terlebih dahulu...'"
+                             required>
                     </div>
 
                     <div class="col-md-12">
@@ -255,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function () {
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <?php include 'navbar_scripts.php'; ?>
   
-  <script>
+ <script>
     const { createApp } = Vue;
 
     createApp({
@@ -270,6 +277,7 @@ document.addEventListener('DOMContentLoaded', function () {
             catatan: ''
           },
           facilities: [],
+          reservations: [],
           errors: { nama: '', noHp: '' },
           isSubmitting: false,
           minDate: new Date().toISOString().split('T')[0]
@@ -336,18 +344,77 @@ document.addEventListener('DOMContentLoaded', function () {
 
           return valid;
         },
+
+        async fetchReservations() {
+            try {
+                const response = await fetch('../../controllers/ReservasiController.php?action=read');
+                const rawText = await response.text();
+                try {
+                    const data = JSON.parse(rawText);
+                    if (data.status !== 'error') {
+                        this.reservations = data;
+                        this.initFlatpickr(); 
+                    }
+                } catch (e) { console.error("Gagal load jadwal booking", rawText); }
+            } catch (e) { console.error("Koneksi jadwal gagal", e); }
+        },
+
+        initFlatpickr() {
+            if (!this.form.fasilitas_id) return; 
+
+            const bookedDates = this.reservations
+                .filter(r => 
+                    r.status === 'Lunas' && 
+                    r.fasilitas_id == this.form.fasilitas_id
+                )
+                .map(r => r.tanggal.split('T')[0]);
+
+            if (this._flatpickrInstance) {
+                this._flatpickrInstance.destroy();
+            }
+
+            this.$nextTick(() => {
+                const el = document.getElementById('tanggalPicker');
+                if (!el) return;
+
+                this._flatpickrInstance = flatpickr(el, {
+                    locale: 'id',
+                    dateFormat: 'Y-m-d',
+                    minDate: 'today',
+                    disableMobile: true,
+                    disable: bookedDates, 
+
+                    defaultDate: this.form.tanggal || null,
+                    onDayCreate: (dObj, dStr, fp, dayElem) => {
+                        const dateStr = fp.formatDate(dayElem.dateObj, "Y-m-d"); 
+
+                        if (bookedDates.includes(dateStr)) {
+                            dayElem.title = 'Sudah dibooking';
+                            dayElem.style.backgroundColor = '#fee2e2';
+                            dayElem.style.color = '#dc2626';
+                            dayElem.style.borderRadius = '50%';
+                            dayElem.style.border = '1px solid #fca5a5';
+                        }
+                    },
+                    onChange: (selectedDates, dateStr) => {
+                        this.form.tanggal = dateStr;
+                    }
+                });
+            });
+        },
+
         async fetchFacilities() {
             try {
                 const res = await fetch('../../controllers/FasilitasController.php?action=readU');
                 const text = await res.text();
                 const data = JSON.parse(text);
-                
+
                 if(Array.isArray(data)) {
                     this.facilities = data;
-                    
+
                     const urlParams = new URLSearchParams(window.location.search);
                     const tempatUrl = urlParams.get('tempat');
-                    
+
                     if (tempatUrl && this.facilities.length > 0) {
                         const matched = this.facilities.find(f => f.nama === tempatUrl);
                         if (matched) {
@@ -358,11 +425,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else if (this.facilities.length > 0) {
                         this.form.fasilitas_id = this.facilities[0].id;
                     }
+
+                    this.$nextTick(() => {
+                        if (this.form.fasilitas_id && this.reservations.length > 0) {
+                            this.initFlatpickr();
+                        }
+                    });
                 }
             } catch(e) {
                 console.error("Gagal load fasilitas", e);
             }
         },
+
         async submitReservation() {
           if (!this.validate()) return;
           this.isSubmitting = true;
@@ -385,15 +459,14 @@ document.addEventListener('DOMContentLoaded', function () {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(payload)
               });
-              
+
               const text = await res.text();
               const responseData = JSON.parse(text);
 
               if (responseData.status === 'success') {
-                  
                   const facName = this.facilities.find(f => f.id === this.form.fasilitas_id)?.nama || 'Fasilitas';
-                  
                   const waNumber = "6285753556422";
+
                   let message = `Halo Admin Oemah Keboen, saya baru saja menyimpan data reservasi di website dengan rincian:\n\n`;
                   message += `*Nama:* ${this.form.nama}\n`;
                   message += `*No. WA:* ${this.form.noHp}\n`;
@@ -402,13 +475,13 @@ document.addEventListener('DOMContentLoaded', function () {
                   message += `*Jumlah Peserta:* ${this.form.jumlahOrang} Orang\n\n`;
                   message += `*Estimasi Biaya:* ${this.formatRupiah(this.totalHarga)}\n`;
                   message += `*Uang Muka (DP 70%):* ${this.formatRupiah(this.totalHarga * 0.7)}\n`;
-                  
+
                   if(this.form.catatan) {
                       message += `\n*Catatan Tambahan:* ${this.form.catatan}\n\n`;
                   } else {
                       message += `\n\n`;
                   }
-                  
+
                   message += `Data saya sudah masuk ke sistem. Mohon info ketersediaan jadwal dan nomor rekening untuk transfer DP ya. Terima kasih!`;
 
                   const encodedMessage = encodeURIComponent(message);
@@ -427,6 +500,7 @@ document.addEventListener('DOMContentLoaded', function () {
               this.isSubmitting = false;
           }
         },
+
         goWithFade(url) {
           const page = document.querySelector('.page-content');
           if (page) page.classList.add('fade-exit');
@@ -438,6 +512,7 @@ document.addEventListener('DOMContentLoaded', function () {
       },
       mounted() {
         this.fetchFacilities();
+        this.fetchReservations();
       }
     }).mount('#app');
   </script>

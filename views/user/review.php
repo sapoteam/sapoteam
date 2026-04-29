@@ -55,6 +55,31 @@
     }
     .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
+    /* CSS Buat Toast Melayang */
+    .toast-custom {
+        position: fixed;
+        top: 80px; /* Jarak dari atas (biar gak nabrak navbar) */
+        right: 20px;
+        z-index: 9999;
+        min-width: 250px;
+        max-width: 350px;
+        padding: 15px 20px;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+    .toast-success { border-left: 6px solid #198754; color: #198754; }
+    .toast-danger { border-left: 6px solid #dc3545; color: #dc3545; }
+    .toast-warning { border-left: 6px solid #ffc107; color: #856404; }
+    
+    .toast-slide-enter-active, .toast-slide-leave-active { transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+    .toast-slide-enter-from { opacity: 0; transform: translateX(50px); }
+    .toast-slide-leave-to { opacity: 0; transform: translateX(50px); }
   </style>
 </head>
 
@@ -104,6 +129,12 @@ document.addEventListener('DOMContentLoaded', function () {
       <?php include 'navbar.php'; ?>
 
   <div id="app">
+    <transition name="toast-slide">
+        <div v-if="alert.show" class="toast-custom" :class="'toast-' + alert.type">
+            <i class="bi fs-4" :class="alert.type === 'success' ? 'bi-check-circle-fill' : (alert.type === 'warning' ? 'bi-exclamation-triangle-fill' : 'bi-x-circle-fill')"></i>
+            <div>{{ alert.message }}</div>
+        </div>
+    </transition>
     <div class="page-content">
 
         <section class="section-padding review-page">
@@ -157,10 +188,6 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="review-form-page-box bg-white p-4 rounded-4 shadow-sm mx-auto" style="max-width: 800px;">
               <h2 class="review-form-page-title mb-4">Bagaimana pengalaman Anda di Oemah Keboen?</h2>
 
-              <div v-if="alert.show" class="alert" :class="'alert-' + alert.type" role="alert">
-                <i class="bi me-2" :class="alert.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
-                {{ alert.message }}
-              </div>
 
               <div class="review-form-group mb-3">
                 <label class="fw-bold small mb-1">Nama Lengkap</label>
@@ -207,9 +234,14 @@ document.addEventListener('DOMContentLoaded', function () {
               </div>
 
               <div class="d-flex gap-3 flex-wrap pt-3 border-top mt-4">
-                <button class="btn fw-bold px-4 py-2 rounded-3 text-white" style="background-color: #C1A570; border: none;" @click="submitReview" :disabled="isSubmitting">
-                    <span v-if="isSubmitting">Mengirim...</span>
-                    <span v-else>Submit Review</span>
+                <button class="btn fw-bold px-4 py-2 rounded-3 text-white d-flex align-items-center justify-content-center" style="background-color: #C1A570; border: none;" @click="submitReview" :disabled="isSubmitting">
+                  <template v-if="isSubmitting">
+                      <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Mengirim...
+                  </template>
+                  <template v-else>
+                      Submit Review
+                  </template>
                 </button>
                 <button class="btn btn-outline-secondary px-4 py-2 rounded-3" @click="resetForm">Batal</button>
               </div>
