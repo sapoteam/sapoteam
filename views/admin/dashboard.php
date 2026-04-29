@@ -1,4 +1,10 @@
 <?php
+if (isset($_GET['action']) && $_GET['action'] == 'logout-confirmed') {
+    session_start();
+    session_destroy();
+    header("Location: login.php");
+    exit;
+}
 require_once '../../config/conn.php';
 require_once '../../controllers/AuthController.php';
 
@@ -29,7 +35,7 @@ $current_page = 'dashboard.php';
     </style>
 </head>
 <body>
-
+<?php include '../../views/loading_screen.php'; ?>
 <div id="app">
     <?php include 'sidebar.php'; ?>
 
@@ -121,7 +127,7 @@ $current_page = 'dashboard.php';
                                 </tr>
                             </thead>
                             <transition-group name="list" tag="tbody">
-                                <tr v-for="(res, index) in recentReservations" :key="res.id" :style="{ transitionDelay: (index * 0.1) + 's' }">
+                                <tr v-for="(res, index) in limitedReservations" :key="res.id" :style="{ transitionDelay: (index * 0.1) + 's' }">
                                     <td>{{ res.tanggal_format }}</td>
                                     <td class="fw-medium">{{ res.nama }}</td>
                                     <td>{{ res.lokasi_nama || 'Area Terhapus' }}</td>
@@ -177,6 +183,11 @@ $current_page = 'dashboard.php';
                 toast: { show: false, message: '', type: 'success', icon: 'bi-check-circle' }
             }
         },
+        computed: {
+            limitedReservations() {
+                return this.recentReservations.slice(0, 5);
+            }
+        },
         methods: {
             showToastMsg(message, type = 'success') {
                 this.toast.message = message;
@@ -192,9 +203,11 @@ $current_page = 'dashboard.php';
                     const result = await response.json();
 
                     if (result.status === 'success') {
+
                         this.stats.totalReservasi = result.data.totalReservasi;
                         this.stats.ulasanMenunggu = result.data.ulasanMenunggu;
                         this.stats.produkAktif = result.data.produkAktif;
+
                         this.isPanenActive = result.data.statusPanen;
                         this.recentReservations = result.data.recentReservations;
                     }

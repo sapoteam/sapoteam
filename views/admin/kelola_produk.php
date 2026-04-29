@@ -1,4 +1,10 @@
 <?php
+if (isset($_GET['action']) && $_GET['action'] == 'logout-confirmed') {
+    session_start();
+    session_destroy();
+    header("Location: login.php");
+    exit;
+}
 require_once '../../config/conn.php';
 require_once '../../controllers/AuthController.php';
 
@@ -43,10 +49,37 @@ $current_page = 'kelola_produk.php';
         
         .upload-area { border: 2px dashed #ccc; cursor: pointer; transition: 0.3s; }
         .upload-area:hover { border-color: var(--green-main); background: #f8f9fa !important; }
+        .input-rupiah-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    transition: 0.2s;
+}
+.input-rupiah-wrapper:focus-within {
+    border-color: var(--green-main);
+    box-shadow: 0 0 0 0.2rem rgba(95, 122, 86, 0.15);
+}
+.input-rupiah-wrapper span {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    color: #6c757d;
+    font-weight: 600;
+    border-right: 1px solid #dee2e6;
+    white-space: nowrap;
+}
+.input-rupiah-wrapper input {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none;
+    flex: 1;
+    padding: 8px 12px;
+}
     </style>
 </head>
 <body>
-
+<?php include '../../views/loading_screen.php'; ?>
 <div id="app">
     <?php include 'sidebar.php'; ?>
 
@@ -84,11 +117,19 @@ $current_page = 'kelola_produk.php';
 
             <transition name="fade" appear>
                 <div class="table-custom" v-show="isLoaded">
-                    <div class="d-flex gap-2 mb-4 overflow-auto pb-2">
-                        <button class="filter-btn text-nowrap" :class="{ active: currentFilter === 'Semua' }" @click="currentFilter = 'Semua'">Semua</button>
-                        <button class="filter-btn text-nowrap" :class="{ active: currentFilter === 'Buah' }" @click="currentFilter = 'Buah'">Buah-buahan</button>
-                        <button class="filter-btn text-nowrap" :class="{ active: currentFilter === 'Minuman' }" @click="currentFilter = 'Minuman'">Minuman</button>
-                        <button class="filter-btn text-nowrap" :class="{ active: currentFilter === 'Paket Edukasi' }" @click="currentFilter = 'Paket Edukasi'">Paket Edukasi</button>
+                    <div class="d-flex gap-2 mb-4 overflow-auto pb-2 align-items-center">
+                        <button class="filter-btn text-nowrap rounded-pill" :class="{ active: currentFilter === 'Semua' }" @click="currentFilter = 'Semua'">
+                            Semua ({{ products.length }})
+                        </button>
+                        <button class="filter-btn text-nowrap rounded-pill" :class="{ active: currentFilter === 'Buah' }" @click="currentFilter = 'Buah'">
+                            Buah-buahan ({{ countCategory('Buah') }})
+                        </button>
+                        <button class="filter-btn text-nowrap rounded-pill" :class="{ active: currentFilter === 'Minuman' }" @click="currentFilter = 'Minuman'">
+                            Minuman ({{ countCategory('Minuman') }})
+                        </button>
+                        <button class="filter-btn text-nowrap rounded-pill" :class="{ active: currentFilter === 'Paket Edukasi' }" @click="currentFilter = 'Paket Edukasi'">
+                            Paket Edukasi ({{ countCategory('Paket Edukasi') }})
+                        </button>
                     </div>
 
                     <div class="table-responsive">
@@ -191,7 +232,13 @@ $current_page = 'kelola_produk.php';
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label small fw-bold text-muted">HARGA (RP)</label>
-                                        <input type="number" class="form-control" v-model="activeProd.harga">
+                                        <div class="input-rupiah-wrapper">
+                                            <span>Rp</span>
+                                            <input type="text" inputmode="numeric"
+                                                :value="formatHargaInput(activeProd.harga)"
+                                                @input="activeProd.harga = parseHarga($event.target.value)"
+                                                placeholder="0">
+                                        </div>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label small fw-bold text-muted">DESKRIPSI</label>
@@ -205,7 +252,7 @@ $current_page = 'kelola_produk.php';
                                 
                                 <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" class="d-none">
                                 <div class="upload-area rounded-4 text-center p-3 mb-3 bg-light d-flex flex-column justify-content-center align-items-center" style="min-height: 160px;" @click="$refs.fileInput.click()">
-                                    <img v-if="activeProd.previewImage" :src="activeProd.previewImage" style="max-height: 130px; object-fit: contain; border-radius: 8px;">
+                                    <img v-if="activeProd.previewImage" :src="activeProd.previewImage" class="w-100" style="height: 130px; object-fit: cover; border-radius: 8px;">
                                     <div v-else>
                                         <i class="bi bi-cloud-arrow-up fs-1 text-muted mb-2 d-block"></i>
                                         <span class="btn btn-sm btn-outline-secondary">Pilih Gambar</span>
@@ -222,9 +269,16 @@ $current_page = 'kelola_produk.php';
 
                         <div class="d-flex justify-content-end gap-2 pt-3 border-top">
                             <button class="btn btn-outline-secondary px-4 rounded-3" @click="showFormModal = false">Batal</button>
-                            <button class="btn btn-gold px-4 rounded-3" @click="saveProduct">
-                                {{ isAddMode ? 'Simpan Produk' : 'Update Perubahan' }}
-                            </button>
+                            <button class="btn btn-gold px-4 rounded-3 d-flex align-items-center" @click="saveProduct" :disabled="isSubmitting">
+                            <template v-if="isSubmitting">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Mengunggah...
+                            </template>
+                            
+                            <template v-else>
+                                {{ isAddMode ? 'Simpan Produk' : 'Simpan Perubahan' }}
+                            </template>
+                        </button>
                         </div>
                     </div>
                 </div>
@@ -263,6 +317,7 @@ $current_page = 'kelola_produk.php';
             return {
                 isLoaded: false,
                 isSidebarCollapsed: false,
+                isSubmitting: false,
                 isSidebarMobileOpen: false,
                 showLogoutModal: false,    
                 currentFilter: 'Semua',
@@ -305,6 +360,17 @@ $current_page = 'kelola_produk.php';
             currentFilter() { this.currentPage = 1; }
         },
         methods: {
+            formatHargaInput(n) {
+                if (!n && n !== 0) return '';
+                return parseInt(n).toLocaleString('id-ID');
+            },
+            parseHarga(val) {
+                const clean = val.replace(/[^0-9]/g, '');
+                return clean ? parseInt(clean) : 0;
+            },
+            countCategory(kat) {
+                return this.products.filter(p => p.kategori === kat).length;
+            },
             showToastMsg(message, type = 'success') {
                 this.toast.message = message; this.toast.type = type;
                 this.toast.icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
@@ -378,7 +444,7 @@ $current_page = 'kelola_produk.php';
                 this.activeProd.nama = this.activeProd.nama ? this.activeProd.nama.trim() : '';
                 this.activeProd.deskripsi = this.activeProd.deskripsi ? this.activeProd.deskripsi.trim() : '';
 
-                const nameRegex = /^[a-zA-Z0-9\s.,-]+$/;
+                const nameRegex = /^[a-zA-Z0-9\s.,]+$/;
 
                 if (!this.activeProd.nama || this.activeProd.nama.length < 3) {
                     this.showToastMsg("Nama produk minimal 3 karakter!", "warning"); 
@@ -402,19 +468,23 @@ $current_page = 'kelola_produk.php';
                     return;
                 }
 
-                if (this.activeProd.deskripsi && !nameRegex.test(this.activeProd.deskripsi)) {
-                    this.showToastMsg("Deskripsi tidak boleh mengandung emoji atau simbol aneh!", "error");
-                    return;
+                if (this.activeProd.deskripsi && this.activeProd.deskripsi.length > 0) {
+                    if (this.activeProd.deskripsi.length < 10) {
+                        this.showToastMsg("Deskripsi minimal 10 karakter!", "warning");
+                        return;
+                    }
+                    if (!nameRegex.test(this.activeProd.deskripsi)) {
+                        this.showToastMsg("Deskripsi tidak boleh mengandung emoji atau simbol aneh!", "error");
+                        return;
+                    }
                 }
 
-                if (!this.activeProd.nama || !this.activeProd.harga) {
-                    this.showToastMsg("Nama dan Harga wajib diisi!", "error"); return;
-                }
+                this.isSubmitting = true;
 
                 let formData = new FormData();
                 formData.append('action', this.isAddMode ? 'create' : 'update');
                 if (!this.isAddMode) formData.append('id', this.activeProd.id);
-                
+
                 formData.append('nama', this.activeProd.nama);
                 formData.append('kategori', this.activeProd.kategori);
                 formData.append('harga', this.activeProd.harga);
@@ -447,6 +517,9 @@ $current_page = 'kelola_produk.php';
                     }
                 } catch (err) {
                     this.showToastMsg("Koneksi bermasalah!", 'error');
+                } finally {
+
+                    this.isSubmitting = false;
                 }
             },
 

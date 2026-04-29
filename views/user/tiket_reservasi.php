@@ -15,11 +15,12 @@ $current_page = 'tiketreservasi.php';
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
-
+      <?php include 'navbar.php'; ?>
+  <?php include '../../views/loading_screen.php'; ?>
 <body>
   <div id="app">
     <div class="page-content">
-      <?php include 'navbar.php'; ?>
+
 
       <section class="reservation-hero">
         <div class="container">

@@ -63,7 +63,7 @@ class ProductModel {
             $stmt = $this->conn->prepare(
                 "UPDATE produk SET nama=?, kategori=?, harga=?, deskripsi=?, status=? WHERE id=?"
             );
-            $stmt->bind_param("sissi", $nama, $kategori, $harga, $deskripsi, $status, $id);
+            $stmt->bind_param("ssissi", $nama, $kategori, $harga, $deskripsi, $status, $id);
         }
 
         return $stmt->execute();

@@ -1,4 +1,10 @@
 <?php
+if (isset($_GET['action']) && $_GET['action'] == 'logout-confirmed') {
+    session_start();
+    session_destroy();
+    header("Location: login.php");
+    exit;
+}
 require_once '../../config/conn.php';
 require_once '../../controllers/AuthController.php';
 
@@ -35,10 +41,39 @@ $current_page = 'kelola_fasilitas.php';
         .upload-area { border: 2px dashed #ccc; cursor: pointer; transition: 0.3s; border-radius: 12px; }
         .upload-area:hover { border-color: var(--green-main); background: #f8f9fa !important; }
         .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+        .filter-btn { background: transparent; border: 1px solid var(--green-main); color: var(--green-main); border-radius: 20px; padding: 6px 16px; font-size: 0.9rem; font-weight: 500; transition: 0.3s; }
+        .filter-btn.active, .filter-btn:hover { background: var(--green-main); color: white; }
+        .input-rupiah-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    transition: 0.2s;
+}
+.input-rupiah-wrapper:focus-within {
+    border-color: var(--green-main);
+    box-shadow: 0 0 0 0.2rem rgba(95, 122, 86, 0.15);
+}
+.input-rupiah-wrapper span {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    color: #6c757d;
+    font-weight: 600;
+    border-right: 1px solid #dee2e6;
+    white-space: nowrap;
+}
+.input-rupiah-wrapper input {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none;
+    flex: 1;
+    padding: 8px 12px;
+}
     </style>
 </head>
 <body>
-
+<?php include '../../views/loading_screen.php'; ?>
 <div id="app">
     <?php include 'sidebar.php'; ?>
 
@@ -75,6 +110,19 @@ $current_page = 'kelola_fasilitas.php';
 
             <transition name="fade" appear>
                 <div v-show="isLoaded">
+                    <div class="d-flex gap-2 mb-4 overflow-auto pb-2 align-items-center border-bottom pb-3">
+                        <button class="filter-btn text-nowrap rounded-pill" :class="{ active: currentFilter === 'Semua' }" @click="currentFilter = 'Semua'">
+                            Semua Area ({{ facilities.length }})
+                        </button>
+                        <button class="filter-btn text-nowrap rounded-pill" :class="{ active: currentFilter === 'Tersedia' }" @click="currentFilter = 'Tersedia'">
+                            Tersedia ({{ countStatus('Tersedia') }})
+                        </button>
+                        <button class="filter-btn text-nowrap rounded-pill d-flex align-items-center gap-1" :class="{ active: currentFilter === 'Perbaikan' }" @click="currentFilter = 'Perbaikan'">
+                            Perbaikan
+                            <span v-if="countStatus('Perbaikan') > 0" class="badge bg-warning text-dark rounded-pill px-2">{{ countStatus('Perbaikan') }}</span>
+                            <span v-else class="badge bg-secondary rounded-pill px-2">0</span>
+                        </button>
+                    </div>
                     <div class="row g-4" v-if="filteredFacilities.length > 0">
                         <div class="col-md-6 col-lg-4" v-for="fasil in paginatedFacilities" :key="fasil.id">
                             <div class="facility-card-admin shadow-sm">
@@ -143,7 +191,7 @@ $current_page = 'kelola_fasilitas.php';
                             <button class="btn-close" @click="showFormModal = false"></button>
                         </div>
 
-                        <div class="row g-4">
+                       <div class="row g-4">
                             <div class="col-md-7">
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold">NAMA AREA</label>
@@ -156,7 +204,13 @@ $current_page = 'kelola_fasilitas.php';
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label class="form-label small fw-bold">HARGA / KEPALA (RP)</label>
-                                        <input type="number" class="form-control" v-model="activeFasil.harga">
+                                        <div class="input-rupiah-wrapper">
+                                            <span>Rp</span>
+                                            <input type="text" inputmode="numeric"
+                                                   :value="formatHargaInput(activeFasil.harga)"
+                                                   @input="activeFasil.harga = parseHarga($event.target.value)"
+                                                   placeholder="0">
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label small fw-bold">STATUS</label>
@@ -165,8 +219,7 @@ $current_page = 'kelola_fasilitas.php';
                                             <option value="Perbaikan">Dalam Perbaikan</option>
                                         </select>
                                     </div>
-                                </div>
-                            </div>
+                                </div> </div>
 
                             <div class="col-md-5">
                                 <label class="form-label small fw-bold">FOTO FASILITAS</label>
@@ -184,9 +237,16 @@ $current_page = 'kelola_fasilitas.php';
 
                         <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                             <button class="btn btn-outline-secondary px-4 rounded-3" @click="showFormModal = false">Batal</button>
-                            <button class="btn btn-gold px-4 rounded-3" @click="saveFasil">
+                            <button class="btn btn-gold px-4 rounded-3 d-flex align-items-center" @click="saveFasil" :disabled="isSubmitting">
+                            <template v-if="isSubmitting">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Mengunggah...
+                            </template>
+                            
+                            <template v-else>
                                 {{ isAddMode ? 'Simpan Area' : 'Simpan Perubahan' }}
-                            </button>
+                            </template>
+                        </button>
                         </div>
                     </div>
                 </div>
@@ -223,9 +283,10 @@ $current_page = 'kelola_fasilitas.php';
             return {
                 isLoaded: false,
                 isSidebarCollapsed: false,
+                isSubmitting: false,
                 isSidebarMobileOpen: false,
                 showLogoutModal: false,
-                
+                currentFilter: 'Semua',
                 searchQuery: '',
                 showFormModal: false,
                 showConfirmModal: false,
@@ -242,10 +303,15 @@ $current_page = 'kelola_fasilitas.php';
         },
         computed: {
             filteredFacilities() {
-                if (!this.searchQuery) return this.facilities;
-                return this.facilities.filter(f => 
-                    f.nama.toLowerCase().includes(this.searchQuery.toLowerCase())
-                );
+            let res = this.facilities;
+            if (this.currentFilter !== 'Semua') {
+                res = res.filter(f => f.status === this.currentFilter);
+            }
+            if (this.searchQuery) {
+                const q = this.searchQuery.toLowerCase();
+                res = res.filter(f => f.nama.toLowerCase().includes(q));
+            }
+            return res;
             },
             totalPages() { return Math.ceil(this.filteredFacilities.length / this.itemsPerPage) || 1; },
             paginatedFacilities() {
@@ -257,6 +323,15 @@ $current_page = 'kelola_fasilitas.php';
             searchQuery() { this.currentPage = 1; }
         },
         methods: {
+            formatHargaInput(n) {
+                if (!n && n !== 0) return '';
+                return parseInt(n).toLocaleString('id-ID');
+            },
+            parseHarga(val) {
+                const clean = val.replace(/[^0-9]/g, '');
+                return clean ? parseInt(clean) : 0;
+            },
+            countStatus(stat) { return this.facilities.filter(f => f.status === stat).length; },
             showToastMsg(message, type = 'success') {
                 this.toast.message = message; this.toast.type = type;
                 this.toast.icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
@@ -305,8 +380,7 @@ $current_page = 'kelola_fasilitas.php';
                 this.activeFasil.nama = this.activeFasil.nama ? this.activeFasil.nama.trim() : '';
                 this.activeFasil.deskripsi = this.activeFasil.deskripsi ? this.activeFasil.deskripsi.trim() : '';
 
-                const nameRegex = /^[a-zA-Z0-9\s.,'-]+$/;
-
+                const nameRegex = /^[a-zA-Z0-9\s.,]+$/;
                 if (!this.activeFasil.nama || this.activeFasil.nama.length < 3) {
                     this.showToastMsg("Nama area minimal 3 karakter!", "warning"); 
                     return;
@@ -329,10 +403,22 @@ $current_page = 'kelola_fasilitas.php';
                     return;
                 }
 
-                if (this.activeFasil.deskripsi && !nameRegex.test(this.activeFasil.deskripsi)) {
+                if (!this.activeFasil.deskripsi || this.activeFasil.deskripsi.trim() === '') {
+                    this.showToastMsg("Deskripsi harus diisi!", "warning"); 
+                    return;
+                }
+
+                if (this.activeFasil.deskripsi.trim().length < 10) {
+                    this.showToastMsg("Deskripsi minimal 10 karakter!", "warning"); 
+                    return;
+                }
+
+                if (!nameRegex.test(this.activeFasil.deskripsi)) {
                     this.showToastMsg("Deskripsi tidak boleh mengandung emoji atau simbol aneh!", "error");
                     return;
                 }
+
+                this.isSubmitting = true;
 
                 let formData = new FormData();
                 formData.append('action', this.isAddMode ? 'create' : 'update');
@@ -361,11 +447,12 @@ $current_page = 'kelola_fasilitas.php';
                             this.showToastMsg(result.message || "Gagal menyimpan.", 'error');
                         }
                     } catch (e) { this.showToastMsg("Kesalahan sistem dari server.", 'error'); }
-                } catch (err) { this.showToastMsg("Koneksi bermasalah!", 'error'); }
-            },
-            openConfirm(id) {
-                this.pendingDeleteId = id;
-                this.showConfirmModal = true;
+                } catch (err) { 
+                    this.showToastMsg("Koneksi bermasalah!", 'error'); 
+                } finally {
+
+                    this.isSubmitting = false;
+                }
             },
             async executeDelete() {
                 await fetch('../../controllers/FasilitasController.php', {

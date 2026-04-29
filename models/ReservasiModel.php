@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../config/conn.php';
 
 class ReservasiModel {
     private $conn;
@@ -9,7 +8,6 @@ class ReservasiModel {
     }
 
     public function getAllReservasi() {
-
         $query = "SELECT r.*, f.nama as lokasi_nama 
                   FROM reservasi r 
                   LEFT JOIN fasilitas f ON r.fasilitas_id = f.id 
@@ -25,60 +23,91 @@ class ReservasiModel {
     }
 
     public function checkDoubleBooking($tanggal, $fasilitas_id, $exclude_id = null) {
-        $tanggal = $this->conn->real_escape_string($tanggal);
         $fasilitas_id = (int)$fasilitas_id;
-
-        $query = "SELECT id FROM reservasi WHERE tanggal='$tanggal' AND fasilitas_id=$fasilitas_id AND status != 'Dibatalkan'";
 
         if ($exclude_id !== null) {
             $exclude_id = (int)$exclude_id;
-            $query .= " AND id != $exclude_id";
+            $stmt = $this->conn->prepare(
+                "SELECT id FROM reservasi 
+                 WHERE tanggal=? AND fasilitas_id=? AND status='Lunas' AND id!=?"
+            );
+
+            $stmt->bind_param("sii", $tanggal, $fasilitas_id, $exclude_id);
+        } else {
+            $stmt = $this->conn->prepare(
+                "SELECT id FROM reservasi 
+                 WHERE tanggal=? AND fasilitas_id=? AND status='Lunas'"
+            );
+
+            $stmt->bind_param("si", $tanggal, $fasilitas_id);
         }
 
-        $result = $this->conn->query($query);
-        return $result && $result->num_rows > 0; 
+        $stmt->execute();
+        return $stmt->get_result()->num_rows > 0;
     }
 
     public function createReservasi($data) {
-        $nama = $this->conn->real_escape_string($data['nama']);
-        $no_hp = $this->conn->real_escape_string($data['noHp']);
-        $fasilitas_id = (int)$data['fasilitas_id'];
-        $tanggal = $this->conn->real_escape_string($data['tanggal']);
-        $jumlah_orang = (int)$data['jumlah_orang'];
-        $catatan = $this->conn->real_escape_string($data['catatan'] ?? '');
-        $total_harga = (int)$data['total_harga'];
-        $status = $this->conn->real_escape_string($data['status']);
+        $stmt = $this->conn->prepare(
+            "INSERT INTO reservasi (nama, no_hp, fasilitas_id, tanggal, jumlah_orang, catatan, total_harga, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        );
 
-        $query = "INSERT INTO reservasi (nama, no_hp, fasilitas_id, tanggal, jumlah_orang, catatan, total_harga, status) 
-                VALUES ('$nama', '$no_hp', $fasilitas_id, '$tanggal', $jumlah_orang, '$catatan', $total_harga, '$status')";
-        return $this->conn->query($query);
+        $nama         = $data['nama'];
+        $no_hp        = $data['noHp'] ?? $data['no_hp'] ?? '';
+        $fasilitas_id = (int)$data['fasilitas_id'];
+        $tanggal      = $data['tanggal'];
+        $jumlah_orang = (int)$data['jumlah_orang'];
+        $catatan      = $data['catatan'] ?? '';
+        $total_harga  = (int)$data['total_harga'];
+        $status       = $data['status'] ?? 'Menunggu Review';
+
+        $stmt->bind_param("ssisisis",
+            $nama, $no_hp, $fasilitas_id, $tanggal, $jumlah_orang, $catatan, $total_harga, $status
+        );
+
+        return $stmt->execute();
     }
 
     public function updateReservasi($data) {
-        $id = (int)$data['id'];
-        $nama = $this->conn->real_escape_string($data['nama']);
-        $no_hp = $this->conn->real_escape_string($data['noHp']);
-        $fasilitas_id = (int)$data['fasilitas_id'];
-        $tanggal = $this->conn->real_escape_string($data['tanggal']);
-        $jumlah_orang = (int)$data['jumlah_orang'];
-        $catatan = $this->conn->real_escape_string($data['catatan'] ?? '');
-        $total_harga = (int)$data['total_harga'];
+        $stmt = $this->conn->prepare(
+            "UPDATE reservasi 
+             SET nama=?, no_hp=?, fasilitas_id=?, tanggal=?, jumlah_orang=?, catatan=?, total_harga=?
+             WHERE id=?"
+        );
 
-        $query = "UPDATE reservasi SET nama='$nama', no_hp='$no_hp', fasilitas_id=$fasilitas_id, tanggal='$tanggal', jumlah_orang=$jumlah_orang, catatan='$catatan', total_harga=$total_harga WHERE id=$id";
-        return $this->conn->query($query);
+        $id           = (int)$data['id'];
+        $nama         = $data['nama'];
+        $no_hp        = $data['noHp'] ?? $data['no_hp'] ?? '';
+        $fasilitas_id = (int)$data['fasilitas_id'];
+        $tanggal      = $data['tanggal'];
+        $jumlah_orang = (int)$data['jumlah_orang'];
+        $catatan      = $data['catatan'] ?? '';
+        $total_harga  = (int)$data['total_harga'];
+
+        $stmt->bind_param("ssisisii",
+            $nama, $no_hp, $fasilitas_id, $tanggal, $jumlah_orang, $catatan, $total_harga, $id
+        );
+
+        return $stmt->execute();
     }
 
     public function updateStatus($id, $status) {
+        $stmt = $this->conn->prepare("UPDATE reservasi SET status=? WHERE id=?");
         $id = (int)$id;
-        $status = $this->conn->real_escape_string($status);
-        $query = "UPDATE reservasi SET status='$status' WHERE id=$id";
-        return $this->conn->query($query);
+
+        $stmt->bind_param("si", $status, $id);
+        return $stmt->execute();
     }
 
     public function deleteReservasi($id) {
+        $stmt = $this->conn->prepare("DELETE FROM reservasi WHERE id=?");
         $id = (int)$id;
-        $query = "DELETE FROM reservasi WHERE id=$id";
-        return $this->conn->query($query);
+        $stmt->bind_param("i", $id);
+        return $stmt->execute();
+    }
+
+    public function getLastError() {
+        return $this->conn->error;
     }
 }
 ?>

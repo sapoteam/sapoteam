@@ -160,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <body>
+  <?php include '../../views/loading_screen.php'; ?>
   <div id="app" v-cloak>
     <?php include 'navbar.php'; ?>
 

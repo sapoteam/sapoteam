@@ -100,9 +100,11 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <body>
+    <?php include '../../views/loading_screen.php'; ?>
+      <?php include 'navbar.php'; ?>
+
   <div id="app">
     <div class="page-content">
-      <?php include 'navbar.php'; ?>
 
         <section class="section-padding review-page">
           <div class="container">
@@ -133,7 +135,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
                   <div class="review-gallery-page" v-if="review.images && review.images.length > 0">
                     <div class="review-thumb-page" v-for="(img, i) in review.images" :key="i">
-                      <img :src="img" alt="Foto review" style="object-fit: cover; width: 100px; height: 100px; border-radius: 8px;" @click="openLightbox(img)">
+                    <img 
+                      :src="img ? img : '../../assets/img/logo.png'" 
+                      alt="Foto review" 
+                      style="object-fit: cover; width: 100px; height: 100px; border-radius: 8px;" 
+                      @click="openLightbox(img)"
+                      @error="$event.target.src = '../../assets/img/logo.png'"
+                    >
                     </div>
                   </div>
 
@@ -224,6 +232,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alt="Preview Galeri"
             class="lightbox-content"
             @click.stop
+            @error="$event.target.src = '../../assets/img/logo.png'"
           >
         </div>
       </teleport>

@@ -122,9 +122,10 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <body>
+        <?php include 'navbar.php'; ?>
+  <?php include '../../views/loading_screen.php'; ?>
   <div id="app">
     <div class="page-content">
-      <?php include 'navbar.php'; ?>
 
       <section class="reservation-hero" style="padding: 60px 0 30px;">
         <div class="container">

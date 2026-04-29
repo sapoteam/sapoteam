@@ -1,4 +1,10 @@
 <?php
+if (isset($_GET['action']) && $_GET['action'] == 'logout-confirmed') {
+    session_start();
+    session_destroy();
+    header("Location: login.php");
+    exit;
+}
 require_once '../../config/conn.php';
 require_once '../../controllers/AuthController.php';
 
@@ -44,10 +50,12 @@ $current_page = 'kelola_pegawai.php';
             background-color: var(--green-main); border-color: var(--green-main);
         }
         .status-label { font-size: 0.85rem; font-weight: 600; margin-left: 5px; }
+        .filter-btn { background: transparent; border: 1px solid var(--green-main); color: var(--green-main); border-radius: 20px; padding: 6px 16px; font-size: 0.9rem; font-weight: 500; transition: 0.3s; }
+        .filter-btn.active, .filter-btn:hover { background: var(--green-main); color: white; }
     </style>
 </head>
 <body>
-
+<?php include '../../views/loading_screen.php'; ?>
 <div id="app">
     <?php include 'sidebar.php'; ?>
 
@@ -66,6 +74,17 @@ $current_page = 'kelola_pegawai.php';
 
             <transition name="fade" appear>
                 <div v-show="isLoaded">
+                    <div class="d-flex gap-2 mb-3 overflow-auto pb-2 align-items-center">
+                            <button class="filter-btn text-nowrap rounded-pill" :class="{ active: currentFilter === 'Semua' }" @click="currentFilter = 'Semua'">
+                                Semua Pegawai ({{ users.length }})
+                            </button>
+                            <button class="filter-btn text-nowrap rounded-pill" :class="{ active: currentFilter === 'Aktif' }" @click="currentFilter = 'Aktif'">
+                                Aktif ({{ countStatus(true) }})
+                            </button>
+                            <button class="filter-btn text-nowrap rounded-pill" :class="{ active: currentFilter === 'Nonaktif' }" @click="currentFilter = 'Nonaktif'">
+                                Nonaktif ({{ countStatus(false) }})
+                            </button>
+                        </div>
 
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                         <div>
@@ -245,6 +264,7 @@ $current_page = 'kelola_pegawai.php';
                 isSidebarMobileOpen: false,
                 showLogoutModal: false,
                 searchQuery: '',
+                currentFilter: 'Semua',
                 showFormModal: false,
                 showConfirm: false,
                 isAddMode: true,
@@ -263,12 +283,23 @@ $current_page = 'kelola_pegawai.php';
         },
         computed: {
             filteredUsers() {
-                if (!this.searchQuery) return this.users;
-                const q = this.searchQuery.toLowerCase();
-                return this.users.filter(u => 
-                    u.nama.toLowerCase().includes(q) || 
-                    u.username.toLowerCase().includes(q)
-                );
+                let res = this.users;
+
+                if (this.currentFilter === 'Aktif') {
+                    res = res.filter(u => u.is_active == 1 || u.is_active === true); 
+                } else if (this.currentFilter === 'Nonaktif') {
+                    res = res.filter(u => u.is_active == 0 || u.is_active === false);
+                }
+
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    res = res.filter(u => 
+                        u.nama.toLowerCase().includes(q) || 
+                        u.username.toLowerCase().includes(q)
+                    );
+                }
+
+                return res;
             },
             totalPages() {
                 return Math.ceil(this.filteredUsers.length / this.itemsPerPage) || 1;
@@ -282,6 +313,7 @@ $current_page = 'kelola_pegawai.php';
             searchQuery() { this.currentPage = 1; }
         },
         methods: {
+            countStatus(isActive) { return this.users.filter(u => u.is_active == isActive).length; },
             showToastMsg(message, type = 'success') {
                 this.toast.message = message;
                 this.toast.type = type;

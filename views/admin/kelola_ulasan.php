@@ -1,4 +1,10 @@
 <?php
+if (isset($_GET['action']) && $_GET['action'] == 'logout-confirmed') {
+    session_start();
+    session_destroy();
+    header("Location: login.php");
+    exit;
+}
 require_once '../../config/conn.php';
 require_once '../../controllers/AuthController.php';
 
@@ -76,7 +82,7 @@ $current_page = 'kelola_ulasan.php';
     </style>
 </head>
 <body>
-
+<?php include '../../views/loading_screen.php'; ?>
 <div id="app">
     <?php include 'sidebar.php'; ?>
 
@@ -105,11 +111,36 @@ $current_page = 'kelola_ulasan.php';
                     </div>
 
                     <div class="table-custom">
-                        <div class="d-flex gap-2 mb-4 overflow-auto pb-2">
-                            <button class="filter-btn text-nowrap" :class="{ active: ratingFilter === 'Semua' }" @click="ratingFilter = 'Semua'">Semua</button>
-                            <button class="filter-btn text-nowrap" :class="{ active: ratingFilter === 'Pending' }" @click="ratingFilter = 'Pending'">Perlu Review</button>
-                            <button class="filter-btn text-nowrap" :class="{ active: ratingFilter === 5 }" @click="ratingFilter = 5">⭐️ 5</button>
-                            <button class="filter-btn text-nowrap" :class="{ active: ratingFilter === 1 }" @click="ratingFilter = 1">⭐️ 1</button>
+                        <div class="d-flex gap-2 mb-4 overflow-auto pb-2 align-items-center">
+                            <button class="filter-btn text-nowrap" :class="{ active: statusFilter === 'Semua' }" @click="statusFilter = 'Semua'">
+                                Semua Status ({{ reviews.length }})
+                            </button>
+                            
+                            <button class="filter-btn text-nowrap d-flex align-items-center gap-1" :class="{ active: statusFilter === 'Pending' }" @click="statusFilter = 'Pending'">
+                                Perlu Review 
+                                <span v-if="pendingCount > 0" class="badge bg-danger rounded-pill px-2">{{ pendingCount }}</span>
+                                <span v-else class="badge bg-secondary rounded-pill px-2">0</span>
+                            </button>
+
+                            <div class="vr mx-2 text-muted" style="opacity: 0.2;"></div>
+
+                            <select class="form-select filter-btn w-auto text-nowrap" 
+                                    v-model="ratingFilter" 
+                                    :class="{ active: typeof ratingFilter === 'number' }" 
+                                    style="cursor: pointer; min-width: 160px; appearance: auto;">
+                                <option value="Semua">Semua Bintang</option>
+                                <option :value="5">⭐️ 5 Bintang ({{ countByRating(5) }})</option>
+                                <option :value="4">⭐️ 4 Bintang ({{ countByRating(4) }})</option>
+                                <option :value="3">⭐️ 3 Bintang ({{ countByRating(3) }})</option>
+                                <option :value="2">⭐️ 2 Bintang ({{ countByRating(2) }})</option>
+                                <option :value="1">⭐️ 1 Bintang ({{ countByRating(1) }})</option>
+                            </select>
+
+                            <button v-if="statusFilter !== 'Semua' || ratingFilter !== 'Semua'" 
+                                    class="btn btn-sm btn-outline-danger rounded-pill px-3" 
+                                    @click="statusFilter = 'Semua'; ratingFilter = 'Semua'">
+                                <i class="bi bi-x-circle me-1"></i> Reset Filter
+                            </button>
                         </div>
 
                         <div class="table-responsive">
@@ -147,7 +178,7 @@ $current_page = 'kelola_ulasan.php';
                                         </td>
                                         <td>
                                             <div v-if="rev.foto && rev.foto.length > 0" class="d-flex align-items-center gap-1">
-                                                <img :src="rev.foto[0]" class="review-img-admin" @click="viewImage(rev.foto[0])">
+                                                <img :src="rev.foto[0]" class="review-img-admin" @click="viewImage(rev.foto[0])" @error="$event.target.src = '../../assets/img/logo.png'">
                                                 <span v-if="rev.foto.length > 1" class="badge bg-secondary small">+{{ rev.foto.length - 1 }}</span>
                                             </div>
                                             <span v-else class="text-muted small">- Tidak ada -</span>
@@ -229,8 +260,9 @@ $current_page = 'kelola_ulasan.php';
                             <h6 class="fw-bold small text-muted text-uppercase mb-2">Foto Lampiran</h6>
                             <div class="d-flex gap-2 flex-wrap">
                                 <img v-for="(imgUrl, i) in activeReview.foto" :key="i" :src="imgUrl" 
-                                     style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; cursor: zoom-in; border: 1px solid #ddd;" 
-                                     @click="viewImage(imgUrl)">
+                                    style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; cursor: zoom-in; border: 1px solid #ddd;" 
+                                    @click="viewImage(imgUrl)"
+                                    @error="$event.target.src = '../../assets/img/logo.png'">
                             </div>
                         </div>
 
@@ -263,7 +295,7 @@ $current_page = 'kelola_ulasan.php';
         <transition name="fade">
             <div v-if="lightbox.show" class="lightbox-modal" @click="lightbox.show = false">
                 <i class="bi bi-x-circle lightbox-close"></i>
-                <img :src="lightbox.imageUrl" class="lightbox-content" @click.stop>
+                <img :src="lightbox.imageUrl" class="lightbox-content" @click.stop @error="$event.target.src = '../../assets/img/logo.png'">
             </div>
         </transition>
 
@@ -287,6 +319,7 @@ $current_page = 'kelola_ulasan.php';
                 showLogoutModal: false,
 
                 searchQuery: '',
+                statusFilter: 'Semua',
                 ratingFilter: 'Semua',
 
                 showModal: false,
@@ -309,18 +342,23 @@ $current_page = 'kelola_ulasan.php';
             filteredReviews() {
                 let res = this.reviews;
 
-                if(this.ratingFilter === 'Pending') {
+                if (this.statusFilter === 'Pending') {
                     res = res.filter(r => r.status === 'Pending');
-                } else if(this.ratingFilter !== 'Semua') {
-                    res = res.filter(r => r.rating === this.ratingFilter);
                 }
 
-                if(this.searchQuery) {
+                if (this.ratingFilter !== 'Semua') {
+                    res = res.filter(r => parseInt(r.rating) === this.ratingFilter);
+                }
+
+                if (this.searchQuery) {
                     const q = this.searchQuery.toLowerCase();
                     res = res.filter(r => r.nama.toLowerCase().includes(q));
                 }
 
                 return res;
+            },
+            pendingCount() {
+                return this.reviews.filter(r => r.status === 'Pending').length;
             },
             totalPages() { return Math.ceil(this.filteredReviews.length / this.itemsPerPage) || 1; },
             paginatedReviews() {
@@ -330,9 +368,13 @@ $current_page = 'kelola_ulasan.php';
         },
         watch: {
             searchQuery() { this.currentPage = 1; },
+            statusFilter() { this.currentPage = 1; },
             ratingFilter() { this.currentPage = 1; }
         },
         methods: {
+            countByRating(stars) {
+                return this.reviews.filter(r => parseInt(r.rating) === stars).length;
+            },
             showToastMsg(message, type = 'success') {
                 this.toast.message = message; this.toast.type = type;
                 this.toast.icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';

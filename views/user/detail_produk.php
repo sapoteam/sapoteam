@@ -93,9 +93,10 @@ if ($decoded && strpos($decoded, 'ok_') === 0) {
 </head>
 
 <body>
+        <?php include 'navbar.php'; ?>
+    <?php include '../../views/loading_screen.php'; ?>
   <div id="app">
     <div class="page-content">
-      <?php include 'navbar.php'; ?>
 
       <div style="padding-top: 40px;"></div>
 

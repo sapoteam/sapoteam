@@ -1,10 +1,3 @@
-<?php
-if (isset($_GET['action']) && $_GET['action'] == 'logout-confirmed') {
-    session_destroy();
-    header("Location: login.php");
-    exit;
-}
-?>
 
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">

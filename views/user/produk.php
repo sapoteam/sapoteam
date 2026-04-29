@@ -73,7 +73,7 @@ $current_page = 'produk';
 
 <body>
   <?php include 'navbar.php'; ?>
-
+  <?php include '../../views/loading_screen.php'; ?>
   <div id="app">
     <div class="page-content">
       <section class="product-hero">
