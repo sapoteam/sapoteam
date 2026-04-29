@@ -323,6 +323,10 @@ $current_page = 'kelola_fasilitas.php';
             searchQuery() { this.currentPage = 1; }
         },
         methods: {
+            openConfirm(id) {
+                this.pendingDeleteId = id;
+                this.showConfirmModal = true;
+            },
             formatHargaInput(n) {
                 if (!n && n !== 0) return '';
                 return parseInt(n).toLocaleString('id-ID');

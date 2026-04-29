@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         async fetchReservations() {
             try {
-                const response = await fetch('../../controllers/ReservasiController.php?action=read');
+                const response = await fetch('../../controllers/ReservasiController.php?action=readU');
                 const rawText = await response.text();
                 try {
                     const data = JSON.parse(rawText);

@@ -10,72 +10,82 @@ class UserModel {
     }
 
     public function getUserByUsername($username) {
-
-        $username = $this->conn->real_escape_string($username);
-
-        $query = "SELECT * FROM users WHERE username = '$username' AND is_active = 1";
-        $result = $this->conn->query($query);
-
+        $stmt = $this->conn->prepare(
+            "SELECT * FROM users WHERE username = ? AND is_active = 1"
+        );
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
         if ($result && $result->num_rows > 0) {
-            return $result->fetch_assoc(); 
-
+            return $result->fetch_assoc();
         }
-        return false; 
-
+        return false;
     }
-        public function getAllUsers() {
-        $query = "SELECT id, nama, username, no_hp, role, is_active FROM users WHERE role = 'Pegawai' ORDER BY id DESC;";
-        $result = $this->conn->query($query);
-        $data = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
 
-                $row['is_active'] = $row['is_active'] == 1 ? true : false;
-                $data[] = $row;
-            }
+    public function getAllUsers() {
+        $stmt = $this->conn->prepare(
+            "SELECT id, nama, username, no_hp, role, is_active 
+             FROM users WHERE role = 'Pegawai' ORDER BY id DESC"
+        );
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['is_active'] = $row['is_active'] == 1 ? true : false;
+            $data[] = $row;
         }
         return $data;
     }
 
     public function createUser($data) {
-        $nama = $this->conn->real_escape_string($data['nama']);
-        $username = $this->conn->real_escape_string($data['username']);
-        $no_hp = $this->conn->real_escape_string($data['no_hp']);
-
+        $stmt = $this->conn->prepare(
+            "INSERT INTO users (nama, username, password, no_hp, role)
+             VALUES (?, ?, ?, ?, 'Pegawai')"
+        );
+        $nama     = $data['nama'];
+        $username = $data['username'];
         $password = password_hash($data['password'], PASSWORD_DEFAULT);
+        $no_hp    = $data['no_hp'];
 
-        $query = "INSERT INTO users (nama, username, password, no_hp, role) VALUES ('$nama', '$username', '$password', '$no_hp', 'Pegawai')";
-        return $this->conn->query($query);
+        $stmt->bind_param("ssss", $nama, $username, $password, $no_hp);
+        return $stmt->execute();
     }
 
     public function updateUser($data) {
-        $id = (int)$data['id'];
-        $nama = $this->conn->real_escape_string($data['nama']);
-        $username = $this->conn->real_escape_string($data['username']);
-        $no_hp = $this->conn->real_escape_string($data['no_hp']);
-
-        $query = "UPDATE users SET nama='$nama', username='$username', no_hp='$no_hp'";
+        $id       = (int)$data['id'];
+        $nama     = $data['nama'];
+        $username = $data['username'];
+        $no_hp    = $data['no_hp'];
 
         if (!empty($data['password'])) {
+            $stmt = $this->conn->prepare(
+                "UPDATE users SET nama=?, username=?, no_hp=?, password=? WHERE id=?"
+            );
             $password = password_hash($data['password'], PASSWORD_DEFAULT);
-            $query .= ", password='$password'";
+            $stmt->bind_param("ssssi", $nama, $username, $no_hp, $password, $id);
+        } else {
+            $stmt = $this->conn->prepare(
+                "UPDATE users SET nama=?, username=?, no_hp=? WHERE id=?"
+            );
+            $stmt->bind_param("sssi", $nama, $username, $no_hp, $id);
         }
 
-        $query .= " WHERE id=$id";
-        return $this->conn->query($query);
+        return $stmt->execute();
     }
 
     public function deleteUser($id) {
         $id = (int)$id;
-        $query = "DELETE FROM users WHERE id=$id";
-        return $this->conn->query($query);
+        $stmt = $this->conn->prepare("DELETE FROM users WHERE id=?");
+        $stmt->bind_param("i", $id);
+        return $stmt->execute();
     }
 
     public function toggleStatus($id, $status) {
-        $id = (int)$id;
+        $id         = (int)$id;
         $status_val = $status ? 1 : 0;
-        $query = "UPDATE users SET is_active=$status_val WHERE id=$id";
-        return $this->conn->query($query);
+        $stmt = $this->conn->prepare("UPDATE users SET is_active=? WHERE id=?");
+        $stmt->bind_param("ii", $status_val, $id);
+        return $stmt->execute();
     }
 }
 ?>

@@ -387,7 +387,7 @@ $current_page = 'tiketreservasi.php';
         },
         async fetchReservations() {
           try {
-            const res = await fetch('../../controllers/ReservasiController.php?action=read');
+            const res = await fetch('../../controllers/ReservasiController.php?action=readU');
             const data = await res.json();
             if (Array.isArray(data)) this.allReservations = data;
           } catch(e) { console.error("Gagal load reservasi", e); }

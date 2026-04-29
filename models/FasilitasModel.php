@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../config/conn.php';
 
 class FasilitasModel {
     private $conn;
@@ -9,32 +8,25 @@ class FasilitasModel {
     }
 
     public function getAllFasilitas() {
-        $query = "SELECT * FROM fasilitas ORDER BY id DESC";
-        $result = $this->conn->query($query);
-        $data = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $data[] = $row;
-            }
-        }
-        return $data;
+        $stmt = $this->conn->prepare("SELECT * FROM fasilitas WHERE status != 'Dihapus' ORDER BY id DESC");
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getAllFasilitasUser() {
-        $query = "SELECT * FROM fasilitas WHERE status = 'Tersedia' ORDER BY id DESC";
-        $result = $this->conn->query($query);
-        $data = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $data[] = $row;
-            }
-        }
-        return $data;
+        $stmt = $this->conn->prepare(
+            "SELECT * FROM fasilitas WHERE status = 'Tersedia' ORDER BY id DESC"
+        );
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getFasilitasById($id) {
         $id = (int)$id;
-        $result = $this->conn->query("SELECT * FROM fasilitas WHERE id=$id");
+        $stmt = $this->conn->prepare("SELECT * FROM fasilitas WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         if ($result && $result->num_rows > 0) {
             return $result->fetch_assoc();
         }
@@ -42,39 +34,48 @@ class FasilitasModel {
     }
 
     public function createFasilitas($data) {
-        $nama = $this->conn->real_escape_string($data['nama']);
-        $deskripsi = $this->conn->real_escape_string($data['deskripsi']);
-        $harga = (int)$data['harga'];
-        $status = $this->conn->real_escape_string($data['status']);
-        $image = $this->conn->real_escape_string($data['image'] ?? '');
+        $stmt = $this->conn->prepare(
+            "INSERT INTO fasilitas (nama, deskripsi, harga, status, image)
+             VALUES (?, ?, ?, ?, ?)"
+        );
+        $nama      = $data['nama'] ?? '';
+        $deskripsi = $data['deskripsi'] ?? '';
+        $harga     = (int)($data['harga'] ?? 0);
+        $status    = $data['status'] ?? 'Tersedia';
+        $image     = $data['image'] ?? '';
 
-        $query = "INSERT INTO fasilitas (nama, deskripsi, harga, status, image) 
-                VALUES ('$nama', '$deskripsi', $harga, '$status', '$image')";
-        return $this->conn->query($query);
+        $stmt->bind_param("ssiss", $nama, $deskripsi, $harga, $status, $image);
+        return $stmt->execute();
     }
 
     public function updateFasilitas($data) {
-        $id = (int)$data['id'];
-        $nama = $this->conn->real_escape_string($data['nama']);
-        $deskripsi = $this->conn->real_escape_string($data['deskripsi']);
-        $harga = (int)$data['harga'];
-        $status = $this->conn->real_escape_string($data['status']);
-
-        $query = "UPDATE fasilitas SET nama='$nama', deskripsi='$deskripsi', harga=$harga, status='$status'";
+        $id        = (int)$data['id'];
+        $nama      = $data['nama'] ?? '';
+        $deskripsi = $data['deskripsi'] ?? '';
+        $harga     = (int)($data['harga'] ?? 0);
+        $status    = $data['status'] ?? 'Tersedia';
 
         if (!empty($data['image'])) {
-            $image = $this->conn->real_escape_string($data['image']);
-            $query .= ", image='$image'";
+            $stmt = $this->conn->prepare(
+                "UPDATE fasilitas SET nama=?, deskripsi=?, harga=?, status=?, image=? WHERE id=?"
+            );
+            $image = $data['image'];
+            $stmt->bind_param("ssissi", $nama, $deskripsi, $harga, $status, $image, $id);
+        } else {
+            $stmt = $this->conn->prepare(
+                "UPDATE fasilitas SET nama=?, deskripsi=?, harga=?, status=? WHERE id=?"
+            );
+            $stmt->bind_param("ssisi", $nama, $deskripsi, $harga, $status, $id);
         }
 
-        $query .= " WHERE id=$id";
-        return $this->conn->query($query);
+        return $stmt->execute();
     }
 
     public function deleteFasilitas($id) {
         $id = (int)$id;
-        $query = "DELETE FROM fasilitas WHERE id=$id";
-        return $this->conn->query($query);
+        $stmt = $this->conn->prepare("UPDATE fasilitas SET status = 'Dihapus' WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return $stmt->execute();
     }
 }
 ?>

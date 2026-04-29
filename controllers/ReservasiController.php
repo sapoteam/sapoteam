@@ -7,34 +7,41 @@ require_once __DIR__ . '/../models/ReservasiModel.php';
 require_once __DIR__ . '/AuthController.php';
 
 global $conn;
-$auth = new AuthController($conn);
 $reservasiModel = new ReservasiModel($conn);
 
 $data = json_decode(file_get_contents('php://input'), true) ?: [];
 $action = $data['action'] ?? ($_GET['action'] ?? '');
 
-$protected_actions = ['update', 'update_status', 'delete'];
+// Semua action kecuali readU dan create wajib login
+$protected_actions = ['read', 'update', 'update_status', 'delete'];
 
 if (in_array($action, $protected_actions)) {
-$allowed_roles = ['Admin', 'Pegawai']; 
+    $allowed_roles = ['Admin', 'Pegawai'];
     if (!isset($_SESSION['admin_logged_in']) || !in_array($_SESSION['admin_role'], $allowed_roles)) {
-        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); 
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         exit;
     }
 }
 
 switch ($action) {
+
+    // ── ADMIN ONLY: semua data lengkap ──
     case 'read':
-
         echo json_encode($reservasiModel->getAllReservasi());
         break;
 
+    // ── PUBLIC: hanya tanggal + fasilitas_id + status untuk kalender ──
     case 'readU':
-        echo json_encode($reservasiModel->getAllReservasi());
+        echo json_encode($reservasiModel->getBookedDates());
         break;
 
+    // ── PUBLIC: buat reservasi baru ──
     case 'create':
-
+        if (empty($data['tanggal']) || empty($data['fasilitas_id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Data tidak lengkap.']);
+            break;
+        }
         if ($reservasiModel->checkDoubleBooking($data['tanggal'], $data['fasilitas_id'])) {
             echo json_encode(['status' => 'error', 'message' => 'Area sudah dibooking pada tanggal tersebut!']);
             break;
@@ -46,6 +53,7 @@ switch ($action) {
         }
         break;
 
+    // ── ADMIN ONLY ──
     case 'update':
         if ($reservasiModel->checkDoubleBooking($data['tanggal'], $data['fasilitas_id'], $data['id'])) {
             echo json_encode(['status' => 'error', 'message' => 'Area sudah dibooking pada tanggal tersebut!']);
@@ -75,6 +83,7 @@ switch ($action) {
         break;
 
     default:
+        http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'Aksi tidak valid']);
         break;
 }

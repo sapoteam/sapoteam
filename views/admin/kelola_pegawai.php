@@ -52,6 +52,20 @@ $current_page = 'kelola_pegawai.php';
         .status-label { font-size: 0.85rem; font-weight: 600; margin-left: 5px; }
         .filter-btn { background: transparent; border: 1px solid var(--green-main); color: var(--green-main); border-radius: 20px; padding: 6px 16px; font-size: 0.9rem; font-weight: 500; transition: 0.3s; }
         .filter-btn.active, .filter-btn:hover { background: var(--green-main); color: white; }
+        .action-btn { 
+            width: 32px; 
+            height: 32px; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 8px; 
+            border: none; 
+            transition: 0.2s; 
+        }
+        .btn-edit { background: #e2e3e5; color: #495057; } 
+        .btn-edit:hover { background: #6c757d; color: white; }
+        .btn-cancel { background: #f8d7da; color: #dc3545; } 
+        .btn-cancel:hover { background: #dc3545; color: white; }
     </style>
 </head>
 <body>
@@ -145,10 +159,10 @@ $current_page = 'kelola_pegawai.php';
                                         <td class="text-center">
                                             <div class="d-flex justify-content-center gap-2">
                                                 <button class="action-btn btn-edit" title="Ubah Data Pegawai" @click="openEdit(user)">
-                                                    <i class="bi bi-pencil-square"></i>
+                                                <i class="bi bi-pencil"></i>
                                                 </button>
                                                 <button class="action-btn btn-cancel" title="Hapus Akun Permanen" @click="openConfirmDelete(user.id)">
-                                                    <i class="bi bi-trash"></i>
+                                                <i class="bi bi-trash3"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -359,6 +373,8 @@ $current_page = 'kelola_pegawai.php';
 
                 const nameRegex = /^[a-zA-Z0-9\s.,'-]+$/; 
                 const usernameRegex = /^[a-zA-Z0-9_]+$/;  
+                const hpRegex = /^08[0-9]{8,13}$/;
+
 
                 if (!this.activeUser.nama || this.activeUser.nama.length < 3) {
                     this.showToastMsg('Nama lengkap minimal 3 karakter!', 'warning'); 
@@ -383,8 +399,8 @@ $current_page = 'kelola_pegawai.php';
                     return;
                 }
 
-                if (!this.activeUser.no_hp || this.activeUser.no_hp.length < 10) {
-                    this.showToastMsg('Nomor HP tidak valid (min 10 angka)!', 'warning'); 
+               if (!this.activeUser.no_hp || !hpRegex.test(this.activeUser.no_hp)) {
+                    this.showToastMsg("Nomor HP harus diawali 08 dan panjang 10-15 digit!", "warning"); 
                     return;
                 }
                 try {

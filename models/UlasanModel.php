@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../config/conn.php';
 
 class UlasanModel {
@@ -8,103 +9,78 @@ class UlasanModel {
         $this->conn = $db_conn;
     }
 
-    // public section
-public function getApprovedUlasan() {
-        $query = "SELECT * FROM ulasan WHERE status = 'Approved' ORDER BY id DESC";
-        $result = $this->conn->query($query);
+    // ── PUBLIC ──
+
+    public function getApprovedUlasan() {
+        $stmt = $this->conn->prepare(
+            "SELECT * FROM ulasan WHERE status = 'Approved' ORDER BY id DESC"
+        );
+        $stmt->execute();
+        $result = $stmt->get_result();
         $data = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-
-                $row['tanggal_format'] = date('d F Y', strtotime($row['tanggal']));
-
-                $ulasan_id = $row['id'];
-                $foto_query = "SELECT foto_url FROM ulasan_foto WHERE ulasan_id = $ulasan_id";
-                $foto_result = $this->conn->query($foto_query);
-
-                $fotos = [];
-                if ($foto_result && $foto_result->num_rows > 0) {
-                    while ($f = $foto_result->fetch_assoc()) {
-                        $fotos[] = $f['foto_url'];
-                    }
-                }
-                $row['foto'] = $fotos; 
-
-                $data[] = $row;
-            }
+        while ($row = $result->fetch_assoc()) {
+            $row['tanggal_format'] = date('d F Y', strtotime($row['tanggal']));
+            $row['foto'] = $this->getFotoByUlasanId($row['id']);
+            $data[] = $row;
         }
         return $data;
     }
 
     public function createUlasan($data, $fotoUrls) {
-        $nama = $this->conn->real_escape_string($data['nama']);
-        $rating = (int)$data['rating'];
+        $stmt = $this->conn->prepare(
+            "INSERT INTO ulasan (nama, rating, komentar, status, tanggal)
+             VALUES (?, ?, ?, 'Pending', ?)"
+        );
+        $nama     = $data['nama'];
+        $rating   = (int)$data['rating'];
+        $komentar = $data['komentar'];
+        $tanggal  = date('Y-m-d');
 
-        $komentar = $this->conn->real_escape_string($data['komentar']); 
-        $tanggal_sekarang = date('Y-m-d'); 
+        $stmt->bind_param("siss", $nama, $rating, $komentar, $tanggal);
 
-        $query = "INSERT INTO ulasan (nama, rating, komentar, status, tanggal) 
-                  VALUES ('$nama', $rating, '$komentar', 'Pending', '$tanggal_sekarang')";
+        if (!$stmt->execute()) return false;
 
-        if ($this->conn->query($query)) {
-            $ulasan_id = $this->conn->insert_id; 
+        $ulasan_id = $this->conn->insert_id;
 
-            if (!empty($fotoUrls) && is_array($fotoUrls)) {
-                foreach ($fotoUrls as $url) {
-                    $url_escaped = $this->conn->real_escape_string($url);
-                    $this->conn->query("INSERT INTO ulasan_foto (ulasan_id, foto_url) VALUES ($ulasan_id, '$url_escaped')");
-                }
+        if (!empty($fotoUrls) && is_array($fotoUrls)) {
+            $stmt_foto = $this->conn->prepare(
+                "INSERT INTO ulasan_foto (ulasan_id, foto_url) VALUES (?, ?)"
+            );
+            foreach ($fotoUrls as $url) {
+                $stmt_foto->bind_param("is", $ulasan_id, $url);
+                $stmt_foto->execute();
             }
-            return true;
         }
-        return false;
+
+        return true;
     }
-    // admin section
 
+    // ── ADMIN ──
 
-public function getAllUlasan() {
-        $query = "SELECT * FROM ulasan ORDER BY id DESC";
-        $result = $this->conn->query($query);
+    public function getAllUlasan() {
+        $stmt = $this->conn->prepare(
+            "SELECT * FROM ulasan ORDER BY id DESC"
+        );
+        $stmt->execute();
+        $result = $stmt->get_result();
         $data = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-
-                $row['tanggal_format'] = date('d M Y H:i', strtotime($row['created_at']));
-
-                $ulasan_id = $row['id'];
-                $foto_query = "SELECT foto_url FROM ulasan_foto WHERE ulasan_id = $ulasan_id";
-                $foto_result = $this->conn->query($foto_query);
-
-                $fotos = [];
-                if ($foto_result && $foto_result->num_rows > 0) {
-                    while ($f = $foto_result->fetch_assoc()) {
-                        $fotos[] = $f['foto_url'];
-                    }
-                }
-                $row['foto'] = $fotos; 
-
-                $data[] = $row;
-            }
+        while ($row = $result->fetch_assoc()) {
+            $row['tanggal_format'] = date('d M Y H:i', strtotime($row['created_at']));
+            $row['foto'] = $this->getFotoByUlasanId($row['id']);
+            $data[] = $row;
         }
         return $data;
     }
 
     public function getUlasanById($id) {
         $id = (int)$id;
-        $query = "SELECT * FROM ulasan WHERE id = $id";
-        $result = $this->conn->query($query);
+        $stmt = $this->conn->prepare("SELECT * FROM ulasan WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         if ($result && $result->num_rows > 0) {
             $row = $result->fetch_assoc();
-
-            $foto_query = "SELECT foto_url FROM ulasan_foto WHERE ulasan_id = $id";
-            $foto_result = $this->conn->query($foto_query);
-            $fotos = [];
-            if ($foto_result && $foto_result->num_rows > 0) {
-                while ($f = $foto_result->fetch_assoc()) {
-                    $fotos[] = $f['foto_url'];
-                }
-            }
-            $row['foto'] = $fotos;
+            $row['foto'] = $this->getFotoByUlasanId($id);
             return $row;
         }
         return null;
@@ -112,18 +88,38 @@ public function getAllUlasan() {
 
     public function updateStatus($id, $status) {
         $id = (int)$id;
-        $status = $this->conn->real_escape_string($status);
-        $query = "UPDATE ulasan SET status='$status' WHERE id=$id";
-        return $this->conn->query($query);
+        $stmt = $this->conn->prepare("UPDATE ulasan SET status=? WHERE id=?");
+        $stmt->bind_param("si", $status, $id);
+        return $stmt->execute();
     }
 
     public function deleteUlasan($id) {
         $id = (int)$id;
 
-        $this->conn->query("DELETE FROM ulasan_foto WHERE ulasan_id=$id");
+        $stmt = $this->conn->prepare("DELETE FROM ulasan_foto WHERE ulasan_id=?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
 
-        $query = "DELETE FROM ulasan WHERE id=$id";
-        return $this->conn->query($query);
+        $stmt2 = $this->conn->prepare("DELETE FROM ulasan WHERE id=?");
+        $stmt2->bind_param("i", $id);
+        return $stmt2->execute();
+    }
+
+    // ── PRIVATE HELPER ──
+
+    private function getFotoByUlasanId($ulasan_id) {
+        $ulasan_id = (int)$ulasan_id;
+        $stmt = $this->conn->prepare(
+            "SELECT foto_url FROM ulasan_foto WHERE ulasan_id = ?"
+        );
+        $stmt->bind_param("i", $ulasan_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $fotos = [];
+        while ($f = $result->fetch_assoc()) {
+            $fotos[] = $f['foto_url'];
+        }
+        return $fotos;
     }
 }
 ?>

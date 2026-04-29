@@ -578,6 +578,10 @@ $current_page = 'kelola_reservasi.php';
                 if (!this.activeRes.noHp || this.activeRes.noHp.length < 10) {
                     this.showToastMsg("Nomor HP minimal 10 angka!", "warning"); return;
                 }
+                if (!this.activeRes.noHp || this.activeRes.noHp.length >14) {
+                    this.showToastMsg('Nomor HP tidak valid (max 14 angka)!', 'warning'); 
+                    return;
+                }
                 if (!this.activeRes.tanggal) {
                     this.showToastMsg("Tanggal wajib dipilih!", "warning"); return;
                 }
