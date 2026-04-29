@@ -181,8 +181,8 @@ $current_page = 'dashboard.php';
         errorBox.textContent = "Konfirmasi password tidak cocok!";
         errorBox.classList.remove('d-none'); return;
     }
-    if(newPw.length < 8) {
-        errorBox.textContent = "Password baru minimal 8 karakter!";
+    if(newPw.length < 6) {
+        errorBox.textContent = "Password baru minimal 6 karakter!";
         errorBox.classList.remove('d-none'); return;
     }
 
