@@ -34,6 +34,16 @@ if (!isset($_SESSION['admin_logged_in']) || !in_array($_SESSION['admin_role'], $
     exit;
 }
 
+$action = $_POST['action'] ?? ($_GET['action'] ?? '');
+$protected_actions = ['delete']; 
+
+if (in_array($action, $protected_actions)) {
+    if ($_SESSION['admin_role'] !== 'Admin') {
+        echo json_encode(['status' => 'error', 'message' => 'Akses ditolak! Hanya Admin yang boleh menghapus produk.']); 
+        exit;
+    }
+}
+
 $productModel = new ProductModel($conn);
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
 $data = array_merge($_POST, $input);

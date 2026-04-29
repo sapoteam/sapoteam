@@ -18,10 +18,17 @@ $protected_actions = ['create', 'update', 'delete'];
 
 if (in_array($action, $protected_actions)) {
     $auth = new AuthController($conn);
-    if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_role'] !== 'Admin') {
+    
+    if (!isset($_SESSION['admin_logged_in'])) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); 
         exit;
     }
+    
+    if ($action === 'delete' && $_SESSION['admin_role'] !== 'Admin') {
+        echo json_encode(['status' => 'error', 'message' => 'Akses ditolak! Hanya Admin yang boleh menghapus data.']); 
+        exit;
+    }
+    
 }
 
 switch ($action) {
@@ -35,14 +42,6 @@ switch ($action) {
 
     case 'create':
     case 'update':
-        $nama_input = $data['nama'] ?? '';
-        $exclude_id = ($action === 'update') ? ($data['id'] ?? null) : null;
-
-        if ($fasilitasModel->isNameExists($nama_input, $exclude_id)) {
-            echo json_encode(['status' => 'error', 'message' => 'Nama area ini sudah digunakan! Silakan gunakan nama lain.']);
-            break; 
-        }
-        
         $oldImageUrl = '';
         if ($action === 'update') {
             $oldFasil = $fasilitasModel->getFasilitasById($data['id']);

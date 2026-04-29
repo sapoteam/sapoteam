@@ -170,7 +170,7 @@ $current_page = 'kelola_produk.php';
                                             <button class="action-btn btn-edit" title="Edit" @click="openEdit(prod)">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <button class="action-btn btn-outline-danger border" style="color: #dc3545;" title="Hapus" @click="openConfirm(prod.id)">
+                                            <button v-if="userRole === 'Admin'" class="action-btn btn-outline-danger border" style="color: #dc3545;" title="Hapus" @click="openConfirm(prod.id)">
                                                 <i class="bi bi-trash3"></i>
                                             </button>
                                         </div>
@@ -317,6 +317,7 @@ $current_page = 'kelola_produk.php';
         data() {
             return {
                 isLoaded: false,
+                userRole: '<?= $_SESSION['admin_role'] ?? '' ?>',
                 isSidebarCollapsed: false,
                 isSubmitting: false,
                 isSidebarMobileOpen: false,

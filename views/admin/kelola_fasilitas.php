@@ -144,7 +144,7 @@ $current_page = 'kelola_fasilitas.php';
                                             <span class="fw-bold text-success">{{ formatRupiah(fasil.harga) }}</span>
                                         </div>
                                         <div class="d-flex gap-2">
-                                            <button class="btn btn-sm btn-outline-danger" @click="openConfirm(fasil.id)">
+                                            <button v-if="userRole === 'Admin'" class="btn btn-sm btn-outline-danger" @click="openConfirm(fasil.id)">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                             <button class="btn btn-sm btn-outline-green px-3" @click="openEdit(fasil)">
@@ -283,6 +283,7 @@ $current_page = 'kelola_fasilitas.php';
         data() {
             return {
                 isLoaded: false,
+                userRole: '<?= $_SESSION['admin_role'] ?? '' ?>',
                 isSidebarCollapsed: false,
                 isSubmitting: false,
                 isSidebarMobileOpen: false,

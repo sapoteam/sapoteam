@@ -16,7 +16,13 @@
         <li><a href="kelola_produk.php" class="nav-link <?= ($current_page == 'kelola_produk.php') ? 'active' : '' ?>"><i class="bi bi-box-seam"></i> <span>Kelola Produk</span></a></li>
         <li><a href="kelola_fasilitas.php" class="nav-link <?= ($current_page == 'kelola_fasilitas.php') ? 'active' : '' ?>"><i class="bi bi-building"></i> <span>Kelola Fasilitas</span></a></li>
         <li><a href="kelola_ulasan.php" class="nav-link <?= ($current_page == 'kelola_ulasan.php') ? 'active' : '' ?>"><i class="bi bi-chat-left-dots"></i> <span>Kelola Ulasan</span></a></li>
-        <li><a href="kelola_pegawai.php" class="nav-link <?= ($current_page == 'kelola_pegawai.php') ? 'active' : '' ?>"><i class="bi bi-people-fill"></i> <span>Kelola Pegawai</span></a></li>
+        <?php if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'Admin'): ?>
+            <li>
+                <a href="kelola_pegawai.php" class="nav-link <?= ($current_page == 'kelola_pegawai.php') ? 'active' : '' ?>">
+                    <i class="bi bi-people-fill"></i> <span>Kelola Pegawai</span>
+                </a>
+            </li>
+        <?php endif; ?>    
     </ul>
 
     <div class="sidebar-footer">

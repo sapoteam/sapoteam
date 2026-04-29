@@ -290,7 +290,7 @@ $current_page = 'kelola_reservasi.php';
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mt-2 pt-3 border-top">
-                            <button v-if="!isEditMode && !isAddMode" class="btn btn-outline-danger px-4 rounded-3" @click="openConfirm('hapus', activeRes.id)">
+                            <button v-if="!isEditMode && !isAddMode && userRole === 'Admin'" class="btn btn-outline-danger px-4 rounded-3" @click="openConfirm('hapus', activeRes.id)">
                                 <i class="bi bi-trash3 me-2"></i>Hapus Permanen
                             </button>
                             <div v-else></div>
@@ -341,6 +341,7 @@ $current_page = 'kelola_reservasi.php';
     createApp({
         data() {
             return {
+                userRole: '<?= $_SESSION['admin_role'] ?? '' ?>',
                 isLoaded: false,
                 isSidebarCollapsed: false,
                 isSidebarMobileOpen: false,

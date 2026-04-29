@@ -23,6 +23,10 @@ if (in_array($action, $protected_actions)) {
         exit;
     }
 }
+if ($action === 'delete' && $_SESSION['admin_role'] !== 'Admin') {
+    echo json_encode(['status' => 'error', 'message' => 'Akses ditolak! Hanya Admin yang boleh menghapus data reservasi.']); 
+    exit;
+}
 
 switch ($action) {
 
