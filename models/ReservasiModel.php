@@ -27,11 +27,12 @@ class ReservasiModel {
      */
     public function getBookedDates() {
         $stmt = $this->conn->prepare(
-            "SELECT r.tanggal, r.fasilitas_id, r.status, f.nama as lokasi_nama
-             FROM reservasi r
-             LEFT JOIN fasilitas f ON r.fasilitas_id = f.id
-             WHERE r.status != 'Dibatalkan'
-             ORDER BY r.tanggal ASC"
+        "SELECT r.tanggal, r.fasilitas_id, f.nama as lokasi_nama,
+                (r.status = 'Lunas') as is_booked
+         FROM reservasi r
+         LEFT JOIN fasilitas f ON r.fasilitas_id = f.id
+         WHERE r.status = 'Lunas'
+         ORDER BY r.tanggal ASC"
         );
         $stmt->execute();
         $result = $stmt->get_result();

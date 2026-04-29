@@ -42,6 +42,13 @@ $action = $data['action'] ?? ($_GET['action'] ?? '');
 switch ($action) {
     case 'create':
     case 'update':
+        $nama_input = $data['nama'] ?? '';
+        $exclude_id = ($action === 'update') ? ($data['id'] ?? null) : null;
+
+        if ($productModel->isNameExists($nama_input, $exclude_id)) {
+            echo json_encode(['status' => 'error', 'message' => 'Nama produk ini sudah ada! Silakan gunakan nama lain.']);
+            break;
+        }
         $oldImageUrl = '';
         if ($action === 'update') {
             $oldProduct = $productModel->getProductById($data['id']);

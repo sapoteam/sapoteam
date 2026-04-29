@@ -363,11 +363,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!this.form.fasilitas_id) return; 
 
             const bookedDates = this.reservations
-                .filter(r => 
-                    r.status === 'Lunas' && 
-                    r.fasilitas_id == this.form.fasilitas_id
-                )
-                .map(r => r.tanggal.split('T')[0]);
+            .filter(r => 
+                r.is_booked == 1 && 
+                r.fasilitas_id == this.form.fasilitas_id
+            )
+            .map(r => r.tanggal.split('T')[0]);
 
             if (this._flatpickrInstance) {
                 this._flatpickrInstance.destroy();

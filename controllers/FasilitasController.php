@@ -35,6 +35,14 @@ switch ($action) {
 
     case 'create':
     case 'update':
+        $nama_input = $data['nama'] ?? '';
+        $exclude_id = ($action === 'update') ? ($data['id'] ?? null) : null;
+
+        if ($fasilitasModel->isNameExists($nama_input, $exclude_id)) {
+            echo json_encode(['status' => 'error', 'message' => 'Nama area ini sudah digunakan! Silakan gunakan nama lain.']);
+            break; 
+        }
+        
         $oldImageUrl = '';
         if ($action === 'update') {
             $oldFasil = $fasilitasModel->getFasilitasById($data['id']);

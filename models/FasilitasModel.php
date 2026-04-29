@@ -77,5 +77,17 @@ class FasilitasModel {
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
+    public function isNameExists($nama, $excludeId = null) {
+        if ($excludeId) {
+            $stmt = $this->conn->prepare("SELECT id FROM fasilitas WHERE nama = ? AND status != 'Dihapus' AND id != ?");
+            $stmt->bind_param("si", $nama, $excludeId);
+        } else {
+            $stmt = $this->conn->prepare("SELECT id FROM fasilitas WHERE nama = ? AND status != 'Dihapus'");
+            $stmt->bind_param("s", $nama);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->num_rows > 0;
+    }
 }
 ?>

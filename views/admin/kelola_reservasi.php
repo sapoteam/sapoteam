@@ -125,8 +125,11 @@ $current_page = 'kelola_reservasi.php';
                                     <td class="fw-medium">{{ formatTanggalCantik(res.tanggal) }}</td>
                                     <td>
                                         <div class="fw-semibold text-dark">{{ res.nama }}</div>
-                                        <small class="text-muted"><i class="bi bi-whatsapp me-1"></i>{{ res.no_hp || res.noHp }}</small>
-                                    </td>
+                                        <small>
+                                            <a :href="'https://wa.me/' + (res.no_hp || res.noHp).replace(/^0/, '62') + '?text=' + encodeURIComponent('Halo Kak ' + res.nama + ', ini dari Admin Oemah Keboen.')" target="_blank" class="text-success text-decoration-none fw-medium" title="Chat via WhatsApp">
+                                                <i class="bi bi-whatsapp me-1"></i>{{ res.no_hp || res.noHp }}
+                                            </a>
+                                        </small>                                    </td>
                                     <td><span class="text-secondary">{{ res.lokasi_nama || 'Area Terhapus' }}</span></td>
                                     <td class="text-center">{{ res.jumlah_orang }}</td>
                                     <td class="fw-bold" style="color: var(--green-main);">{{ formatRupiah(res.total_harga) }}</td>

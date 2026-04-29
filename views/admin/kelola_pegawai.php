@@ -137,8 +137,10 @@ $current_page = 'kelola_pegawai.php';
                                                 <div class="avatar-circle">{{ user.nama.charAt(0) }}</div>
                                                 <div>
                                                     <div class="fw-medium">{{ user.nama }}</div>
-                                                    <div class="text-hp">
-                                                        <i class="bi bi-whatsapp text-success"></i> {{ user.no_hp }}
+                                                    <div class="text-hp mt-1">
+                                                        <a :href="'https://wa.me/' + user.no_hp.replace(/^0/, '62') + '?text=' + encodeURIComponent('Halo ' + user.nama + ', ')" target="_blank" class="text-success text-decoration-none fw-medium" title="Hubungi Pegawai">
+                                                            <i class="bi bi-whatsapp"></i> {{ user.no_hp }}
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -171,7 +173,6 @@ $current_page = 'kelola_pegawai.php';
                             </table>
                         </div>
 
-                        <!-- Pagination -->
                         <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top" v-if="filteredUsers.length > 0">
                             <small class="text-muted fw-medium">
                                 Menampilkan {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredUsers.length) }} dari {{ filteredUsers.length }} data
@@ -189,7 +190,6 @@ $current_page = 'kelola_pegawai.php';
                             </div>
                         </div>
 
-                        <!-- Empty state -->
                         <div v-if="filteredUsers.length === 0" class="text-center py-5 text-muted">
                             <i class="bi bi-people fs-1 mb-3 d-block"></i>
                             <h5 class="fw-bold">Pegawai Tidak Ditemukan</h5>
@@ -200,7 +200,6 @@ $current_page = 'kelola_pegawai.php';
                 </div>
             </transition>
 
-            <!-- Modal Form Tambah/Edit -->
             <transition name="fade">
                 <div class="modal-overlay" v-if="showFormModal" style="z-index: 1100;" @click.self="showFormModal = false">
                     <div class="modal-box shadow-lg" style="max-width: 500px;">
@@ -239,7 +238,6 @@ $current_page = 'kelola_pegawai.php';
                 </div>
             </transition>
 
-            <!-- Modal Konfirmasi Hapus -->
             <transition name="fade">
                 <div class="modal-overlay" v-if="showConfirm" style="z-index: 1200; background: rgba(0,0,0,0.7);" @click.self="showConfirm = false">
                     <div class="modal-box text-center shadow-lg" style="max-width: 380px; border-top: 5px solid #dc3545;">
