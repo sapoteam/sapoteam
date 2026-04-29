@@ -1,5 +1,14 @@
 <h1 align="center"> Oemah Keboen Samarinda </h1>
 
+## 👥 Profil Kelompok:
+
+| NIM | Nama | Program Studi / Kelas |
+| :--- | :--- | :--- |
+| 2409116041 | Shafa Rizqi Nur Wahidah | Sistem Informasi |
+| 2409116049 | Rabiatul Hikmah | Sistem Informasi  |
+| 2409116061 | Nayla Lelyanggraheni Hutomo | Sistem Informasi |
+| 2409116067 | Satria Rajawali Ektya Antara | Sistem Informasi  |
+
 ## 📌Deskripsi
 Website Oemah Keboen adalah sebuah platform informasi dan reservasi berbasis web yang dirancang untuk memperkenalkan Oemah Keboen kepada masyarakat luas serta memudahkan proses reservasi acara. Website ini terdiri dari dua sisi utama: sisi pengunjung (user) dan sisi pengelola (admin). Sisi pengunjung dapat diakses oleh siapa saja tanpa perlu login, sedangkan sisi admin hanya dapat diakses oleh pengelola yang memiliki akun terdaftar.
 
