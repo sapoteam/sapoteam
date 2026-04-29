@@ -1,4 +1,4 @@
-<h1 align="center"> Oemah Keboen Samarinda </h1>
+<h1> Oemah Keboen Samarinda </h1>
 
 ## 👥 Profil Kelompok:
 
