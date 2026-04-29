@@ -12,11 +12,9 @@
         </div> -->
 
         <div class="d-flex align-items-center gap-2">
-            <div class="text-end d-none d-sm-block">
                 <div class="font-serif fw-bold m-0" style="color: var(--text-dark); font-size: 1rem;">
                     Hi, <?= explode(' ', trim($admin_name ?? 'Admin'))[0] ?>
                 </div>
-            </div>
             <i class="bi bi-person-circle fs-2" style="color: var(--green-main);"></i>
         </div>
     </div>
